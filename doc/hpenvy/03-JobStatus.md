@@ -25,7 +25,7 @@ Pragma: no-cache
 
 First
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30"
     xmlns:dd="http://www.hp.com/schemas/imaging/con/dictionaries/1.0/"
@@ -67,7 +67,7 @@ First
 </j:Job>
 ```
 Later
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30"
     xmlns:dd="http://www.hp.com/schemas/imaging/con/dictionaries/1.0/"
@@ -109,7 +109,7 @@ Later
 </j:Job>
 ```
 Almost done
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30"
     xmlns:dd="http://www.hp.com/schemas/imaging/con/dictionaries/1.0/"
@@ -130,7 +130,7 @@ Almost done
 </j:Job>
 ```
 Done
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30"
     xmlns:dd="http://www.hp.com/schemas/imaging/con/dictionaries/1.0/"
@@ -154,7 +154,7 @@ Done
 
 ##### Multiple pages
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30"
     xmlns:dd="http://www.hp.com/schemas/imaging/con/dictionaries/1.0/"
@@ -196,7 +196,7 @@ Done
 </j:Job>
 ```
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30"
     xmlns:dd="http://www.hp.com/schemas/imaging/con/dictionaries/1.0/"
@@ -238,7 +238,7 @@ Done
 </j:Job>
 ```
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30"
     xmlns:dd="http://www.hp.com/schemas/imaging/con/dictionaries/1.0/"
@@ -286,7 +286,7 @@ Done
 </j:Job>
 ```
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30"
     xmlns:dd="http://www.hp.com/schemas/imaging/con/dictionaries/1.0/"

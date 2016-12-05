@@ -18,7 +18,7 @@ Uses basic authentication
 
 JPEG scan from glass with 300dpi.
 
-```
+```xml
 <scan:ScanJob xmlns:scan="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19"
     xmlns:dd="http://www.hp.com/schemas/imaging/con/dictionaries/1.0/"
     xmlns:fw="http://www.hp.com/schemas/imaging/con/firewall/2011/01/05">
@@ -47,7 +47,7 @@ JPEG scan from glass with 300dpi.
 
 PDF scan from glass with 300dpi.
 
-```
+```xml
 <scan:ScanJob xmlns:scan="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19"
 		xmlns:dd="http://www.hp.com/schemas/imaging/con/dictionaries/1.0/"
 		xmlns:fw="http://www.hp.com/schemas/imaging/con/firewall/2011/01/05">
@@ -76,7 +76,7 @@ PDF scan from glass with 300dpi.
 
 PDF scan from glass with 600dpi.
 
-```
+```xml
 <scan:ScanJob xmlns:scan="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19"
     xmlns:dd="http://www.hp.com/schemas/imaging/con/dictionaries/1.0/"
     xmlns:fw="http://www.hp.com/schemas/imaging/con/firewall/2011/01/05">
@@ -105,7 +105,7 @@ PDF scan from glass with 600dpi.
 
 PDF scan from ADF with 600dpi.
 
-```
+```xml
 <scan:ScanJob xmlns:scan="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19"
     xmlns:dd="http://www.hp.com/schemas/imaging/con/dictionaries/1.0/"
     xmlns:fw="http://www.hp.com/schemas/imaging/con/firewall/2011/01/05">
@@ -135,7 +135,7 @@ PDF scan from ADF with 600dpi.
 
 PDF scan from ADF with 300dpi grayscale.
 
-```
+```xml
 <scan:ScanJob xmlns:scan="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19"
     xmlns:dd="http://www.hp.com/schemas/imaging/con/dictionaries/1.0/"
     xmlns:fw="http://www.hp.com/schemas/imaging/con/firewall/2011/01/05">
