@@ -23,7 +23,7 @@ Pragma: no-cache
 
 #### Payload
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <ScanStatus xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
 	<ScannerState>Idle</ScannerState>
@@ -31,7 +31,7 @@ Pragma: no-cache
 </ScanStatus>
 ```
 or
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <ScanStatus xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
 	<ScannerState>BusyWithScanJob</ScannerState>
@@ -39,7 +39,7 @@ or
 </ScanStatus>
 ```
 or
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <ScanStatus xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
 	<ScannerState>Idle</ScannerState>
