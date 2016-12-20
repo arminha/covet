@@ -28,7 +28,9 @@ fn main() {
         }
     };
     let element = Element::parse(status).unwrap();
-    println!("{:?}", &element);
+    let scanner_state = element.get_child("ScannerState").unwrap().clone().text.unwrap();
+    let adf_state = element.get_child("AdfState").unwrap().clone().text.unwrap();
+    println!("scanner: {}, adf: {}", &scanner_state, &adf_state);
 }
 
 fn get_scan_status(client: &Client, host: &str) -> Result<Response> {
