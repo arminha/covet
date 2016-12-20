@@ -5,3 +5,4 @@ authors = ["Armin Häberling <armin.aha@gmail.com>"]
 
 [dependencies]
 hyper = "0.9.14"
+xmltree = "0.3.2"
