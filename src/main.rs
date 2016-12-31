@@ -1,6 +1,8 @@
 extern crate hyper;
 extern crate xmltree;
 
+mod scanstatus;
+
 use hyper::client::{Client, Response};
 use hyper::error::Result as HResult;
 use hyper::Url;
@@ -9,6 +11,8 @@ use xmltree::Element;
 
 use std::env;
 use std::io::Read;
+
+use scanstatus::*;
 
 fn main() {
     let host = match env::args().nth(1) {
@@ -29,57 +33,13 @@ fn main() {
         }
     };
     let status = parse_scan_status(status);
-    println!("scanner: {:?}, adf: {:?}", status.scanner_state, status.adf_state);
+    println!("scanner: {:?}, adf: {:?}", status.get_scanner_state(), status.get_adf_state());
 }
 
 fn get_scan_status(client: &Client, host: &str) -> HResult<Response> {
     let url = "http://".to_string() + host + "/Scan/Status";
     let url = try!(Url::parse(&url));
     client.get(url).send()
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-enum ScannerState {
-    Idle,
-    BusyWithScanJob,
-}
-
-impl ScannerState {
-    fn parse(s: &str) -> Result<ScannerState, ()> {
-        match s {
-            "Idle" => Ok(ScannerState::Idle),
-            "BusyWithScanJob" => Ok(ScannerState::BusyWithScanJob),
-            _ => Err(())
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-enum AdfState {
-    Empty,
-    Loaded,
-}
-
-impl AdfState {
-    fn parse(s: &str) -> Result<AdfState, ()> {
-        match s {
-            "Empty" => Ok(AdfState::Empty),
-            "Loaded" => Ok(AdfState::Loaded),
-            _ => Err(())
-        }
-    }
-}
-
-#[derive(Debug)]
-struct ScanStatus {
-    scanner_state: ScannerState,
-    adf_state: AdfState,
-}
-
-impl ScanStatus {
-    fn new(scanner_state: ScannerState, adf_state: AdfState) -> ScanStatus {
-        ScanStatus { scanner_state: scanner_state, adf_state: adf_state }
-    }
 }
 
 fn parse_scan_status<R: Read>(r: R) -> ScanStatus {
@@ -94,8 +54,7 @@ fn parse_scan_status<R: Read>(r: R) -> ScanStatus {
 #[cfg(test)]
 mod test {
 
-    use super::AdfState;
-    use super::ScannerState;
+    use scanstatus::{AdfState, ScannerState};
 
     const SCAN_STATUS_IDLE: &'static str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
             <ScanStatus xmlns=\"http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19\">\
@@ -120,8 +79,8 @@ mod test {
         fn check_parse_scan_status(s: &str, scanner_state: ScannerState, adf_state: AdfState) {
             let status = s.as_bytes();
             let scan_status = super::parse_scan_status(status);
-            assert_eq!(scanner_state, scan_status.scanner_state);
-            assert_eq!(adf_state, scan_status.adf_state);
+            assert_eq!(scanner_state, scan_status.get_scanner_state());
+            assert_eq!(adf_state, scan_status.get_adf_state());
         }
         check_parse_scan_status(SCAN_STATUS_IDLE, ScannerState::Idle, AdfState::Empty);
         check_parse_scan_status(SCAN_STATUS_BUSY, ScannerState::BusyWithScanJob, AdfState::Empty);
