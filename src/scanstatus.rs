@@ -11,11 +11,11 @@ pub enum ScannerState {
 }
 
 impl ScannerState {
-    pub fn parse(s: &str) -> Result<ScannerState, ()> {
+    pub fn parse(s: &str) -> Result<ScannerState, String> {
         match s {
             "Idle" => Ok(ScannerState::Idle),
             "BusyWithScanJob" => Ok(ScannerState::BusyWithScanJob),
-            _ => Err(())
+            _ => Err("Unknown ScannerState: ".to_owned() + s)
         }
     }
 }
@@ -27,11 +27,11 @@ pub enum AdfState {
 }
 
 impl AdfState {
-    pub fn parse(s: &str) -> Result<AdfState, ()> {
+    pub fn parse(s: &str) -> Result<AdfState, String> {
         match s {
             "Empty" => Ok(AdfState::Empty),
             "Loaded" => Ok(AdfState::Loaded),
-            _ => Err(())
+            _ => Err("Unknown AdfState: ".to_owned() + s)
         }
     }
 }
@@ -55,13 +55,22 @@ impl ScanStatus {
         self.adf_state
     }
 
-    pub fn read_xml<R: Read>(r: R) -> ScanStatus {
-        let element = Element::parse(r).unwrap();
-        let scanner_state = element.get_child("ScannerState").unwrap().clone().text.unwrap();
-        let scanner_state = ScannerState::parse(&scanner_state).unwrap();
-        let adf_state = element.get_child("AdfState").unwrap().clone().text.unwrap();
-        let adf_state = AdfState::parse(&adf_state).unwrap();
-        ScanStatus::new(scanner_state, adf_state)
+    pub fn read_xml<R: Read>(r: R) -> Result<ScanStatus, String> {
+        let element = match Element::parse(r) {
+            Ok(elem) => elem,
+            Err(e) => {
+                return Err(e.to_string())
+            }
+        };
+        let scanner_state = try!(element.get_child("ScannerState")
+                                        .and_then(|v| v.clone().text)
+                                        .ok_or("missing ScannerState".to_string())
+                                        .and_then(|v| ScannerState::parse(&v)));
+        let adf_state = try!(element.get_child("AdfState")
+                                    .and_then(|v| v.clone().text)
+                                    .ok_or("missing AdfState".to_string())
+                                    .and_then(|v| AdfState::parse(&v)));
+        Ok(ScanStatus::new(scanner_state, adf_state))
     }
 }
 
@@ -92,7 +101,7 @@ mod test {
     fn read_scan_status_xml() {
         fn check_parse_scan_status(s: &str, scanner_state: ScannerState, adf_state: AdfState) {
             let status = s.as_bytes();
-            let scan_status = ScanStatus::read_xml(status);
+            let scan_status = ScanStatus::read_xml(status).expect("parsing failed");
             assert_eq!(scanner_state, scan_status.get_scanner_state());
             assert_eq!(adf_state, scan_status.get_adf_state());
         }

@@ -21,14 +21,20 @@ fn main() {
 
     println!("Scan Status of {}", &host);
     let client = Client::new();
-    let status = match get_scan_status(&client, &host) {
-        Ok(status) => status,
+    let xml = match get_scan_status(&client, &host) {
+        Ok(xml) => xml,
         Err(e) => {
             println!("Error: {}", &e);
             return;
         }
     };
-    let status = ScanStatus::read_xml(status);
+    let status = match ScanStatus::read_xml(xml) {
+        Ok(status) => status,
+        Err(e) => {
+            println!("Error: Could not parse XML: {}", e);
+            return;
+        }
+    };
     println!("scanner: {:?}, adf: {:?}", status.get_scanner_state(), status.get_adf_state());
 }
 
