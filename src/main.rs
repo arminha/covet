@@ -1,6 +1,7 @@
 extern crate hyper;
 
 mod scanstatus;
+mod scanjob;
 
 use hyper::client::{Client, Response};
 use hyper::error::Result as HResult;
@@ -9,6 +10,7 @@ use hyper::Url;
 use std::env;
 
 use scanstatus::*;
+use scanjob::*;
 
 fn main() {
     let host = match env::args().nth(1) {
@@ -36,6 +38,12 @@ fn main() {
         }
     };
     println!("scanner: {:?}, adf: {:?}", status.get_scanner_state(), status.get_adf_state());
+
+    let job = ScanJob::new(InputSource::Platen, true, Format::Pdf, ColorSpace::Color);
+    let mut target: Vec<u8> = Vec::new();
+    job.write_xml(&mut target).unwrap();
+    let result = String::from_utf8(target).unwrap();
+    println!("{}", result);
 }
 
 fn get_scan_status(client: &Client, host: &str) -> HResult<Response> {
