@@ -9,8 +9,8 @@ use hyper::Url;
 
 use std::env;
 
-use scanstatus::*;
-use scanjob::*;
+use scanstatus::ScanStatus;
+use scanjob::{ScanJob, InputSource, Format, ColorSpace};
 
 fn main() {
     let host = match env::args().nth(1) {
