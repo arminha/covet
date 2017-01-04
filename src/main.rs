@@ -1,7 +1,7 @@
 extern crate hyper;
 
-mod scanstatus;
-mod scanjob;
+mod scan_status;
+mod scan_job;
 
 use hyper::client::{Client, Response};
 use hyper::error::Result as HResult;
@@ -9,8 +9,8 @@ use hyper::Url;
 
 use std::env;
 
-use scanstatus::ScanStatus;
-use scanjob::{ScanJob, InputSource, Format, ColorSpace};
+use scan_status::ScanStatus;
+use scan_job::{ScanJob, InputSource, Format, ColorSpace};
 
 fn main() {
     let host = match env::args().nth(1) {
