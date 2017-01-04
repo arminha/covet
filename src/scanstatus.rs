@@ -47,11 +47,11 @@ impl ScanStatus {
         ScanStatus { scanner_state: scanner_state, adf_state: adf_state }
     }
 
-    pub fn get_scanner_state(&self) -> ScannerState {
+    pub fn scanner_state(&self) -> ScannerState {
         self.scanner_state
     }
 
-    pub fn get_adf_state(&self) -> AdfState {
+    pub fn adf_state(&self) -> AdfState {
         self.adf_state
     }
 
@@ -102,8 +102,8 @@ mod test {
         fn check_parse_scan_status(s: &str, scanner_state: ScannerState, adf_state: AdfState) {
             let status = s.as_bytes();
             let scan_status = ScanStatus::read_xml(status).expect("parsing failed");
-            assert_eq!(scanner_state, scan_status.get_scanner_state());
-            assert_eq!(adf_state, scan_status.get_adf_state());
+            assert_eq!(scanner_state, scan_status.scanner_state());
+            assert_eq!(adf_state, scan_status.adf_state());
         }
         check_parse_scan_status(SCAN_STATUS_IDLE, ScannerState::Idle, AdfState::Empty);
         check_parse_scan_status(SCAN_STATUS_BUSY, ScannerState::BusyWithScanJob, AdfState::Empty);

@@ -40,7 +40,7 @@ fn print_scan_status(client: &Client, host: &str) {
             return;
         }
     };
-    println!("Scanner: {:?}, Adf: {:?}", status.get_scanner_state(), status.get_adf_state());
+    println!("Scanner: {:?}, Adf: {:?}", status.scanner_state(), status.adf_state());
 }
 
 fn get_scan_status(client: &Client, host: &str) -> Result<ScanStatus, String> {
