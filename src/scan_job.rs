@@ -129,12 +129,70 @@ mod test {
 
     use super::*;
 
-    #[test]
-    fn test() {
-        let job = ScanJob::new(InputSource::Platen, true, Format::Pdf, ColorSpace::Color);
+    const JPEG_GLASS_LOW: &'static str = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\
+        \n<scan:ScanJob xmlns:scan=\"http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19\">\
+        \n  <scan:XResolution>300</scan:XResolution>\
+        \n  <scan:YResolution>300</scan:YResolution>\
+        \n  <scan:XStart>0</scan:XStart>\
+        \n  <scan:YStart>0</scan:YStart>\
+        \n  <scan:Width>2480</scan:Width>\
+        \n  <scan:Height>3508</scan:Height>\
+        \n  <scan:Format>Jpeg</scan:Format>\
+        \n  <scan:CompressionQFactor>25</scan:CompressionQFactor>\
+        \n  <scan:ColorSpace>Color</scan:ColorSpace>\
+        \n  <scan:BitDepth>8</scan:BitDepth>\
+        \n  <scan:InputSource>Platen</scan:InputSource>\
+        \n  <scan:GrayRendering>NTSC</scan:GrayRendering>\
+        \n  <scan:ToneMap>\
+        \n    <scan:Gamma>1000</scan:Gamma>\
+        \n    <scan:Brightness>1000</scan:Brightness>\
+        \n    <scan:Contrast>1000</scan:Contrast>\
+        \n    <scan:Highlite>179</scan:Highlite>\
+        \n    <scan:Shadow>25</scan:Shadow>\
+        \n  </scan:ToneMap>\
+        \n  <scan:ContentType>Photo</scan:ContentType>\
+        \n</scan:ScanJob>";
+
+    const PDF_ADF_HIGH: &'static str = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\
+        \n<scan:ScanJob xmlns:scan=\"http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19\">\
+        \n  <scan:XResolution>600</scan:XResolution>\
+        \n  <scan:YResolution>600</scan:YResolution>\
+        \n  <scan:XStart>0</scan:XStart>\
+        \n  <scan:YStart>0</scan:YStart>\
+        \n  <scan:Width>2480</scan:Width>\
+        \n  <scan:Height>3508</scan:Height>\
+        \n  <scan:Format>Pdf</scan:Format>\
+        \n  <scan:CompressionQFactor>25</scan:CompressionQFactor>\
+        \n  <scan:ColorSpace>Gray</scan:ColorSpace>\
+        \n  <scan:BitDepth>8</scan:BitDepth>\
+        \n  <scan:InputSource>Adf</scan:InputSource>\
+        \n  <scan:AdfOptions />\
+        \n  <scan:GrayRendering>NTSC</scan:GrayRendering>\
+        \n  <scan:ToneMap>\
+        \n    <scan:Gamma>1000</scan:Gamma>\
+        \n    <scan:Brightness>1000</scan:Brightness>\
+        \n    <scan:Contrast>1000</scan:Contrast>\
+        \n    <scan:Highlite>179</scan:Highlite>\
+        \n    <scan:Shadow>25</scan:Shadow>\
+        \n  </scan:ToneMap>\
+        \n  <scan:ContentType>Document</scan:ContentType>\
+        \n</scan:ScanJob>";
+
+    fn write_to_string(job: ScanJob) -> String {
         let mut target: Vec<u8> = Vec::new();
         job.write_xml(&mut target).unwrap();
-        let result = String::from_utf8(target).unwrap();
-        println!("{}", result);
+        String::from_utf8(target).unwrap()
+    }
+
+    #[test]
+    fn scan_job_write_xml_jpeg() {
+        let job = ScanJob::new(InputSource::Platen, false, Format::Jpeg, ColorSpace::Color);
+        assert_eq!(JPEG_GLASS_LOW, write_to_string(job));
+    }
+
+    #[test]
+    fn scan_job_write_xml_pdf() {
+        let job = ScanJob::new(InputSource::Adf, true, Format::Pdf, ColorSpace::Gray);
+        assert_eq!(PDF_ADF_HIGH, write_to_string(job));
     }
 }
