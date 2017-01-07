@@ -1,15 +1,10 @@
-extern crate hyper;
-
 mod scan_status;
 mod scan_job;
-
-use hyper::client::{Client, Response};
-use hyper::error::Result as HResult;
-use hyper::Url;
+mod scanner;
 
 use std::env;
 
-use scan_status::ScanStatus;
+use scanner::Scanner;
 use scan_job::{ScanJob, InputSource, Format, ColorSpace};
 
 fn main() {
@@ -21,19 +16,14 @@ fn main() {
         }
     };
 
-    let client = Client::new();
-    print_scan_status(&client, &host);
-
-    let job = ScanJob::new(InputSource::Platen, true, Format::Pdf, ColorSpace::Color);
-    let mut target: Vec<u8> = Vec::new();
-    job.write_xml(&mut target).unwrap();
-    let result = String::from_utf8(target).unwrap();
-    println!("{}", result);
+    let scanner = Scanner::new(&host);
+    print_scan_status(&scanner);
+    create_job(&scanner);
 }
 
-fn print_scan_status(client: &Client, host: &str) {
-    println!("Scan Status of {}", &host);
-    let status = match get_scan_status(&client, &host) {
+fn print_scan_status(scanner: &Scanner) {
+    println!("Scan Status of {}", scanner.host());
+    let status = match scanner.get_scan_status() {
         Ok(status) => status,
         Err(e) => {
             println!("Error: {}", e);
@@ -43,14 +33,14 @@ fn print_scan_status(client: &Client, host: &str) {
     println!("Scanner: {:?}, Adf: {:?}", status.scanner_state(), status.adf_state());
 }
 
-fn get_scan_status(client: &Client, host: &str) -> Result<ScanStatus, String> {
-    retrieve_scan_status(&client, &host)
-        .map_err(|e| e.to_string())
-        .and_then(ScanStatus::read_xml)
-}
-
-fn retrieve_scan_status(client: &Client, host: &str) -> HResult<Response> {
-    let url = "http://".to_string() + host + "/Scan/Status";
-    let url = try!(Url::parse(&url));
-    client.get(url).send()
+fn create_job(scanner: &Scanner) {
+    let job = ScanJob::new(InputSource::Platen, false, Format::Pdf, ColorSpace::Gray);
+    let job_location = match scanner.start_job(job) {
+        Ok(l) => l,
+        Err(e) => {
+            println!("Failed to start scanjob: {}", e);
+            return;
+        }
+    };
+    println!("Job Location: {}", job_location);
 }
