@@ -4,7 +4,9 @@ mod scan_job;
 mod scanner;
 
 use std::env;
+use std::{thread, time};
 
+use job_status::PageState;
 use scanner::Scanner;
 use scan_job::{ScanJob, InputSource, Format, ColorSpace};
 
@@ -44,4 +46,16 @@ fn create_job(scanner: &Scanner) {
         }
     };
     println!("Job Location: {}", job_location);
+    loop {
+        let status = scanner.get_job_status(&job_location).expect("no job status");
+        println!("{:?}", status);
+        let page = status.pages().get(0).unwrap();
+        let page_state = page.state();
+        if page_state == PageState::ReadyToUpload {
+            println!("http://{}{}", scanner.host(), page.binary_url().unwrap());
+            scanner.download(page.binary_url().unwrap(), "test.pdf").unwrap();
+            break;
+        }
+        thread::sleep(time::Duration::from_millis(500));
+    }
 }
