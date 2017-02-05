@@ -1,3 +1,4 @@
+mod job_status;
 mod scan_status;
 mod scan_job;
 mod scanner;
