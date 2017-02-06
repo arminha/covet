@@ -67,7 +67,6 @@ impl ScanPage {
 
 #[derive(Debug)]
 pub struct ScanJobStatus {
-    url: String,
     state: JobState,
     pages: Vec<ScanPage>,
 }
@@ -88,12 +87,8 @@ fn read_page(element: &Element) -> Result<ScanPage, String> {
 }
 
 impl ScanJobStatus {
-    pub fn new(url: &str, state: JobState, pages: Vec<ScanPage>) -> ScanJobStatus {
-        ScanJobStatus { url: url.to_owned(), state: state, pages: pages }
-    }
-
-    pub fn url(&self) -> &str {
-        &self.url
+    pub fn new(state: JobState, pages: Vec<ScanPage>) -> ScanJobStatus {
+        ScanJobStatus { state: state, pages: pages }
     }
 
     pub fn state(&self) -> JobState {
@@ -111,19 +106,25 @@ impl ScanJobStatus {
                 return Err(e.to_string())
             }
         };
-        let url = try!(read_child_value(&element, "JobUrl"));
         let state = try!(read_child_value(&element, "JobState")
                             .and_then(|v| JobState::parse(&v)));
         let job = try!(element.get_child("ScanJob").ok_or("missing ScanJob".to_string()));
         let mut pages = Vec::new();
         for child in &job.children {
-            if child.name == "PreScanPage" {
-                let page = try!(read_page(&child));
-                pages.push(page);
+            match child.name.as_ref() {
+                "PreScanPage" => {
+                    let page = try!(read_page(&child));
+                    pages.push(page);
+                },
+                "PostScanPage" => {
+                    let page = try!(read_page(&child));
+                    pages.push(page);
+                },
+                _ => (),
             }
         }
 
-        Ok(ScanJobStatus::new(&url, state, pages))
+        Ok(ScanJobStatus::new(state, pages))
     }
 }
 
@@ -168,22 +169,70 @@ mod test {
             </ScanJob>\
             </j:Job>";
 
+    const READY_TO_UPLOAD: &'static str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
+            <j:Job xmlns:j=\"http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30\">\
+            <j:JobUrl>/Jobs/JobList/4</j:JobUrl>\
+            <j:JobCategory>Scan</j:JobCategory>\
+            <j:JobState>Processing</j:JobState>\
+            <j:JobStateUpdate>42-6</j:JobStateUpdate>\
+            <ScanJob xmlns=\"http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19\">
+            <PreScanPage>\
+            <PageNumber>1</PageNumber>\
+            <PageState>ReadyToUpload</PageState>\
+            <BinaryURL>/Scan/Jobs/4/Pages/1</BinaryURL>\
+            </PreScanPage>\
+            </ScanJob>\
+            </j:Job>";
+
+    const COMPLETED: &'static str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
+            <j:Job xmlns:j=\"http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30\">\
+            <j:JobUrl>/Jobs/JobList/6</j:JobUrl>
+            <j:JobCategory>Scan</j:JobCategory>
+            <j:JobState>Completed</j:JobState>
+            <j:JobStateUpdate>42-23</j:JobStateUpdate>
+            <j:JobSource>userIO</j:JobSource>
+            <ScanJob xmlns=\"http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19\">\
+            <PostScanPage>\
+            <PageNumber>2</PageNumber>\
+            <PageState>UploadCompleted</PageState>\
+            <TotalLines>3501</TotalLines>\
+            </PostScanPage>\
+            </ScanJob>\
+            </j:Job>";
+
+    fn parse_job_status(s: &str) -> ScanJobStatus {
+        let status = s.as_bytes();
+        ScanJobStatus::read_xml(status).expect("parsing failed")
+    }
+
+    fn check_one_page(job_status: &ScanJobStatus, num: u32, ps: PageState,
+        bin_url: Option<&str>) {
+        assert_eq!(1, job_status.pages().len());
+        let page = job_status.pages().get(0).unwrap();
+        assert_eq!(num, page.number());
+        assert_eq!(ps, page.state());
+        assert_eq!(bin_url.map(|v| v.to_string()).as_ref(), page.binary_url())
+    }
+
     #[test]
-    fn read_job_status_xml_single_page() {
-        fn check_parse_job_status(s: &str, url: &str, state: JobState, num: u32, ps: PageState,
-                bin_url: Option<&str>) {
-            let status = s.as_bytes();
-            let job_status = ScanJobStatus::read_xml(status).expect("parsing failed");
-            assert_eq!(url, job_status.url());
-            assert_eq!(state, job_status.state());
-            assert_eq!(1, job_status.pages().len());
-            let page = job_status.pages().get(0).unwrap();
-            assert_eq!(num, page.number());
-            assert_eq!(ps, page.state());
-            assert_eq!(bin_url.map(|v| v.to_string()).as_ref(), page.binary_url())
-        }
-        check_parse_job_status(FULL_JOB_STATUS, "/Jobs/JobList/2", JobState::Processing,
-            1, PageState::PreparingScan, Some("/Scan/Jobs/2/Pages/1"));
+    fn read_job_status_xml_preparing() {
+        let status = parse_job_status(FULL_JOB_STATUS);
+        assert_eq!(JobState::Processing, status.state());
+        check_one_page(&status, 1, PageState::PreparingScan, Some("/Scan/Jobs/2/Pages/1"));
+    }
+
+    #[test]
+    fn read_job_status_xml_ready_to_upload() {
+        let status = parse_job_status(READY_TO_UPLOAD);
+        assert_eq!(JobState::Processing, status.state());
+        check_one_page(&status, 1, PageState::ReadyToUpload, Some("/Scan/Jobs/4/Pages/1"));
+    }
+
+    #[test]
+    fn read_job_status_xml_completed() {
+        let status = parse_job_status(COMPLETED);
+        assert_eq!(JobState::Completed, status.state());
+        check_one_page(&status, 2, PageState::UploadCompleted, None);
     }
 
 }
