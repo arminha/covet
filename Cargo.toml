@@ -4,6 +4,6 @@ version = "0.1.0"
 authors = ["Armin Häberling <armin.aha@gmail.com>"]
 
 [dependencies]
-hyper = "0.9.14"
+hyper = "0.9.18"
 xmltree = "0.3.2"
 xml-rs = "0.3.5"
