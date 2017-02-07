@@ -1,9 +1,12 @@
+#[macro_use]
+extern crate clap;
+
 mod job_status;
 mod scan_status;
 mod scan_job;
 mod scanner;
+mod cli;
 
-use std::env;
 use std::{thread, time};
 
 use job_status::PageState;
@@ -11,21 +14,28 @@ use scanner::Scanner;
 use scan_job::{ScanJob, InputSource, Format, ColorSpace};
 
 fn main() {
-    let host = match env::args().nth(1) {
-        Some(host) => host,
-        None => {
-            println!("Usage: covet <host>");
-            return;
-        }
-    };
+    let matches = cli::build_cli().get_matches();
+    if let Some(matches) = matches.subcommand_matches("status") {
+        let host = matches.value_of("SCANNER").unwrap();
+        status(host);
+    } else if let Some(matches) = matches.subcommand_matches("scan") {
+        let host = matches.value_of("SCANNER").unwrap();
+        scan(host);
+    }
+}
 
-    let scanner = Scanner::new(&host);
+fn status(host: &str) {
+    let scanner = Scanner::new(host);
     print_scan_status(&scanner);
+}
+
+fn scan(host: &str) {
+    let scanner = Scanner::new(host);
     create_job(&scanner);
 }
 
 fn print_scan_status(scanner: &Scanner) {
-    println!("Scan Status of {}", scanner.host());
+    println!("Status of scanner {}", scanner.host());
     let status = match scanner.get_scan_status() {
         Ok(status) => status,
         Err(e) => {
