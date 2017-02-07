@@ -7,3 +7,5 @@ authors = ["Armin Häberling <armin.aha@gmail.com>"]
 hyper = "0.9.18"
 xmltree = "0.3.2"
 xml-rs = "0.3.5"
+# cli
+clap = "2.20.3"
