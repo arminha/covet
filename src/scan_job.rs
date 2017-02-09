@@ -32,17 +32,17 @@ pub enum ColorSpace {
 
 pub struct ScanJob {
     input_source: InputSource,
-    high_resolution: bool,
+    resolution: u32,
     format: Format,
     color_space: ColorSpace,
 }
 
 impl ScanJob {
-    pub fn new(input_source: InputSource, high_resolution: bool,
+    pub fn new(input_source: InputSource, resolution: u32,
                format: Format, color_space: ColorSpace) -> ScanJob {
         ScanJob {
             input_source: input_source,
-            high_resolution: high_resolution,
+            resolution: resolution,
             format: format,
             color_space: color_space,
         }
@@ -77,9 +77,9 @@ impl ScanJob {
         let config = EmitterConfig::new().write_document_declaration(true).perform_indent(true);
         let mut writer = config.create_writer(sink);
         try!(enter_elem(&mut writer, "ScanJob"));
-        let resolution = if self.high_resolution { "600" } else { "300" };
-        try!(write_value(&mut writer, "XResolution", resolution));
-        try!(write_value(&mut writer, "YResolution", resolution));
+        let resolution = self.resolution.to_string();
+        try!(write_value(&mut writer, "XResolution", &resolution));
+        try!(write_value(&mut writer, "YResolution", &resolution));
         try!(write_value(&mut writer, "XStart", "0"));
         try!(write_value(&mut writer, "YStart", "0"));
         try!(write_value(&mut writer, "Width", "2480"));
@@ -186,13 +186,13 @@ mod test {
 
     #[test]
     fn scan_job_write_xml_jpeg() {
-        let job = ScanJob::new(InputSource::Platen, false, Format::Jpeg, ColorSpace::Color);
+        let job = ScanJob::new(InputSource::Platen, 300, Format::Jpeg, ColorSpace::Color);
         assert_eq!(JPEG_GLASS_LOW, write_to_string(job));
     }
 
     #[test]
     fn scan_job_write_xml_pdf() {
-        let job = ScanJob::new(InputSource::Adf, true, Format::Pdf, ColorSpace::Gray);
+        let job = ScanJob::new(InputSource::Adf, 600, Format::Pdf, ColorSpace::Gray);
         assert_eq!(PDF_ADF_HIGH, write_to_string(job));
     }
 }

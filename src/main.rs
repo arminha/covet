@@ -12,6 +12,7 @@ use std::{thread, time};
 use job_status::PageState;
 use scanner::Scanner;
 use scan_job::{ScanJob, InputSource, Format, ColorSpace};
+use scan_status::AdfState;
 
 fn main() {
     let matches = cli::build_cli().get_matches();
@@ -20,7 +21,11 @@ fn main() {
         status(host);
     } else if let Some(matches) = matches.subcommand_matches("scan") {
         let host = matches.value_of("SCANNER").unwrap();
-        scan(host);
+        let format = value_t!(matches.value_of("FORMAT"), cli::Format).unwrap();
+        let color = value_t!(matches.value_of("COLORSPACE"), cli::ColorSpace).unwrap();
+        let source = value_t!(matches.value_of("SOURCE"), cli::Source).unwrap();
+        let resolution = value_t!(matches.value_of("RESOLUTION"), u32).unwrap();
+        scan(host, format.to_internal(), color.to_internal(), source, resolution);
     }
 }
 
@@ -29,9 +34,22 @@ fn status(host: &str) {
     print_scan_status(&scanner);
 }
 
-fn scan(host: &str) {
-    let scanner = Scanner::new(host);
-    create_job(&scanner);
+impl cli::Format {
+    fn to_internal(&self) -> Format {
+        match self {
+            &cli::Format::pdf => Format::Pdf,
+            &cli::Format::jpeg => Format::Jpeg
+        }
+    }
+}
+
+impl cli::ColorSpace {
+    fn to_internal(&self) -> ColorSpace {
+        match self {
+            &cli::ColorSpace::gray => ColorSpace::Gray,
+            &cli::ColorSpace::color => ColorSpace::Color
+        }
+    }
 }
 
 fn print_scan_status(scanner: &Scanner) {
@@ -46,8 +64,37 @@ fn print_scan_status(scanner: &Scanner) {
     println!("Scanner: {:?}, Adf: {:?}", status.scanner_state(), status.adf_state());
 }
 
-fn create_job(scanner: &Scanner) {
-    let job = ScanJob::new(InputSource::Platen, false, Format::Pdf, ColorSpace::Gray);
+fn scan(host: &str, format: Format, color: ColorSpace, source: cli::Source, resolution:u32) {
+    let scanner = Scanner::new(host);
+    let status = match scanner.get_scan_status() {
+        Ok(status) => status,
+        Err(e) => {
+            println!("Error: {}", e);
+            return;
+        }
+    };
+    if status.is_busy() {
+        println!("Scanner is busy");
+    }
+    let input_source = match source {
+        cli::Source::auto => {
+            if status.adf_state() == AdfState::Loaded {
+                InputSource::Adf
+            } else {
+                InputSource::Platen
+            }
+        },
+        cli::Source::adf => {
+            if status.adf_state() == AdfState::Loaded {
+                InputSource::Adf
+            } else {
+                println!("Adf is empty");
+                return;
+            }
+        },
+        cli::Source::glass => InputSource::Platen
+    };
+    let job = ScanJob::new(input_source, resolution, format, color);
     let job_location = match scanner.start_job(job) {
         Ok(l) => l,
         Err(e) => {
