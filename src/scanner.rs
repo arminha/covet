@@ -57,7 +57,6 @@ impl Scanner {
         if response.status != StatusCode::Created {
             return Err(format!("Received status {}", response.status));
         }
-        println!("{:?}", response);
         let location: &Location = response.headers.get().unwrap();
         Ok(format!("{}", location))
     }
