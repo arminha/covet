@@ -48,12 +48,7 @@ impl Scanner {
         let url = format!("http://{}/Scan/Jobs", self.host);
         let url = Url::parse(&url).unwrap();
 
-        let response = match self.client.post(url).body(&result).send() {
-            Ok(r) => r,
-            Err(e) => {
-                return Err(e.to_string());
-            }
-        };
+        let response = try!(self.client.post(url).body(&result).send().map_err(|e| e.to_string()));
         if response.status != StatusCode::Created {
             return Err(format!("Received status {}", response.status));
         }
