@@ -1,10 +1,10 @@
 extern crate hyper;
 
-use self::hyper::Url;
 use self::hyper::client::{Client, Response};
 use self::hyper::error::Result as HResult;
 use self::hyper::header::Location;
 use self::hyper::status::StatusCode;
+use self::hyper::Url;
 
 use std::io;
 use std::fs::File;

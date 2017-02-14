@@ -2,19 +2,19 @@
 extern crate clap;
 extern crate time;
 
-mod job_status;
-mod scan_status;
-mod scan_job;
-mod scanner;
 mod cli;
+mod job_status;
+mod scan_job;
+mod scan_status;
+mod scanner;
 
 use std::thread;
 use std::time::Duration;
 
 use job_status::PageState;
-use scanner::Scanner;
 use scan_job::{ScanJob, InputSource, Format, ColorSpace};
 use scan_status::AdfState;
+use scanner::Scanner;
 
 fn main() {
     let matches = cli::build_cli().get_matches();

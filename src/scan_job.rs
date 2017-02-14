@@ -1,13 +1,13 @@
 extern crate xml;
 
 use self::xml::{EmitterConfig, EventWriter};
-use self::xml::writer::events::XmlEvent;
-use self::xml::writer::Result;
 use self::xml::name::Name;
 use self::xml::namespace::Namespace;
+use self::xml::writer::events::XmlEvent;
+use self::xml::writer::Result;
 
-use std::io::Write;
 use std::borrow::Cow;
+use std::io::Write;
 
 const XML_NAMESPACE: &'static str = "http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19";
 const PREFIX: &'static str = "scan";
