@@ -6,8 +6,8 @@ use self::hyper::header::Location;
 use self::hyper::status::StatusCode;
 use self::hyper::Url;
 
-use std::io;
 use std::fs::File;
+use std::io;
 
 use job_status::ScanJobStatus;
 use scan_job::ScanJob;
