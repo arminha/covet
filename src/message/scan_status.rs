@@ -1,10 +1,8 @@
-extern crate xmltree;
-
-use self::xmltree::Element;
+use xmltree::Element;
 
 use std::io::Read;
 
-use error::ParseError;
+use message::error::ParseError;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ScannerState {

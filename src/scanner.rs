@@ -9,9 +9,9 @@ use self::hyper::Url;
 use std::fs::File;
 use std::io;
 
-use job_status::ScanJobStatus;
-use scan_job::ScanJob;
-use scan_status::ScanStatus;
+use message::job_status::ScanJobStatus;
+use message::scan_job::ScanJob;
+use message::scan_status::ScanStatus;
 
 pub struct Scanner {
     host: String,

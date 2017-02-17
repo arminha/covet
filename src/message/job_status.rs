@@ -1,18 +1,10 @@
-extern crate xmltree;
-
-use self::xmltree::Element;
+use xmltree::Element;
 
 use std::io::Read;
 use std::convert::From;
 use std::num::ParseIntError;
 
-use error::ParseError;
-
-impl From<xmltree::ParseError> for ParseError {
-    fn from(err: xmltree::ParseError) -> Self {
-        ParseError::new(err.to_string())
-    }
-}
+use message::error::ParseError;
 
 impl From<ParseIntError> for ParseError {
     fn from(err: ParseIntError) -> Self {

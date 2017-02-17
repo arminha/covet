@@ -1,3 +1,4 @@
+use xmltree;
 
 use std::fmt;
 
@@ -21,6 +22,12 @@ impl From<String> for ParseError {
 impl From<&'static str> for ParseError {
     fn from(err: &'static str) -> Self {
         ParseError::new(err)
+    }
+}
+
+impl From<xmltree::ParseError> for ParseError {
+    fn from(err: xmltree::ParseError) -> Self {
+        ParseError::new(err.to_string())
     }
 }
 

@@ -1,20 +1,19 @@
 #[macro_use]
 extern crate clap;
 extern crate time;
+extern crate xml;
+extern crate xmltree;
 
 mod cli;
-mod job_status;
-mod scan_job;
-mod scan_status;
 mod scanner;
-mod error;
+mod message;
 
 use std::thread;
 use std::time::Duration;
 
-use job_status::PageState;
-use scan_job::{ScanJob, InputSource, Format, ColorSpace};
-use scan_status::AdfState;
+use message::job_status::PageState;
+use message::scan_job::{ScanJob, InputSource, Format, ColorSpace};
+use message::scan_status::AdfState;
 use scanner::Scanner;
 
 fn main() {

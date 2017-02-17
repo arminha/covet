@@ -1,10 +1,8 @@
-extern crate xml;
-
-use self::xml::{EmitterConfig, EventWriter};
-use self::xml::name::Name;
-use self::xml::namespace::Namespace;
-use self::xml::writer::events::XmlEvent;
-use self::xml::writer::Result;
+use xml::{EmitterConfig, EventWriter};
+use xml::name::Name;
+use xml::namespace::Namespace;
+use xml::writer::events::XmlEvent;
+use xml::writer::Result;
 
 use std::borrow::Cow;
 use std::io::Write;
