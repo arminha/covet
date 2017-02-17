@@ -31,7 +31,7 @@ impl Scanner {
     pub fn get_scan_status(&self) -> Result<ScanStatus, String> {
         self.retrieve_scan_status()
             .map_err(|e| e.to_string())
-            .and_then(ScanStatus::read_xml)
+            .and_then(|r| ScanStatus::read_xml(r).map_err(|e| e.to_string()))
     }
 
     fn retrieve_scan_status(&self) -> HResult<Response> {
@@ -60,7 +60,7 @@ impl Scanner {
         let url = Url::parse(location).map_err(|e| e.to_string())?;
         self.client.get(url).send()
             .map_err(|e| e.to_string())
-            .and_then(ScanJobStatus::read_xml)
+            .and_then(|r| ScanJobStatus::read_xml(r).map_err(|e| e.to_string()))
     }
 
     pub fn download(&self, binary_url: &str, target: &str) -> Result<(), String> {

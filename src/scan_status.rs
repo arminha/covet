@@ -4,6 +4,8 @@ use self::xmltree::Element;
 
 use std::io::Read;
 
+use error::ParseError;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ScannerState {
     Idle,
@@ -11,11 +13,11 @@ pub enum ScannerState {
 }
 
 impl ScannerState {
-    pub fn parse(s: &str) -> Result<ScannerState, String> {
+    pub fn parse(s: &str) -> Result<ScannerState, ParseError> {
         match s {
             "Idle" => Ok(ScannerState::Idle),
             "BusyWithScanJob" => Ok(ScannerState::BusyWithScanJob),
-            _ => Err(format!("Unknown ScannerState: {}", s))
+            _ => Err(ParseError::new(format!("Unknown ScannerState: {}", s)))
         }
     }
 }
@@ -27,11 +29,11 @@ pub enum AdfState {
 }
 
 impl AdfState {
-    pub fn parse(s: &str) -> Result<AdfState, String> {
+    pub fn parse(s: &str) -> Result<AdfState, ParseError> {
         match s {
             "Empty" => Ok(AdfState::Empty),
             "Loaded" => Ok(AdfState::Loaded),
-            _ => Err(format!("Unknown AdfState: {}", s))
+            _ => Err(ParseError::new(format!("Unknown AdfState: {}", s)))
         }
     }
 }
@@ -59,20 +61,15 @@ impl ScanStatus {
         self.adf_state
     }
 
-    pub fn read_xml<R: Read>(r: R) -> Result<ScanStatus, String> {
-        let element = match Element::parse(r) {
-            Ok(elem) => elem,
-            Err(e) => {
-                return Err(e.to_string())
-            }
-        };
+    pub fn read_xml<R: Read>(r: R) -> Result<ScanStatus, ParseError> {
+        let element = Element::parse(r)?;
         let scanner_state = element.get_child("ScannerState")
                                    .and_then(|v| v.clone().text)
-                                   .ok_or("missing ScannerState".to_string())
+                                   .ok_or(ParseError::new("missing ScannerState"))
                                    .and_then(|v| ScannerState::parse(&v))?;
         let adf_state = element.get_child("AdfState")
                                .and_then(|v| v.clone().text)
-                               .ok_or("missing AdfState".to_string())
+                               .ok_or(ParseError::new("missing AdfState"))
                                .and_then(|v| AdfState::parse(&v))?;
         Ok(ScanStatus::new(scanner_state, adf_state))
     }

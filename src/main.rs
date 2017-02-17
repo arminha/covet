@@ -7,6 +7,7 @@ mod job_status;
 mod scan_job;
 mod scan_status;
 mod scanner;
+mod error;
 
 use std::thread;
 use std::time::Duration;
