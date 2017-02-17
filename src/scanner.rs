@@ -36,7 +36,7 @@ impl Scanner {
 
     fn retrieve_scan_status(&self) -> HResult<Response> {
         let url = format!("http://{}/Scan/Status", self.host);
-        let url = try!(Url::parse(&url));
+        let url = Url::parse(&url)?;
         self.client.get(url).send()
     }
 
@@ -48,7 +48,7 @@ impl Scanner {
         let url = format!("http://{}/Scan/Jobs", self.host);
         let url = Url::parse(&url).unwrap();
 
-        let response = try!(self.client.post(url).body(&result).send().map_err(|e| e.to_string()));
+        let response = self.client.post(url).body(&result).send().map_err(|e| e.to_string())?;
         if response.status != StatusCode::Created {
             return Err(format!("Received status {}", response.status));
         }
@@ -57,7 +57,7 @@ impl Scanner {
     }
 
     pub fn get_job_status(&self, location: &str) -> Result<ScanJobStatus, String> {
-        let url = try!(Url::parse(location).map_err(|e| e.to_string()));
+        let url = Url::parse(location).map_err(|e| e.to_string())?;
         self.client.get(url).send()
             .map_err(|e| e.to_string())
             .and_then(ScanJobStatus::read_xml)
@@ -65,10 +65,10 @@ impl Scanner {
 
     pub fn download(&self, binary_url: &str, target: &str) -> Result<(), String> {
         let url = format!("http://{}{}", self.host, binary_url);
-        let url = try!(Url::parse(&url).map_err(|e| e.to_string()));
-        let mut response = try!(self.client.get(url).send().map_err(|e| e.to_string()));
-        let mut file = try!(File::create(target).map_err(|e| e.to_string()));
-        try!(io::copy(&mut response, &mut file).map_err(|e| e.to_string()));
+        let url = Url::parse(&url).map_err(|e| e.to_string())?;
+        let mut response = self.client.get(url).send().map_err(|e| e.to_string())?;
+        let mut file = File::create(target).map_err(|e| e.to_string())?;
+        io::copy(&mut response, &mut file).map_err(|e| e.to_string())?;
         Ok(())
     }
 }

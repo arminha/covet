@@ -15,7 +15,7 @@ impl ScannerState {
         match s {
             "Idle" => Ok(ScannerState::Idle),
             "BusyWithScanJob" => Ok(ScannerState::BusyWithScanJob),
-            _ => Err("Unknown ScannerState: ".to_owned() + s)
+            _ => Err(format!("Unknown ScannerState: {}", s))
         }
     }
 }
@@ -31,7 +31,7 @@ impl AdfState {
         match s {
             "Empty" => Ok(AdfState::Empty),
             "Loaded" => Ok(AdfState::Loaded),
-            _ => Err("Unknown AdfState: ".to_owned() + s)
+            _ => Err(format!("Unknown AdfState: {}", s))
         }
     }
 }
@@ -66,14 +66,14 @@ impl ScanStatus {
                 return Err(e.to_string())
             }
         };
-        let scanner_state = try!(element.get_child("ScannerState")
-                                        .and_then(|v| v.clone().text)
-                                        .ok_or("missing ScannerState".to_string())
-                                        .and_then(|v| ScannerState::parse(&v)));
-        let adf_state = try!(element.get_child("AdfState")
-                                    .and_then(|v| v.clone().text)
-                                    .ok_or("missing AdfState".to_string())
-                                    .and_then(|v| AdfState::parse(&v)));
+        let scanner_state = element.get_child("ScannerState")
+                                   .and_then(|v| v.clone().text)
+                                   .ok_or("missing ScannerState".to_string())
+                                   .and_then(|v| ScannerState::parse(&v))?;
+        let adf_state = element.get_child("AdfState")
+                               .and_then(|v| v.clone().text)
+                               .ok_or("missing AdfState".to_string())
+                               .and_then(|v| AdfState::parse(&v))?;
         Ok(ScanStatus::new(scanner_state, adf_state))
     }
 }

@@ -17,7 +17,7 @@ impl JobState {
             "Processing" => Ok(JobState::Processing),
             "Completed" => Ok(JobState::Completed),
             "Canceled" => Ok(JobState::Canceled),
-            _ => Err("Unknown JobState: ".to_owned() + s)
+            _ => Err(format!("Unknown JobState: {}", s))
         }
     }
 }
@@ -35,7 +35,7 @@ impl PageState {
             "PreparingScan" => Ok(PageState::PreparingScan),
             "ReadyToUpload" => Ok(PageState::ReadyToUpload),
             "UploadCompleted" => Ok(PageState::UploadCompleted),
-            _ => Err("Unknown PageState: ".to_owned() + s)
+            _ => Err(format!("Unknown PageState: {}", s))
         }
     }
 }
@@ -78,10 +78,10 @@ fn read_child_value(element: &Element, name: &str) -> Result<String, String> {
 }
 
 fn read_page(element: &Element) -> Result<ScanPage, String> {
-    let number = try!(read_child_value(element, "PageNumber")
-                        .and_then(|v| v.parse::<u32>().map_err(|e| e.to_string())));
-    let state = try!(read_child_value(element, "PageState")
-                        .and_then(|v| PageState::parse(&v)));
+    let number = read_child_value(element, "PageNumber")
+                    .and_then(|v| v.parse::<u32>().map_err(|e| e.to_string()))?;
+    let state = read_child_value(element, "PageState")
+                    .and_then(|v| PageState::parse(&v))?;
     let url = read_child_value(element, "BinaryURL").ok();
     Ok(ScanPage::new(number, state, url))
 }
@@ -106,19 +106,17 @@ impl ScanJobStatus {
                 return Err(e.to_string())
             }
         };
-        let state = try!(read_child_value(&element, "JobState")
-                            .and_then(|v| JobState::parse(&v)));
-        let job = try!(element.get_child("ScanJob").ok_or("missing ScanJob".to_string()));
+        let state = read_child_value(&element, "JobState")
+                        .and_then(|v| JobState::parse(&v))?;
+        let job = element.get_child("ScanJob").ok_or("missing ScanJob".to_string())?;
         let mut pages = Vec::new();
         for child in &job.children {
             match child.name.as_ref() {
                 "PreScanPage" => {
-                    let page = try!(read_page(&child));
-                    pages.push(page);
+                    pages.push(read_page(&child)?);
                 },
                 "PostScanPage" => {
-                    let page = try!(read_page(&child));
-                    pages.push(page);
+                    pages.push(read_page(&child)?);
                 },
                 _ => (),
             }
