@@ -51,8 +51,8 @@ impl ScanStatus {
         self.scanner_state
     }
 
-    pub fn is_busy(&self) -> bool {
-        self.scanner_state == ScannerState::BusyWithScanJob
+    pub fn is_idle(&self) -> bool {
+        self.scanner_state == ScannerState::Idle
     }
 
     pub fn adf_state(&self) -> AdfState {
