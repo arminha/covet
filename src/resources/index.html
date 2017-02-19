@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Covet Web Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <div>
+    <form method="post" action="scan">
+      <div class="row">
+        <label>
+          <input type="radio" name="colorspace" value="color" checked>Color
+        </label>
+        <label>
+          <input type="radio" name="colorspace" value="gray">Grayscale
+        </label>
+      </div>
+      <div class="row">
+        <label>
+          <input type="radio" name="format" value="pdf" checked>Pdf
+        </label>
+        <label>
+          <input type="radio" name="format" value="jpeg">Jpeg
+        </label>
+      </div>
+      <div class="row">
+        <label>
+          <input type="radio" name="source" value="auto" checked>Auto
+        </label>
+        <label>
+          <input type="radio" name="source" value="adf">Adf
+        </label>
+        <label>
+          <input type="radio" name="source" value="glass">Glass
+        </label>
+      </div>
+      <input type="submit" value="Start Scan">
+    </form>
+  </div>
+</body>
+</html>
