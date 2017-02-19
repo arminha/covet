@@ -6,12 +6,59 @@ use self::hyper::header::Location;
 use self::hyper::status::StatusCode;
 use self::hyper::Url;
 
+use std::fmt;
 use std::fs::File;
 use std::io;
 
+use message::error::ParseError;
 use message::job_status::ScanJobStatus;
 use message::scan_job::ScanJob;
 use message::scan_status::ScanStatus;
+
+#[derive(Debug)]
+pub enum ScannerError {
+    Io(io::Error),
+    Parse(ParseError),
+    Other(String),
+}
+
+impl From<ParseError> for ScannerError {
+    fn from(err: ParseError) -> Self {
+        ScannerError::Parse(err)
+    }
+}
+
+impl From<hyper::error::Error> for ScannerError {
+    fn from(err: hyper::error::Error) -> Self {
+        if let hyper::error::Error::Io(io) = err {
+            ScannerError::Io(io)
+        } else {
+            ScannerError::Other(err.to_string())
+        }
+    }
+}
+
+impl From<String> for ScannerError {
+    fn from(err: String) -> Self {
+        ScannerError::Other(err)
+    }
+}
+
+impl fmt::Display for ScannerError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            &ScannerError::Io(ref err) => {
+                write!(f, "{}", err)
+            },
+            &ScannerError::Parse(ref err) => {
+                write!(f, "{}", err)
+            },
+            &ScannerError::Other(ref err) => {
+                write!(f, "{}", err)
+            }
+        }
+    }
+}
 
 pub struct Scanner {
     host: String,
@@ -28,10 +75,10 @@ impl Scanner {
         &self.host
     }
 
-    pub fn get_scan_status(&self) -> Result<ScanStatus, String> {
-        self.retrieve_scan_status()
-            .map_err(|e| e.to_string())
-            .and_then(|r| ScanStatus::read_xml(r).map_err(|e| e.to_string()))
+    pub fn get_scan_status(&self) -> Result<ScanStatus, ScannerError> {
+        let resp = self.retrieve_scan_status()?;
+        let status = ScanStatus::read_xml(resp)?;
+        Ok(status)
     }
 
     fn retrieve_scan_status(&self) -> HResult<Response> {
@@ -40,7 +87,7 @@ impl Scanner {
         self.client.get(url).send()
     }
 
-    pub fn start_job(&self, job: ScanJob) -> Result<String, String> {
+    pub fn start_job(&self, job: ScanJob) -> Result<String, ScannerError> {
         let mut target: Vec<u8> = Vec::new();
         job.write_xml(&mut target).unwrap();
         let result = String::from_utf8(target).unwrap();
@@ -48,25 +95,25 @@ impl Scanner {
         let url = format!("http://{}/Scan/Jobs", self.host);
         let url = Url::parse(&url).unwrap();
 
-        let response = self.client.post(url).body(&result).send().map_err(|e| e.to_string())?;
+        let response = self.client.post(url).body(&result).send()?;
         if response.status != StatusCode::Created {
-            return Err(format!("Received status {}", response.status));
+            return Err(ScannerError::Other(format!("Received status {}", response.status)));
         }
         let location: &Location = response.headers.get().unwrap();
         Ok(format!("{}", location))
     }
 
-    pub fn get_job_status(&self, location: &str) -> Result<ScanJobStatus, String> {
+    pub fn get_job_status(&self, location: &str) -> Result<ScanJobStatus, ScannerError> {
         let url = Url::parse(location).map_err(|e| e.to_string())?;
-        self.client.get(url).send()
-            .map_err(|e| e.to_string())
-            .and_then(|r| ScanJobStatus::read_xml(r).map_err(|e| e.to_string()))
+        let response = self.client.get(url).send()?;
+        let status = ScanJobStatus::read_xml(response)?;
+        Ok(status)
     }
 
-    pub fn download(&self, binary_url: &str, target: &str) -> Result<(), String> {
+    pub fn download(&self, binary_url: &str, target: &str) -> Result<(), ScannerError> {
         let url = format!("http://{}{}", self.host, binary_url);
         let url = Url::parse(&url).map_err(|e| e.to_string())?;
-        let mut response = self.client.get(url).send().map_err(|e| e.to_string())?;
+        let mut response = self.client.get(url).send()?;
         let mut file = File::create(target).map_err(|e| e.to_string())?;
         io::copy(&mut response, &mut file).map_err(|e| e.to_string())?;
         Ok(())
