@@ -7,6 +7,7 @@ extern crate xmltree;
 mod cli;
 mod scanner;
 mod message;
+mod web;
 
 use std::thread;
 use std::time::Duration;
@@ -28,6 +29,8 @@ fn main() {
         let source = value_t!(matches.value_of("SOURCE"), cli::Source).unwrap();
         let resolution = value_t!(matches.value_of("RESOLUTION"), u32).unwrap();
         scan(host, format.to_internal(), color.to_internal(), source, resolution);
+    } else if let Some(_) = matches.subcommand_matches("web") {
+        web::run_server();
     }
 }
 

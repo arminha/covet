@@ -75,4 +75,6 @@ pub fn build_cli() -> App<'static, 'static> {
                     .possible_values(&["300", "600"])
                     .default_value("300"))
                 )
+            .subcommand(SubCommand::with_name("web")
+                .about("Start a web interface to handle scan jobs"))
 }
