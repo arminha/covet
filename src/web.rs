@@ -13,10 +13,16 @@ pub fn run_server() {
 
     let mut router = Router::new();
     router.get("/", index, "index");
+    router.post("/scan", scan, "scan_post");
 
     fn index(req: &mut Request) -> IronResult<Response> {
         println!("{:?}", req);
         Ok(Response::with((status::Ok, Header(headers::ContentType::html()), INDEX_HTML)))
+    }
+
+    fn scan(req: &mut Request) -> IronResult<Response> {
+        println!("{:?}", req);
+        Ok(Response::with((status::Ok, "Scanned documents")))
     }
 
     Iron::new(router).http("localhost:3000").unwrap();
