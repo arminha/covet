@@ -6,13 +6,15 @@ use self::hyper::header::Location;
 use self::hyper::status::StatusCode;
 use self::hyper::Url;
 
+use time;
+
 use std::fmt;
 use std::fs::File;
 use std::io;
 
 use message::error::ParseError;
 use message::job_status::ScanJobStatus;
-use message::scan_job::ScanJob;
+use message::scan_job::{ScanJob, Format};
 use message::scan_status::ScanStatus;
 
 #[derive(Debug)]
@@ -117,5 +119,27 @@ impl Scanner {
         let mut file = File::create(target).map_err(|e| e.to_string())?;
         io::copy(&mut response, &mut file).map_err(|e| e.to_string())?;
         Ok(())
+    }
+}
+
+pub fn output_file_name(format: &Format, time: &time::Tm) -> String {
+    let extension = match format {
+        &Format::Pdf => "pdf",
+        &Format::Jpeg => "jpeg"
+    };
+    let ts = time::strftime("%Y%m%d_%H%M%S", time).unwrap();
+    format!("scan_{}.{}", ts, extension)
+}
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    #[test]
+    fn check_output_file_name() {
+        let time = time::at_utc(time::Timespec::new(1486905545, 0));
+        assert_eq!("scan_20170212_131905.pdf", output_file_name(&Format::Pdf, &time));
+        assert_eq!("scan_20170212_131905.jpeg", output_file_name(&Format::Jpeg, &time));
     }
 }

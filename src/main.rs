@@ -69,15 +69,6 @@ fn print_scan_status(scanner: &Scanner) {
     println!("Scanner: {:?}, Adf: {:?}", status.scanner_state(), status.adf_state());
 }
 
-fn output_file_name(format: &Format, time: &time::Tm) -> String {
-    let extension = match format {
-        &Format::Pdf => "pdf",
-        &Format::Jpeg => "jpeg"
-    };
-    let ts = time::strftime("%Y%m%d_%H%M%S", time).unwrap();
-    format!("scan_{}.{}", ts, extension)
-}
-
 fn scan(host: &str, format: Format, color: ColorSpace, source: cli::Source, resolution:u32) {
     let scanner = Scanner::new(host);
     let status = match scanner.get_scan_status() {
@@ -124,17 +115,10 @@ fn scan(host: &str, format: Format, color: ColorSpace, source: cli::Source, reso
         let page_state = page.state();
         if page_state == PageState::ReadyToUpload {
             println!("http://{}{}", scanner.host(), page.binary_url().unwrap());
-            let output_file = output_file_name(&format, &time::now());
+            let output_file = scanner::output_file_name(&format, &time::now());
             scanner.download(page.binary_url().unwrap(), &output_file).unwrap();
             break;
         }
         thread::sleep(Duration::from_millis(500));
     }
-}
-
-#[test]
-fn check_output_file_name() {
-    let time = time::at_utc(time::Timespec::new(1486905545, 0));
-    assert_eq!("scan_20170212_131905.pdf", output_file_name(&Format::Pdf, &time));
-    assert_eq!("scan_20170212_131905.jpeg", output_file_name(&Format::Jpeg, &time));
 }
