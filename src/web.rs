@@ -1,12 +1,8 @@
-extern crate iron;
-extern crate router;
-extern crate urlencoded;
-
-use self::iron::{headers, status};
-use self::iron::modifiers::Header;
-use self::iron::prelude::*;
-use self::router::Router;
-use self::urlencoded::UrlEncodedBody;
+use iron::{headers, status};
+use iron::modifiers::Header;
+use iron::prelude::*;
+use router::Router;
+use urlencoded::UrlEncodedBody;
 
 const INDEX_HTML: &'static [u8] = include_bytes!("resources/index.html");
 

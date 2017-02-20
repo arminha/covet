@@ -1,6 +1,10 @@
 #[macro_use]
 extern crate clap;
+extern crate hyper;
+extern crate iron;
+extern crate router;
 extern crate time;
+extern crate urlencoded;
 extern crate xml;
 extern crate xmltree;
 

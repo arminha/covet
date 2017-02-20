@@ -1,10 +1,9 @@
-extern crate hyper;
-
-use self::hyper::client::{Client, Response};
-use self::hyper::error::Result as HResult;
-use self::hyper::header::Location;
-use self::hyper::status::StatusCode;
-use self::hyper::Url;
+use hyper::client::{Client, Response};
+use hyper::error;
+use hyper::error::Result as HResult;
+use hyper::header::Location;
+use hyper::status::StatusCode;
+use hyper::Url;
 
 use time;
 
@@ -32,9 +31,9 @@ impl From<ParseError> for ScannerError {
     }
 }
 
-impl From<hyper::error::Error> for ScannerError {
-    fn from(err: hyper::error::Error) -> Self {
-        if let hyper::error::Error::Io(io) = err {
+impl From<error::Error> for ScannerError {
+    fn from(err: error::Error) -> Self {
+        if let error::Error::Io(io) = err {
             ScannerError::Io(io)
         } else {
             ScannerError::Other(err.to_string())
