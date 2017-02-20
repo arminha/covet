@@ -1,10 +1,15 @@
 use iron::status;
 use iron::headers::{ContentDisposition, ContentType, DispositionType, DispositionParam, Charset};
-use iron::mime::Mime;
 use iron::modifiers::Header;
 use iron::prelude::*;
 use router::Router;
+use time;
 use urlencoded::UrlEncodedBody;
+
+use std::collections::HashMap;
+
+use message::scan_job::Format;
+use scanner;
 
 const INDEX_HTML: &'static [u8] = include_bytes!("resources/index.html");
 
@@ -28,23 +33,42 @@ pub fn run_server() {
                 return Ok(Response::with(status::BadRequest));
             }
         };
-        let content_disposition = content_disposition_attachment("test.pdf".to_owned());
-        let mime: Mime = "application/pdf".parse().unwrap();
-        let content_type = Header(ContentType(mime));
-        Ok(Response::with((status::Ok, content_disposition, content_type,
+        let format = get_format_param(parameters);
+        let filename = scanner::output_file_name(&format, &time::now());
+        Ok(Response::with((status::Ok,
+            Header(content_disposition(filename)),
+            Header(content_type(&format)),
             format!("Scanned documents {:?}", &parameters))))
     }
 
     Iron::new(router).http("localhost:3000").unwrap();
 }
 
-fn content_disposition_attachment(filename: String) -> Header<ContentDisposition> {
-    Header(ContentDisposition {
+fn get_format_param(parameters: &HashMap<String, Vec<String>>) -> Format {
+    match parameters.get("format") {
+        Some(values) => match values.first() {
+            Some(pdf) if pdf == "pdf" => Format::Pdf,
+            Some(jpeg) if jpeg == "jpeg" => Format::Jpeg,
+            _ => Format::Pdf,
+        },
+        _ => Format::Pdf
+    }
+}
+
+fn content_type(format: &Format) -> ContentType {
+    match format {
+        &Format::Pdf => ContentType("application/pdf".parse().unwrap()),
+        &Format::Jpeg => ContentType::jpeg()
+    }
+}
+
+fn content_disposition(filename: String) -> ContentDisposition {
+    ContentDisposition {
         disposition: DispositionType::Attachment,
         parameters: vec![DispositionParam::Filename(
             Charset::Ext("UTF-8".to_owned()),
             None,
             filename.into_bytes()
         )]
-    })
+    }
 }
