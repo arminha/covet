@@ -1,4 +1,6 @@
-use iron::{headers, status};
+use iron::status;
+use iron::headers::{ContentDisposition, ContentType, DispositionType, DispositionParam, Charset};
+use iron::mime::Mime;
 use iron::modifiers::Header;
 use iron::prelude::*;
 use router::Router;
@@ -13,9 +15,8 @@ pub fn run_server() {
     router.get("/", index, "index");
     router.post("/scan", scan, "scan_post");
 
-    fn index(req: &mut Request) -> IronResult<Response> {
-        println!("{:?}", req);
-        Ok(Response::with((status::Ok, Header(headers::ContentType::html()), INDEX_HTML)))
+    fn index(_: &mut Request) -> IronResult<Response> {
+        Ok(Response::with((status::Ok, Header(ContentType::html()), INDEX_HTML)))
     }
 
     fn scan(req: &mut Request) -> IronResult<Response> {
@@ -27,8 +28,23 @@ pub fn run_server() {
                 return Ok(Response::with(status::BadRequest));
             }
         };
-        Ok(Response::with((status::Ok, format!("Scanned documents {:?}", &parameters))))
+        let content_disposition = content_disposition_attachment("test.pdf".to_owned());
+        let mime: Mime = "application/pdf".parse().unwrap();
+        let content_type = Header(ContentType(mime));
+        Ok(Response::with((status::Ok, content_disposition, content_type,
+            format!("Scanned documents {:?}", &parameters))))
     }
 
     Iron::new(router).http("localhost:3000").unwrap();
+}
+
+fn content_disposition_attachment(filename: String) -> Header<ContentDisposition> {
+    Header(ContentDisposition {
+        disposition: DispositionType::Attachment,
+        parameters: vec![DispositionParam::Filename(
+            Charset::Ext("UTF-8".to_owned()),
+            None,
+            filename.into_bytes()
+        )]
+    })
 }
