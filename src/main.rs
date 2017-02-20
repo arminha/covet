@@ -28,7 +28,8 @@ fn main() {
         let color = value_t!(matches.value_of("COLORSPACE"), cli::ColorSpace).unwrap();
         let source = value_t!(matches.value_of("SOURCE"), cli::Source).unwrap();
         let resolution = value_t!(matches.value_of("RESOLUTION"), u32).unwrap();
-        scan(host, format.to_internal(), color.to_internal(), source, resolution);
+        scan(host, format.to_internal(), color.to_internal(), source, resolution)
+            .unwrap_or_else(|e| println!("Error: {}", e));
     } else if let Some(_) = matches.subcommand_matches("web") {
         web::run_server();
     }
@@ -64,44 +65,37 @@ impl cli::ColorSpace {
     }
 }
 
-fn scan(host: &str, format: Format, color: ColorSpace, source: cli::Source, resolution:u32) {
-    let scanner = Scanner::new(host);
-    let status = match scanner.get_scan_status() {
-        Ok(status) => status,
-        Err(e) => {
-            println!("Error: {}", e);
-            return;
-        }
-    };
-    if !status.is_idle() {
-        println!("Scanner is busy");
-    }
+fn choose_source(source: cli::Source, adf_state: AdfState) -> Result<InputSource, ScannerError> {
     let input_source = match source {
         cli::Source::auto => {
-            if status.adf_state() == AdfState::Loaded {
+            if adf_state == AdfState::Loaded {
                 InputSource::Adf
             } else {
                 InputSource::Platen
             }
         },
         cli::Source::adf => {
-            if status.adf_state() == AdfState::Loaded {
+            if adf_state == AdfState::Loaded {
                 InputSource::Adf
             } else {
-                println!("Adf is empty");
-                return;
+                return Err(ScannerError::AdfEmpty);
             }
         },
         cli::Source::glass => InputSource::Platen
     };
+    Ok(input_source)
+}
+
+fn scan(host: &str, format: Format, color: ColorSpace, source: cli::Source, resolution:u32)
+        -> Result<(), ScannerError> {
+    let scanner = Scanner::new(host);
+    let status = scanner.get_scan_status()?;
+    if !status.is_idle() {
+        return Err(ScannerError::Busy);
+    }
+    let input_source = choose_source(source, status.adf_state())?;
     let job = ScanJob::new(input_source, resolution, format, color);
-    let job_location = match scanner.start_job(job) {
-        Ok(l) => l,
-        Err(e) => {
-            println!("Failed to start scanjob: {}", e);
-            return;
-        }
-    };
+    let job_location = scanner.start_job(job)?;
     println!("Job Location: {}", job_location);
     loop {
         let status = scanner.get_job_status(&job_location).expect("no job status");
@@ -116,4 +110,5 @@ fn scan(host: &str, format: Format, color: ColorSpace, source: cli::Source, reso
         }
         thread::sleep(Duration::from_millis(500));
     }
+    Ok(())
 }

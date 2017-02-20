@@ -21,6 +21,8 @@ use message::scan_status::ScanStatus;
 pub enum ScannerError {
     Io(io::Error),
     Parse(ParseError),
+    AdfEmpty,
+    Busy,
     Other(String),
 }
 
@@ -55,6 +57,12 @@ impl fmt::Display for ScannerError {
             &ScannerError::Parse(ref err) => {
                 write!(f, "{}", err)
             },
+            &ScannerError::AdfEmpty => {
+                write!(f, "{}", "Adf is empty")
+            },
+            &ScannerError::Busy => {
+                write!(f, "{}", "Scanner is busy")
+            }
             &ScannerError::Other(ref err) => {
                 write!(f, "{}", err)
             }
