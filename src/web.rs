@@ -2,6 +2,7 @@ use iron::status;
 use iron::headers::{ContentDisposition, ContentType, DispositionType, DispositionParam, Charset};
 use iron::modifiers::Header;
 use iron::prelude::*;
+use iron::Timeouts;
 use router::Router;
 use time;
 use urlencoded::UrlEncodedBody;
@@ -41,7 +42,12 @@ pub fn run_server() {
             format!("Scanned documents {:?}", &parameters))))
     }
 
-    Iron::new(router).http("localhost:3000").unwrap();
+    let iron = Iron {
+        handler: router,
+        threads: 4,
+        timeouts: Timeouts::default(),
+    };
+    iron.http("localhost:3000").unwrap();
 }
 
 fn get_format_param(parameters: &HashMap<String, Vec<String>>) -> Format {
