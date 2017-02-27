@@ -9,7 +9,8 @@ use urlencoded::UrlEncodedBody;
 
 use std::collections::HashMap;
 
-use message::scan_job::Format;
+use cli::Source;
+use message::scan_job::{ColorSpace, Format};
 use scanner;
 
 const INDEX_HTML: &'static [u8] = include_bytes!("resources/index.html");
@@ -26,20 +27,22 @@ pub fn run_server() {
     }
 
     fn scan(req: &mut Request) -> IronResult<Response> {
-        println!("{:?}", req);
-        let parameters = match req.get_ref::<UrlEncodedBody>() {
+        let params = match req.get_ref::<UrlEncodedBody>() {
             Ok(hashmap) => hashmap,
             Err(ref e) => {
                 println!("{:?}", e);
                 return Ok(Response::with(status::BadRequest));
             }
         };
-        let format = get_format_param(parameters);
+        let format = get_format_param(params);
+        let color_space = get_colorspace_param(params);
+        let source = get_source_param(params);
         let filename = scanner::output_file_name(&format, &time::now());
+        println!("format: {:?}, color: {:?}, source: {:?}", format, color_space, source);
         Ok(Response::with((status::Ok,
             Header(content_disposition(filename)),
             Header(content_type(&format)),
-            format!("Scanned documents {:?}", &parameters))))
+            format!("Scanned documents {:?}", &params))))
     }
 
     let iron = Iron {
@@ -50,14 +53,37 @@ pub fn run_server() {
     iron.http("localhost:3000").unwrap();
 }
 
-fn get_format_param(parameters: &HashMap<String, Vec<String>>) -> Format {
-    match parameters.get("format") {
+fn get_format_param(params: &HashMap<String, Vec<String>>) -> Format {
+    match params.get("format") {
         Some(values) => match values.first() {
             Some(pdf) if pdf == "pdf" => Format::Pdf,
             Some(jpeg) if jpeg == "jpeg" => Format::Jpeg,
             _ => Format::Pdf,
         },
         _ => Format::Pdf
+    }
+}
+
+fn get_colorspace_param(params: &HashMap<String, Vec<String>>) -> ColorSpace {
+    match params.get("colorspace") {
+        Some(values) => match values.first() {
+            Some(color) if color == "color" => ColorSpace::Color,
+            Some(gray) if gray == "gray" => ColorSpace::Color,
+            _ => ColorSpace::Color,
+        },
+        _ => ColorSpace::Color
+    }
+}
+
+fn get_source_param(params: &HashMap<String, Vec<String>>) -> Source {
+    match params.get("source") {
+        Some(values) => match values.first() {
+            Some(auto) if auto == "auto" => Source::auto,
+            Some(adf) if adf == "adf" => Source::adf,
+            Some(glass) if glass == "glass" => Source::glass,
+            _ => Source::auto,
+        },
+        _ => Source::auto
     }
 }
 
