@@ -127,6 +127,13 @@ impl Scanner {
         io::copy(&mut response, &mut file).map_err(|e| e.to_string())?;
         Ok(())
     }
+
+    pub fn download_response(&self, binary_url: &str) -> Result<Response, ScannerError> {
+        let url = format!("http://{}{}", self.host, binary_url);
+        let url = Url::parse(&url).map_err(|e| e.to_string())?;
+        let response = self.client.get(url).send()?;
+        Ok(response)
+    }
 }
 
 pub fn output_file_name(format: &Format, time: &time::Tm) -> String {

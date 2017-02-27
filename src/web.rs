@@ -1,32 +1,50 @@
+use hyper;
 use iron::status;
 use iron::headers::{ContentDisposition, ContentType, DispositionType, DispositionParam, Charset};
 use iron::modifiers::Header;
 use iron::prelude::*;
-use iron::Timeouts;
+use iron::response::BodyReader;
+use iron::{Handler, Timeouts};
 use router::Router;
 use time;
 use urlencoded::UrlEncodedBody;
 
 use std::collections::HashMap;
+use std::thread;
+use std::time::Duration;
 
 use cli::Source;
-use message::scan_job::{ColorSpace, Format};
+use message::job_status::PageState;
+use message::scan_job::{ScanJob, ColorSpace, Format, InputSource};
 use scanner;
+use scanner::{Scanner, ScannerError};
+use message::scan_status::AdfState;
 
 const INDEX_HTML: &'static [u8] = include_bytes!("resources/index.html");
 
-pub fn run_server() {
+pub fn run_server(host: &str) {
     println!("Running on http://localhost:3000/");
+
+    let scanner = Scanner::new(host);
 
     let mut router = Router::new();
     router.get("/", index, "index");
-    router.post("/scan", scan, "scan_post");
+    router.post("/scan", scanner, "scan_post");
 
     fn index(_: &mut Request) -> IronResult<Response> {
         Ok(Response::with((status::Ok, Header(ContentType::html()), INDEX_HTML)))
     }
 
-    fn scan(req: &mut Request) -> IronResult<Response> {
+    let iron = Iron {
+        handler: router,
+        threads: 4,
+        timeouts: Timeouts::default(),
+    };
+    iron.http("localhost:3000").unwrap();
+}
+
+impl Handler for Scanner {
+    fn handle(&self, req: &mut Request) -> IronResult<Response> {
         let params = match req.get_ref::<UrlEncodedBody>() {
             Ok(hashmap) => hashmap,
             Err(ref e) => {
@@ -39,18 +57,57 @@ pub fn run_server() {
         let source = get_source_param(params);
         let filename = scanner::output_file_name(&format, &time::now());
         println!("format: {:?}, color: {:?}, source: {:?}", format, color_space, source);
+        // TODO handle errors
+        let body = do_scan(self, format, color_space, source).unwrap();
         Ok(Response::with((status::Ok,
             Header(content_disposition(filename)),
             Header(content_type(&format)),
-            format!("Scanned documents {:?}", &params))))
+            body)))
     }
+}
 
-    let iron = Iron {
-        handler: router,
-        threads: 4,
-        timeouts: Timeouts::default(),
+fn do_scan(scanner: &Scanner, format: Format, color: ColorSpace, source: Source) -> Result<BodyReader<hyper::client::Response>, ScannerError> {
+    let status = scanner.get_scan_status()?;
+    if !status.is_idle() {
+        return Err(ScannerError::Busy);
+    }
+    let input_source = choose_source(source, status.adf_state())?;
+    let job = ScanJob::new(input_source, 300, format, color);
+    let job_location = scanner.start_job(job)?;
+    println!("Job Location: {}", job_location);
+    loop {
+        let status = scanner.get_job_status(&job_location).expect("no job status");
+        println!("{:?}", status);
+        let page = status.pages().get(0).unwrap();
+        let page_state = page.state();
+        if page_state == PageState::ReadyToUpload {
+            println!("http://{}{}", scanner.host(), page.binary_url().unwrap());
+            let response = scanner.download_response(page.binary_url().unwrap()).unwrap();
+            return Ok(BodyReader(response))
+        }
+        thread::sleep(Duration::from_millis(500));
+    }
+}
+
+fn choose_source(source: Source, adf_state: AdfState) -> Result<InputSource, ScannerError> {
+    let input_source = match source {
+        Source::auto => {
+            if adf_state == AdfState::Loaded {
+                InputSource::Adf
+            } else {
+                InputSource::Platen
+            }
+        },
+        Source::adf => {
+            if adf_state == AdfState::Loaded {
+                InputSource::Adf
+            } else {
+                return Err(ScannerError::AdfEmpty);
+            }
+        },
+        Source::glass => InputSource::Platen
     };
-    iron.http("localhost:3000").unwrap();
+    Ok(input_source)
 }
 
 fn get_format_param(params: &HashMap<String, Vec<String>>) -> Format {

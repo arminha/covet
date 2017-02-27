@@ -34,8 +34,9 @@ fn main() {
         let resolution = value_t!(matches.value_of("RESOLUTION"), u32).unwrap();
         scan(host, format.to_internal(), color.to_internal(), source, resolution)
             .unwrap_or_else(|e| println!("Error: {}", e));
-    } else if let Some(_) = matches.subcommand_matches("web") {
-        web::run_server();
+    } else if let Some(matches) = matches.subcommand_matches("web") {
+        let host = matches.value_of("SCANNER").unwrap();
+        web::run_server(host);
     }
 }
 
