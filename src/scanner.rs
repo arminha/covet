@@ -47,6 +47,12 @@ impl From<String> for ScannerError {
     }
 }
 
+impl From<io::Error> for ScannerError {
+    fn from(err: io::Error) -> Self {
+        ScannerError::Io(err)
+    }
+}
+
 impl fmt::Display for ScannerError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
@@ -120,11 +126,9 @@ impl Scanner {
     }
 
     pub fn download(&self, binary_url: &str, target: &str) -> Result<(), ScannerError> {
-        let url = format!("http://{}{}", self.host, binary_url);
-        let url = Url::parse(&url).map_err(|e| e.to_string())?;
-        let mut response = self.client.get(url).send()?;
-        let mut file = File::create(target).map_err(|e| e.to_string())?;
-        io::copy(&mut response, &mut file).map_err(|e| e.to_string())?;
+        let mut response = self.download_response(binary_url)?;
+        let mut file = File::create(target)?;
+        io::copy(&mut response, &mut file)?;
         Ok(())
     }
 
