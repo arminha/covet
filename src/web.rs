@@ -1,4 +1,3 @@
-use hyper;
 use iron::status;
 use iron::headers::{ContentDisposition, ContentType, DispositionType, DispositionParam, Charset};
 use iron::modifiers::Header;
@@ -10,6 +9,7 @@ use time;
 use urlencoded::UrlEncodedBody;
 
 use std::collections::HashMap;
+use std::io::Read;
 use std::thread;
 use std::time::Duration;
 
@@ -66,7 +66,8 @@ impl Handler for Scanner {
     }
 }
 
-fn do_scan(scanner: &Scanner, format: Format, color: ColorSpace, source: Source) -> Result<BodyReader<hyper::client::Response>, ScannerError> {
+fn do_scan(scanner: &Scanner, format: Format, color: ColorSpace, source: Source)
+        -> Result<BodyReader<Box<Read + Send>>, ScannerError> {
     let status = scanner.get_scan_status()?;
     if !status.is_idle() {
         return Err(ScannerError::Busy);

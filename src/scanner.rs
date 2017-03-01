@@ -9,7 +9,7 @@ use time;
 
 use std::fmt;
 use std::fs::File;
-use std::io;
+use std::io::{self, Read};
 
 use message::error::ParseError;
 use message::job_status::ScanJobStatus;
@@ -128,11 +128,11 @@ impl Scanner {
         Ok(())
     }
 
-    pub fn download_response(&self, binary_url: &str) -> Result<Response, ScannerError> {
+    pub fn download_response(&self, binary_url: &str) -> Result<Box<Read + Send>, ScannerError> {
         let url = format!("http://{}{}", self.host, binary_url);
         let url = Url::parse(&url).map_err(|e| e.to_string())?;
         let response = self.client.get(url).send()?;
-        Ok(response)
+        Ok(Box::new(response))
     }
 }
 
