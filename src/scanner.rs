@@ -80,6 +80,9 @@ pub struct Scanner {
     client: Client,
 }
 
+#[derive(Debug)]
+pub struct JobLocation(String);
+
 impl Scanner {
     pub fn new(host: &str) -> Scanner {
         let client = Client::new();
@@ -102,7 +105,7 @@ impl Scanner {
         self.client.get(url).send()
     }
 
-    pub fn start_job(&self, job: ScanJob) -> Result<String, ScannerError> {
+    pub fn start_job(&self, job: ScanJob) -> Result<JobLocation, ScannerError> {
         let mut target: Vec<u8> = Vec::new();
         job.write_xml(&mut target).unwrap();
         let result = String::from_utf8(target).unwrap();
@@ -115,11 +118,11 @@ impl Scanner {
             return Err(ScannerError::Other(format!("Received status {}", response.status)));
         }
         let location: &Location = response.headers.get().unwrap();
-        Ok(format!("{}", location))
+        Ok(JobLocation(format!("{}", location)))
     }
 
-    pub fn get_job_status(&self, location: &str) -> Result<ScanJobStatus, ScannerError> {
-        let url = Url::parse(location).map_err(|e| e.to_string())?;
+    pub fn get_job_status(&self, job: &JobLocation) -> Result<ScanJobStatus, ScannerError> {
+        let url = Url::parse(&(job.0)).map_err(|e| e.to_string())?;
         let response = self.client.get(url).send()?;
         let status = ScanJobStatus::read_xml(response)?;
         Ok(status)

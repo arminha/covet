@@ -101,7 +101,7 @@ fn scan(host: &str, format: Format, color: ColorSpace, source: cli::Source, reso
     let input_source = choose_source(source, status.adf_state())?;
     let job = ScanJob::new(input_source, resolution, format, color);
     let job_location = scanner.start_job(job)?;
-    println!("Job Location: {}", job_location);
+    println!("Job Location: {:?}", job_location);
     loop {
         let status = scanner.get_job_status(&job_location).expect("no job status");
         println!("{:?}", status);
