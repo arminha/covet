@@ -81,5 +81,11 @@ pub fn build_cli() -> App<'static, 'static> {
                     .help("The hostname of the scanner")
                     .required(true)
                     .index(1))
+                .arg(Arg::with_name("PORT")
+                    .help("Port to use for the webserver")
+                    .takes_value(true)
+                    .short("p")
+                    .long("port")
+                    .default_value("3000"))
                 )
 }

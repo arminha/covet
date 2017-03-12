@@ -22,10 +22,10 @@ use message::scan_status::AdfState;
 
 const INDEX_HTML: &'static [u8] = include_bytes!("resources/index.html");
 
-pub fn run_server(host: &str) {
-    println!("Running on http://localhost:3000/");
+pub fn run_server(scanner_host: &str, listen_port: u16) {
+    println!("Running on http://localhost:{}/", listen_port);
 
-    let scanner = Scanner::new(host);
+    let scanner = Scanner::new(scanner_host);
 
     let mut router = Router::new();
     router.get("/", index, "index");
@@ -40,7 +40,7 @@ pub fn run_server(host: &str) {
         threads: 4,
         timeouts: Timeouts::default(),
     };
-    iron.http("localhost:3000").unwrap();
+    iron.http(("localhost", listen_port)).unwrap();
 }
 
 impl Handler for Scanner {
