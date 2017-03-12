@@ -12,7 +12,7 @@ use std::fs::File;
 use std::io::{self, Read};
 
 use message::error::ParseError;
-use message::job_status::ScanJobStatus;
+use message::job_status::{PageState, ScanJobStatus};
 use message::scan_job::{ScanJob, Format};
 use message::scan_status::ScanStatus;
 
@@ -75,13 +75,18 @@ impl fmt::Display for ScannerError {
     }
 }
 
+#[derive(Debug)]
 pub struct Scanner {
     host: String,
     client: Client,
 }
 
 #[derive(Debug)]
-pub struct JobLocation(String);
+pub struct Job<'a> {
+    scanner: &'a Scanner,
+    location: String,
+    binary_url: Option<String>,
+}
 
 impl Scanner {
     pub fn new(host: &str) -> Scanner {
@@ -105,7 +110,7 @@ impl Scanner {
         self.client.get(url).send()
     }
 
-    pub fn start_job(&self, job: ScanJob) -> Result<JobLocation, ScannerError> {
+    pub fn start_job(&self, job: ScanJob) -> Result<Job, ScannerError> {
         let mut target: Vec<u8> = Vec::new();
         job.write_xml(&mut target).unwrap();
         let result = String::from_utf8(target).unwrap();
@@ -118,28 +123,52 @@ impl Scanner {
             return Err(ScannerError::Other(format!("Received status {}", response.status)));
         }
         let location: &Location = response.headers.get().unwrap();
-        Ok(JobLocation(format!("{}", location)))
+        Ok(Job::new(self, format!("{}", location)))
     }
 
-    pub fn get_job_status(&self, job: &JobLocation) -> Result<ScanJobStatus, ScannerError> {
-        let url = Url::parse(&(job.0)).map_err(|e| e.to_string())?;
+    fn get_job_status(&self, job: &Job) -> Result<ScanJobStatus, ScannerError> {
+        let url = Url::parse(&(job.location)).map_err(|e| e.to_string())?;
         let response = self.client.get(url).send()?;
         let status = ScanJobStatus::read_xml(response)?;
         Ok(status)
     }
 
-    pub fn download(&self, binary_url: &str, target: &str) -> Result<(), ScannerError> {
-        let mut response = self.download_response(binary_url)?;
-        let mut file = File::create(target)?;
-        io::copy(&mut response, &mut file)?;
-        Ok(())
-    }
-
-    pub fn download_response(&self, binary_url: &str) -> Result<Box<Read + Send>, ScannerError> {
+    fn download_reader(&self, binary_url: &str) -> Result<Box<Read + Send>, ScannerError> {
         let url = format!("http://{}{}", self.host, binary_url);
         let url = Url::parse(&url).map_err(|e| e.to_string())?;
         let response = self.client.get(url).send()?;
         Ok(Box::new(response))
+    }
+}
+
+impl<'a> Job<'a> {
+    fn new(scanner: &Scanner, location: String) -> Job {
+        Job { scanner: scanner, location: location, binary_url: None }
+    }
+
+    pub fn retrieve_status(&mut self) -> Result<bool, ScannerError> {
+        // TODO error handling
+        let status = self.scanner.get_job_status(&self)?;
+        let page = status.pages().get(0).unwrap();
+        let page_state = page.state();
+        if page_state == PageState::ReadyToUpload {
+            self.binary_url = Some(page.binary_url().unwrap().to_owned());
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    }
+
+    pub fn download_reader(self) -> Result<Box<Read + Send>, ScannerError> {
+        // TODO error handling
+        self.scanner.download_reader(&self.binary_url.unwrap())
+    }
+
+    pub fn download_to_file(self, target: &str) -> Result<(), ScannerError> {
+        let mut reader = self.download_reader()?;
+        let mut file = File::create(target)?;
+        io::copy(&mut reader, &mut file)?;
+        Ok(())
     }
 }
 

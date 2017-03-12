@@ -16,7 +16,6 @@ mod web;
 use std::thread;
 use std::time::Duration;
 
-use message::job_status::PageState;
 use message::scan_job::{ScanJob, InputSource, Format, ColorSpace};
 use message::scan_status::AdfState;
 use scanner::{Scanner, ScannerError};
@@ -100,18 +99,14 @@ fn scan(host: &str, format: Format, color: ColorSpace, source: cli::Source, reso
         return Err(ScannerError::Busy);
     }
     let input_source = choose_source(source, status.adf_state())?;
-    let job = ScanJob::new(input_source, resolution, format, color);
-    let job_location = scanner.start_job(job)?;
-    println!("Job Location: {:?}", job_location);
+    let mut job = scanner.start_job(ScanJob::new(input_source, resolution, format, color))?;
+    println!("Job: {:?}", job);
     loop {
-        let status = scanner.get_job_status(&job_location).expect("no job status");
-        println!("{:?}", status);
-        let page = status.pages().get(0).unwrap();
-        let page_state = page.state();
-        if page_state == PageState::ReadyToUpload {
-            println!("http://{}{}", scanner.host(), page.binary_url().unwrap());
+        let ready = job.retrieve_status()?;
+        if ready {
+            println!("Job: {:?}", job);
             let output_file = scanner::output_file_name(&format, &time::now());
-            scanner.download(page.binary_url().unwrap(), &output_file).unwrap();
+            job.download_to_file(&output_file)?;
             break;
         }
         thread::sleep(Duration::from_millis(500));

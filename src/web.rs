@@ -14,7 +14,6 @@ use std::thread;
 use std::time::Duration;
 
 use cli::Source;
-use message::job_status::PageState;
 use message::scan_job::{ScanJob, ColorSpace, Format, InputSource};
 use scanner;
 use scanner::{Scanner, ScannerError};
@@ -73,18 +72,14 @@ fn do_scan(scanner: &Scanner, format: Format, color: ColorSpace, source: Source)
         return Err(ScannerError::Busy);
     }
     let input_source = choose_source(source, status.adf_state())?;
-    let job = ScanJob::new(input_source, 300, format, color);
-    let job_location = scanner.start_job(job)?;
-    println!("Job Location: {:?}", job_location);
+    let mut job = scanner.start_job(ScanJob::new(input_source, 300, format, color))?;
+    println!("Job: {:?}", job);
     loop {
-        let status = scanner.get_job_status(&job_location).expect("no job status");
-        println!("{:?}", status);
-        let page = status.pages().get(0).unwrap();
-        let page_state = page.state();
-        if page_state == PageState::ReadyToUpload {
-            println!("http://{}{}", scanner.host(), page.binary_url().unwrap());
-            let response = scanner.download_response(page.binary_url().unwrap()).unwrap();
-            return Ok(BodyReader(response))
+        let ready = job.retrieve_status()?;
+        if ready {
+            println!("Job: {:?}", job);
+            let reader = job.download_reader()?;
+            return Ok(BodyReader(reader))
         }
         thread::sleep(Duration::from_millis(500));
     }
