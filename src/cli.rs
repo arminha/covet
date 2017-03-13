@@ -33,6 +33,7 @@ pub fn build_cli() -> App<'static, 'static> {
             .version(crate_version!())
             .setting(AppSettings::SubcommandRequiredElseHelp)
             .setting(AppSettings::VersionlessSubcommands)
+            .setting(AppSettings::InferSubcommands)
             .subcommand(SubCommand::with_name("status")
                 .about("Display the status of the scanner")
                 .arg(Arg::with_name("SCANNER")
