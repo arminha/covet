@@ -36,7 +36,7 @@ pub fn run_server(scanner_host: &str, listen_port: u16) {
 
     let iron = Iron {
         handler: router,
-        threads: 4,
+        threads: 2,
         timeouts: Timeouts::default(),
     };
     iron.http(("localhost", listen_port)).unwrap();
