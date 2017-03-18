@@ -46,8 +46,8 @@ impl Handler for Scanner {
     fn handle(&self, req: &mut Request) -> IronResult<Response> {
         let params = match req.get_ref::<UrlEncodedBody>() {
             Ok(hashmap) => hashmap,
-            Err(ref e) => {
-                println!("{:?}", e);
+            Err(e) => {
+                println!("BadRequest: Failed to parse request parameters. {}", e);
                 return Ok(Response::with(status::BadRequest));
             }
         };
@@ -55,9 +55,12 @@ impl Handler for Scanner {
         let color_space = get_colorspace_param(params);
         let source = get_source_param(params);
         let filename = scanner::output_file_name(&format, &time::now());
-        println!("format: {:?}, color: {:?}, source: {:?}", format, color_space, source);
-        // TODO handle errors
-        let body = do_scan(self, format, color_space, source).unwrap();
+        println!("Scan parameters: format={:?}, color={:?}, source={:?}",
+                 format, color_space, source);
+        let body = match do_scan(self, format, color_space, source) {
+            Ok(body) => body,
+            Err(e)   => return Ok(render_error(e))
+        };
         Ok(Response::with((status::Ok,
             Header(content_disposition(filename)),
             Header(content_type(&format)),
@@ -155,5 +158,16 @@ fn content_disposition(filename: String) -> ContentDisposition {
             None,
             filename.into_bytes()
         )]
+    }
+}
+
+fn render_error(error: ScannerError) -> Response {
+    match error {
+        ScannerError::AdfEmpty => Response::with((status::Ok, "ADF is empty")),
+        ScannerError::Busy => Response::with((status::Ok, "Scanner is busy")),
+        _ => {
+            println!("InternalServerError: Failed to scan. {:?}", error);
+            Response::with(status::InternalServerError)
+        }
     }
 }
