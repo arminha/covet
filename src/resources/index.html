@@ -4,38 +4,44 @@
   <meta charset="UTF-8" />
   <title>Covet Web Scanner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-  <div>
+  <div class="content">
     <form method="post" action="scan">
-      <div class="row">
+      <span class="rowtitle">Color</span>
+      <div class="flex">
         <label>
-          <input type="radio" name="colorspace" value="color" checked>Color
+          <input type="radio" name="colorspace" value="color" checked><span>Color</span>
         </label>
         <label>
-          <input type="radio" name="colorspace" value="gray">Grayscale
-        </label>
-      </div>
-      <div class="row">
-        <label>
-          <input type="radio" name="format" value="pdf" checked>Pdf
-        </label>
-        <label>
-          <input type="radio" name="format" value="jpeg">Jpeg
+          <input type="radio" name="colorspace" value="gray"><span>Grayscale</span>
         </label>
       </div>
-      <div class="row">
+      <span class="rowtitle">Format</span>
+      <div class="flex">
         <label>
-          <input type="radio" name="source" value="auto" checked>Auto
+          <input type="radio" name="format" value="pdf" checked><span>Pdf</span>
         </label>
         <label>
-          <input type="radio" name="source" value="adf">Adf
-        </label>
-        <label>
-          <input type="radio" name="source" value="glass">Glass
+          <input type="radio" name="format" value="jpeg"><span>Jpeg</span>
         </label>
       </div>
-      <input type="submit" value="Start Scan">
+      <span class="rowtitle">Source</span>
+      <div class="flex">
+        <label>
+          <input type="radio" name="source" value="auto" checked><span>Auto</span>
+        </label>
+        <label>
+          <input type="radio" name="source" value="adf"><span>Adf</span>
+        </label>
+        <label>
+          <input type="radio" name="source" value="glass"><span>Glass</span>
+        </label>
+      </div>
+      <div class="flex">
+        <input class="btn-submit" type="submit" value="Start Scan">
+      </div>
     </form>
   </div>
 </body>

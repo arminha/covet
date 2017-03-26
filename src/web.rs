@@ -20,6 +20,7 @@ use scanner::{Scanner, ScannerError};
 use message::scan_status::AdfState;
 
 const INDEX_HTML: &'static [u8] = include_bytes!("resources/index.html");
+const STYLE_CSS: &'static [u8] = include_bytes!("resources/style.css");
 
 pub fn run_server(scanner_host: &str, listen_port: u16) {
     println!("Running on http://localhost:{}/", listen_port);
@@ -28,10 +29,14 @@ pub fn run_server(scanner_host: &str, listen_port: u16) {
 
     let mut router = Router::new();
     router.get("/", index, "index");
+    router.get("/style.css", style, "style.css");
     router.post("/scan", scanner, "scan_post");
 
     fn index(_: &mut Request) -> IronResult<Response> {
         Ok(Response::with((status::Ok, Header(ContentType::html()), INDEX_HTML)))
+    }
+    fn style(_: &mut Request) -> IronResult<Response> {
+        Ok(Response::with((status::Ok, Header(ContentType("text/css".parse().unwrap())), STYLE_CSS)))
     }
 
     let iron = Iron {
