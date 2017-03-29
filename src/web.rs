@@ -170,6 +170,7 @@ fn render_error(error: ScannerError) -> Response {
     match error {
         ScannerError::AdfEmpty => Response::with((status::Ok, "ADF is empty")),
         ScannerError::Busy => Response::with((status::Ok, "Scanner is busy")),
+        ScannerError::NotAvailable(_) => Response::with((status::Ok, format!("{}", error))),
         _ => {
             println!("InternalServerError: Failed to scan. {:?}", error);
             Response::with(status::InternalServerError)

@@ -22,6 +22,7 @@ pub enum ScannerError {
     Parse(ParseError),
     AdfEmpty,
     Busy,
+    NotAvailable(io::Error),
     Other(String),
 }
 
@@ -34,7 +35,7 @@ impl From<ParseError> for ScannerError {
 impl From<error::Error> for ScannerError {
     fn from(err: error::Error) -> Self {
         if let error::Error::Io(io) = err {
-            ScannerError::Io(io)
+            ScannerError::from(io)
         } else {
             ScannerError::Other(err.to_string())
         }
@@ -49,7 +50,11 @@ impl From<String> for ScannerError {
 
 impl From<io::Error> for ScannerError {
     fn from(err: io::Error) -> Self {
-        ScannerError::Io(err)
+        match err.raw_os_error() {
+            // ECONNREFUSED - 111 - Connection refused or EHOSTUNREACH 113 No route to host
+            Some(111) | Some(113) => ScannerError::NotAvailable(err),
+            _ => ScannerError::Io(err)
+        }
     }
 }
 
@@ -63,11 +68,14 @@ impl fmt::Display for ScannerError {
                 write!(f, "{}", err)
             },
             &ScannerError::AdfEmpty => {
-                write!(f, "{}", "Adf is empty")
+                write!(f, "Adf is empty")
             },
             &ScannerError::Busy => {
-                write!(f, "{}", "Scanner is busy")
-            }
+                write!(f, "Scanner is busy")
+            },
+            &ScannerError::NotAvailable(ref err) => {
+                write!(f, "Scanner is not available. Is it turned off? Error: {}", err)
+            },
             &ScannerError::Other(ref err) => {
                 write!(f, "{}", err)
             }
