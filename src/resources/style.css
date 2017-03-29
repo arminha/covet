@@ -4,7 +4,7 @@
   margin-right: auto;
   margin-left: auto;
 }
-@media (min-width: 36.4em + 20px) {
+@media (min-width: 37.65em) {
   .content {
     width: 36em;
   }
