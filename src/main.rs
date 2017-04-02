@@ -37,8 +37,9 @@ fn main() {
             .unwrap_or_else(|e| println!("Error: {}", e));
     } else if let Some(matches) = matches.subcommand_matches("web") {
         let host = matches.value_of("SCANNER").unwrap();
+        let addr = matches.value_of("ADDR").unwrap();
         let port = value_t!(matches, "PORT", u16).unwrap();
-        web::run_server(host, port);
+        web::run_server(host, addr, port);
     }
 }
 

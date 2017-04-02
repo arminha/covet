@@ -31,8 +31,8 @@ struct StaticContent {
     etag: EntityTag,
 }
 
-pub fn run_server(scanner_host: &str, listen_port: u16) {
-    println!("Running on http://localhost:{}/", listen_port);
+pub fn run_server(scanner_host: &str, listen_addr: &str, listen_port: u16) {
+    println!("Running on http://{}:{}/", listen_addr, listen_port);
 
     let scanner = Scanner::new(scanner_host);
 
@@ -48,7 +48,7 @@ pub fn run_server(scanner_host: &str, listen_port: u16) {
         threads: 2,
         timeouts: Timeouts::default(),
     };
-    iron.http(("localhost", listen_port)).unwrap();
+    iron.http((listen_addr, listen_port)).unwrap();
 }
 
 impl StaticContent {
