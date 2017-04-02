@@ -1,10 +1,13 @@
 use iron::status;
-use iron::headers::{ContentDisposition, ContentType, DispositionType, DispositionParam, Charset};
+use iron::headers::{ContentDisposition, ContentType, DispositionType, DispositionParam, Charset,
+    EntityTag, ETag, IfNoneMatch};
 use iron::modifiers::Header;
 use iron::prelude::*;
 use iron::response::BodyReader;
 use iron::{Handler, Timeouts};
 use router::Router;
+use rustc_serialize::base64::{STANDARD, ToBase64};
+use sha2::{Sha512, Digest};
 use time;
 use urlencoded::UrlEncodedBody;
 
@@ -22,22 +25,23 @@ use message::scan_status::AdfState;
 const INDEX_HTML: &'static [u8] = include_bytes!("resources/index.html");
 const STYLE_CSS: &'static [u8] = include_bytes!("resources/style.css");
 
+struct StaticContent {
+    content: &'static [u8],
+    content_type: ContentType,
+    etag: EntityTag,
+}
+
 pub fn run_server(scanner_host: &str, listen_port: u16) {
     println!("Running on http://localhost:{}/", listen_port);
 
     let scanner = Scanner::new(scanner_host);
 
     let mut router = Router::new();
-    router.get("/", index, "index");
-    router.get("/style.css", style, "style.css");
+    router.get("/", StaticContent::new(INDEX_HTML, ContentType::html()), "index");
+    router.get("/style.css",
+               StaticContent::new(STYLE_CSS, ContentType("text/css".parse().unwrap())),
+               "style.css");
     router.post("/scan", scanner, "scan_post");
-
-    fn index(_: &mut Request) -> IronResult<Response> {
-        Ok(Response::with((status::Ok, Header(ContentType::html()), INDEX_HTML)))
-    }
-    fn style(_: &mut Request) -> IronResult<Response> {
-        Ok(Response::with((status::Ok, Header(ContentType("text/css".parse().unwrap())), STYLE_CSS)))
-    }
 
     let iron = Iron {
         handler: router,
@@ -45,6 +49,42 @@ pub fn run_server(scanner_host: &str, listen_port: u16) {
         timeouts: Timeouts::default(),
     };
     iron.http(("localhost", listen_port)).unwrap();
+}
+
+impl StaticContent {
+    fn new(content: &'static [u8], content_type: ContentType) -> StaticContent {
+        let mut hasher = Sha512::new();
+        hasher.input(content);
+        let hash = hasher.result();
+        let etag = EntityTag::strong(hash.to_base64(STANDARD));
+        StaticContent { content: content, content_type: content_type, etag: etag }
+    }
+
+    fn etag_header(&self) -> Header<ETag> {
+        Header(ETag(self.etag.clone()))
+    }
+
+    fn content_type_header(&self) -> Header<ContentType> {
+        Header(self.content_type.clone())
+    }
+}
+
+impl Handler for StaticContent {
+    fn handle(&self, req: &mut Request) -> IronResult<Response> {
+        if let Some(if_none_match) = req.headers.get::<IfNoneMatch>() {
+            let tag_matches = match if_none_match {
+                &IfNoneMatch::Any => true,
+                &IfNoneMatch::Items(ref tags) => {
+                    tags.iter().any(|t| self.etag.strong_eq(t))
+                }
+            };
+            if tag_matches {
+                return Ok(Response::with((status::NotModified, self.etag_header())));
+            }
+        }
+        Ok(Response::with((status::Ok, self.content_type_header(),
+            self.etag_header(), self.content)))
+    }
 }
 
 impl Handler for Scanner {
