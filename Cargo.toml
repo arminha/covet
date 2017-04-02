@@ -7,6 +7,9 @@ readme = "README.md"
 repository = "https://github.com/arminha/covet"
 homepage = "https://github.com/arminha/covet"
 
+[profile.release]
+lto = true
+
 [dependencies]
 hyper = "0.10"
 xmltree = "0.3"
