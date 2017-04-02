@@ -200,7 +200,7 @@ mod test {
         bin_url: Option<&str>) {
         assert_eq!(1, job_status.pages().len());
         let page = job_status.pages().get(0).unwrap();
-        assert_eq!(num, page.number());
+        assert_eq!(num, page.number);
         assert_eq!(ps, page.state());
         assert_eq!(bin_url.map(|v| v.to_string()).as_ref(), page.binary_url())
     }
@@ -208,21 +208,21 @@ mod test {
     #[test]
     fn read_job_status_xml_preparing() {
         let status = parse_job_status(FULL_JOB_STATUS);
-        assert_eq!(JobState::Processing, status.state());
+        assert_eq!(JobState::Processing, status.state);
         check_one_page(&status, 1, PageState::PreparingScan, Some("/Scan/Jobs/2/Pages/1"));
     }
 
     #[test]
     fn read_job_status_xml_ready_to_upload() {
         let status = parse_job_status(READY_TO_UPLOAD);
-        assert_eq!(JobState::Processing, status.state());
+        assert_eq!(JobState::Processing, status.state);
         check_one_page(&status, 1, PageState::ReadyToUpload, Some("/Scan/Jobs/4/Pages/1"));
     }
 
     #[test]
     fn read_job_status_xml_completed() {
         let status = parse_job_status(COMPLETED);
-        assert_eq!(JobState::Completed, status.state());
+        assert_eq!(JobState::Completed, status.state);
         check_one_page(&status, 2, PageState::UploadCompleted, None);
     }
 
