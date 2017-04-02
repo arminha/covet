@@ -60,10 +60,6 @@ impl ScanPage {
         ScanPage { number: number, state: state, binary_url: binary_url }
     }
 
-    pub fn number(&self) -> u32 {
-        self.number
-    }
-
     pub fn state(&self) -> PageState {
         self.state
     }
@@ -95,10 +91,6 @@ fn read_page(element: &Element) -> Result<ScanPage, ParseError> {
 impl ScanJobStatus {
     pub fn new(state: JobState, pages: Vec<ScanPage>) -> ScanJobStatus {
         ScanJobStatus { state: state, pages: pages }
-    }
-
-    pub fn state(&self) -> JobState {
-        self.state
     }
 
     pub fn pages(&self) -> &Vec<ScanPage> {
