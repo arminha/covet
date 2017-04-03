@@ -7,7 +7,7 @@ use iron::response::BodyReader;
 use iron::{Handler, Timeouts};
 use router::Router;
 use rustc_serialize::base64::{STANDARD, ToBase64};
-use sha2::{Sha512, Digest};
+use sha2::{Sha512Trunc256, Digest};
 use time;
 use urlencoded::UrlEncodedBody;
 
@@ -52,11 +52,11 @@ pub fn run_server(scanner_host: &str, listen_addr: &str, listen_port: u16) {
 }
 
 impl StaticContent {
-    fn new(content: &'static [u8], content_type: ContentType) -> StaticContent {
-        let mut hasher = Sha512::new();
+    fn new(content: &'static [u8], content_type: ContentType) -> Self {
+        let mut hasher = Sha512Trunc256::new();
         hasher.input(content);
         let hash = hasher.result();
-        let etag = EntityTag::strong(hash.to_base64(STANDARD));
+        let etag = EntityTag::strong(format!("0{}", hash.to_base64(STANDARD)));
         StaticContent { content: content, content_type: content_type, etag: etag }
     }
 
@@ -216,4 +216,19 @@ fn render_error(error: ScannerError) -> Response {
             Response::with(status::InternalServerError)
         }
     }
+}
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    const TEST_CONTENT: &'static str = "Hello world!";
+
+    #[test]
+    fn static_content_generate_etag() {
+        let sc = StaticContent::new(TEST_CONTENT.as_bytes(), ContentType::plaintext());
+        assert_eq!("0+BYq1JGWwcEr3bz/HTYt2s8DriRranhkt1wkS5Zf5HU=", sc.etag.tag());
+    }
+
 }
