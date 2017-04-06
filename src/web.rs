@@ -223,11 +223,11 @@ mod test {
 
     use super::*;
 
-    const TEST_CONTENT: &'static str = "Hello world!";
+    const TEST_CONTENT: &'static [u8] = b"Hello world!";
 
     #[test]
     fn static_content_generate_etag() {
-        let sc = StaticContent::new(TEST_CONTENT.as_bytes(), ContentType::plaintext());
+        let sc = StaticContent::new(TEST_CONTENT, ContentType::plaintext());
         assert_eq!("-BYq1JGWwcEr3bz_HTYt2s8DriRranhkt1wkS5Zf5HU", sc.etag.tag());
     }
 
