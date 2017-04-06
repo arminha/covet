@@ -6,7 +6,7 @@ use iron::prelude::*;
 use iron::response::BodyReader;
 use iron::{Handler, Timeouts};
 use router::Router;
-use rustc_serialize::base64::{STANDARD, ToBase64};
+use rustc_serialize::base64::{URL_SAFE, ToBase64};
 use sha2::{Sha512Trunc256, Digest};
 use time;
 use urlencoded::UrlEncodedBody;
@@ -56,7 +56,7 @@ impl StaticContent {
         let mut hasher = Sha512Trunc256::new();
         hasher.input(content);
         let hash = hasher.result();
-        let etag = EntityTag::strong(format!("0{}", hash.to_base64(STANDARD)));
+        let etag = EntityTag::strong(hash.to_base64(URL_SAFE));
         StaticContent { content: content, content_type: content_type, etag: etag }
     }
 
@@ -228,7 +228,7 @@ mod test {
     #[test]
     fn static_content_generate_etag() {
         let sc = StaticContent::new(TEST_CONTENT.as_bytes(), ContentType::plaintext());
-        assert_eq!("0+BYq1JGWwcEr3bz/HTYt2s8DriRranhkt1wkS5Zf5HU=", sc.etag.tag());
+        assert_eq!("-BYq1JGWwcEr3bz_HTYt2s8DriRranhkt1wkS5Zf5HU", sc.etag.tag());
     }
 
 }
