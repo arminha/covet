@@ -7,9 +7,10 @@ use hyper::Url;
 
 use time;
 
+use std::error::Error;
 use std::fmt;
 use std::fs::File;
-use std::io::{self, Read};
+use std::io::{self, ErrorKind, Read};
 
 use message::error::ParseError;
 use message::job_status::{PageState, ScanJobStatus};
@@ -50,6 +51,9 @@ impl From<String> for ScannerError {
 
 impl From<io::Error> for ScannerError {
     fn from(err: io::Error) -> Self {
+        if ErrorKind::Other == err.kind() && err.description().contains("Name or service not known") {
+            return ScannerError::NotAvailable(err);
+        }
         match err.raw_os_error() {
             // ECONNREFUSED - 111 - Connection refused or EHOSTUNREACH 113 No route to host
             Some(111) | Some(113) => ScannerError::NotAvailable(err),
