@@ -1,3 +1,4 @@
+use base64::{self, URL_SAFE_NO_PAD};
 use iron::status;
 use iron::headers::{ContentDisposition, ContentType, DispositionType, DispositionParam, Charset,
     EntityTag, ETag, IfNoneMatch};
@@ -6,7 +7,6 @@ use iron::prelude::*;
 use iron::response::BodyReader;
 use iron::{Handler, Timeouts};
 use router::Router;
-use rustc_serialize::base64::{URL_SAFE, ToBase64};
 use sha2::{Sha512Trunc256, Digest};
 use time;
 use urlencoded::UrlEncodedBody;
@@ -56,7 +56,7 @@ impl StaticContent {
         let mut hasher = Sha512Trunc256::new();
         hasher.input(content);
         let hash = hasher.result();
-        let etag = EntityTag::strong(hash.to_base64(URL_SAFE));
+        let etag = EntityTag::strong(base64::encode_config(&hash, URL_SAFE_NO_PAD));
         StaticContent { content: content, content_type: content_type, etag: etag }
     }
 

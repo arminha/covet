@@ -1,9 +1,9 @@
+extern crate base64;
 #[macro_use]
 extern crate clap;
 extern crate hyper;
 extern crate iron;
 extern crate router;
-extern crate rustc_serialize;
 extern crate sha2;
 extern crate time;
 extern crate urlencoded;
