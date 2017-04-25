@@ -78,7 +78,7 @@ impl fmt::Display for ScannerError {
                 write!(f, "Scanner is busy")
             },
             &ScannerError::NotAvailable(ref err) => {
-                write!(f, "Scanner is not available. Is it turned off? Error: {}", err)
+                write!(f, "Scanner is not available. Is it turned off? Cause: {}", err)
             },
             &ScannerError::Other(ref err) => {
                 write!(f, "{}", err)
