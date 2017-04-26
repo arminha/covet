@@ -5,7 +5,7 @@ Scan Status
 
 GET /Scan/Status
 
-Uses basic authentication
+No authentication required
 
 ### Response
 

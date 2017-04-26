@@ -9,10 +9,9 @@ Scan Job
 POST /Scan/Jobs HTTP/1.1
 Content-Type: text/xml
 Content-Length: 913
-Cookie: sid=se9d34605-7045f268cb76f8769b78f916701b256d
 ```
 
-Uses basic authentication
+No authentication required
 
 #### Payloads
 

@@ -6,7 +6,6 @@ Scan Job Status
 ```
 GET /Jobs/JobList/2 HTTP/1.1
 Accept: application/xml, text/xml, */*
-Cookie: sid=se9d34605-7045f268cb76f8769b78f916701b256d
 ```
 
 ### Response
@@ -66,7 +65,10 @@ First
   </ScanJob>
 </j:Job>
 ```
-Later
+
+When the scanned document is ready to be downloaded. The *BinaryURL* element
+contains the URL to the document.
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30"
@@ -108,7 +110,10 @@ Later
   </ScanJob>
 </j:Job>
 ```
-Almost done
+
+Once the document was downloaded it is deleted on the scanner and the following
+responses are received.
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30"
@@ -129,7 +134,7 @@ Almost done
   </ScanJob>
 </j:Job>
 ```
-Done
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30"
