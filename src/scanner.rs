@@ -51,13 +51,14 @@ impl From<String> for ScannerError {
 
 impl From<io::Error> for ScannerError {
     fn from(err: io::Error) -> Self {
-        if ErrorKind::Other == err.kind() && err.description().contains("Name or service not known") {
+        if ErrorKind::Other == err.kind() &&
+           err.description().contains("Name or service not known") {
             return ScannerError::NotAvailable(err);
         }
         match err.raw_os_error() {
             // ECONNREFUSED - 111 - Connection refused or EHOSTUNREACH 113 No route to host
             Some(111) | Some(113) => ScannerError::NotAvailable(err),
-            _ => ScannerError::Io(err)
+            _ => ScannerError::Io(err),
         }
     }
 }
@@ -65,24 +66,16 @@ impl From<io::Error> for ScannerError {
 impl fmt::Display for ScannerError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            &ScannerError::Io(ref err) => {
-                write!(f, "{}", err)
-            },
-            &ScannerError::Parse(ref err) => {
-                write!(f, "{}", err)
-            },
-            &ScannerError::AdfEmpty => {
-                write!(f, "Adf is empty")
-            },
-            &ScannerError::Busy => {
-                write!(f, "Scanner is busy")
-            },
+            &ScannerError::Io(ref err) => write!(f, "{}", err),
+            &ScannerError::Parse(ref err) => write!(f, "{}", err),
+            &ScannerError::AdfEmpty => write!(f, "Adf is empty"),
+            &ScannerError::Busy => write!(f, "Scanner is busy"),
             &ScannerError::NotAvailable(ref err) => {
-                write!(f, "Scanner is not available. Is it turned off? Cause: {}", err)
-            },
-            &ScannerError::Other(ref err) => {
-                write!(f, "{}", err)
+                write!(f,
+                       "Scanner is not available. Is it turned off? Cause: {}",
+                       err)
             }
+            &ScannerError::Other(ref err) => write!(f, "{}", err),
         }
     }
 }
@@ -103,7 +96,10 @@ pub struct Job<'a> {
 impl Scanner {
     pub fn new(host: &str) -> Scanner {
         let client = Client::new();
-        Scanner { host: host.to_owned(), client: client }
+        Scanner {
+            host: host.to_owned(),
+            client: client,
+        }
     }
 
     pub fn host(&self) -> &str {
@@ -155,7 +151,11 @@ impl Scanner {
 
 impl<'a> Job<'a> {
     fn new(scanner: &Scanner, location: String) -> Job {
-        Job { scanner: scanner, location: location, binary_url: None }
+        Job {
+            scanner: scanner,
+            location: location,
+            binary_url: None,
+        }
     }
 
     pub fn retrieve_status(&mut self) -> Result<bool, ScannerError> {
@@ -187,7 +187,7 @@ impl<'a> Job<'a> {
 pub fn output_file_name(format: &Format, time: &time::Tm) -> String {
     let extension = match format {
         &Format::Pdf => "pdf",
-        &Format::Jpeg => "jpeg"
+        &Format::Jpeg => "jpeg",
     };
     let ts = time::strftime("%Y%m%d_%H%M%S", time).unwrap();
     format!("scan_{}.{}", ts, extension)
@@ -201,7 +201,9 @@ mod test {
     #[test]
     fn check_output_file_name() {
         let time = time::at_utc(time::Timespec::new(1486905545, 0));
-        assert_eq!("scan_20170212_131905.pdf", output_file_name(&Format::Pdf, &time));
-        assert_eq!("scan_20170212_131905.jpeg", output_file_name(&Format::Jpeg, &time));
+        assert_eq!("scan_20170212_131905.pdf",
+                   output_file_name(&Format::Pdf, &time));
+        assert_eq!("scan_20170212_131905.jpeg",
+                   output_file_name(&Format::Jpeg, &time));
     }
 }

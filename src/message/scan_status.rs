@@ -15,7 +15,7 @@ impl ScannerState {
         match s {
             "Idle" => Ok(ScannerState::Idle),
             "BusyWithScanJob" => Ok(ScannerState::BusyWithScanJob),
-            _ => Err(ParseError::new(format!("Unknown ScannerState: {}", s)))
+            _ => Err(ParseError::new(format!("Unknown ScannerState: {}", s))),
         }
     }
 }
@@ -31,7 +31,7 @@ impl AdfState {
         match s {
             "Empty" => Ok(AdfState::Empty),
             "Loaded" => Ok(AdfState::Loaded),
-            _ => Err(ParseError::new(format!("Unknown AdfState: {}", s)))
+            _ => Err(ParseError::new(format!("Unknown AdfState: {}", s))),
         }
     }
 }
@@ -44,7 +44,10 @@ pub struct ScanStatus {
 
 impl ScanStatus {
     pub fn new(scanner_state: ScannerState, adf_state: AdfState) -> ScanStatus {
-        ScanStatus { scanner_state: scanner_state, adf_state: adf_state }
+        ScanStatus {
+            scanner_state: scanner_state,
+            adf_state: adf_state,
+        }
     }
 
     pub fn scanner_state(&self) -> ScannerState {
@@ -61,14 +64,16 @@ impl ScanStatus {
 
     pub fn read_xml<R: Read>(r: R) -> Result<ScanStatus, ParseError> {
         let element = Element::parse(r)?;
-        let scanner_state = element.get_child("ScannerState")
-                                   .and_then(|v| v.clone().text)
-                                   .ok_or(ParseError::new("missing ScannerState"))
-                                   .and_then(|v| ScannerState::parse(&v))?;
-        let adf_state = element.get_child("AdfState")
-                               .and_then(|v| v.clone().text)
-                               .ok_or(ParseError::new("missing AdfState"))
-                               .and_then(|v| AdfState::parse(&v))?;
+        let scanner_state = element
+            .get_child("ScannerState")
+            .and_then(|v| v.clone().text)
+            .ok_or(ParseError::new("missing ScannerState"))
+            .and_then(|v| ScannerState::parse(&v))?;
+        let adf_state = element
+            .get_child("AdfState")
+            .and_then(|v| v.clone().text)
+            .ok_or(ParseError::new("missing AdfState"))
+            .and_then(|v| AdfState::parse(&v))?;
         Ok(ScanStatus::new(scanner_state, adf_state))
     }
 }
@@ -105,7 +110,9 @@ mod test {
             assert_eq!(adf_state, scan_status.adf_state());
         }
         check_parse_scan_status(SCAN_STATUS_IDLE, ScannerState::Idle, AdfState::Empty);
-        check_parse_scan_status(SCAN_STATUS_BUSY, ScannerState::BusyWithScanJob, AdfState::Empty);
+        check_parse_scan_status(SCAN_STATUS_BUSY,
+                                ScannerState::BusyWithScanJob,
+                                AdfState::Empty);
         check_parse_scan_status(SCAN_STATUS_LOADED, ScannerState::Idle, AdfState::Loaded);
     }
 

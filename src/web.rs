@@ -1,7 +1,7 @@
 use base64::{self, URL_SAFE_NO_PAD};
 use iron::status;
 use iron::headers::{ContentDisposition, ContentType, DispositionType, DispositionParam, Charset,
-    EntityTag, ETag, IfNoneMatch};
+                    EntityTag, ETag, IfNoneMatch};
 use iron::modifiers::Header;
 use iron::prelude::*;
 use iron::response::BodyReader;
@@ -37,7 +37,9 @@ pub fn run_server(scanner_host: &str, listen_addr: &str, listen_port: u16) {
     let scanner = Scanner::new(scanner_host);
 
     let mut router = Router::new();
-    router.get("/", StaticContent::new(INDEX_HTML, ContentType::html()), "index");
+    router.get("/",
+               StaticContent::new(INDEX_HTML, ContentType::html()),
+               "index");
     router.get("/style.css",
                StaticContent::new(STYLE_CSS, ContentType("text/css".parse().unwrap())),
                "style.css");
@@ -57,7 +59,11 @@ impl StaticContent {
         hasher.input(content);
         let hash = hasher.result();
         let etag = EntityTag::strong(base64::encode_config(&hash, URL_SAFE_NO_PAD));
-        StaticContent { content: content, content_type: content_type, etag: etag }
+        StaticContent {
+            content: content,
+            content_type: content_type,
+            etag: etag,
+        }
     }
 
     fn etag_header(&self) -> Header<ETag> {
@@ -74,16 +80,16 @@ impl Handler for StaticContent {
         if let Some(if_none_match) = req.headers.get::<IfNoneMatch>() {
             let tag_matches = match if_none_match {
                 &IfNoneMatch::Any => true,
-                &IfNoneMatch::Items(ref tags) => {
-                    tags.iter().any(|t| self.etag.strong_eq(t))
-                }
+                &IfNoneMatch::Items(ref tags) => tags.iter().any(|t| self.etag.strong_eq(t)),
             };
             if tag_matches {
                 return Ok(Response::with((status::NotModified, self.etag_header())));
             }
         }
-        Ok(Response::with((status::Ok, self.content_type_header(),
-            self.etag_header(), self.content)))
+        Ok(Response::with((status::Ok,
+                           self.content_type_header(),
+                           self.etag_header(),
+                           self.content)))
     }
 }
 
@@ -101,33 +107,39 @@ impl Handler for Scanner {
         let source = get_source_param(params);
         let filename = scanner::output_file_name(&format, &time::now());
         println!("Scan parameters: format={:?}, color={:?}, source={:?}",
-                 format, color_space, source);
+                 format,
+                 color_space,
+                 source);
         let body = match do_scan(self, format, color_space, source) {
             Ok(body) => body,
-            Err(e)   => return Ok(render_error(e))
+            Err(e) => return Ok(render_error(e)),
         };
         Ok(Response::with((status::Ok,
-            Header(content_disposition(filename)),
-            Header(content_type(&format)),
-            body)))
+                           Header(content_disposition(filename)),
+                           Header(content_type(&format)),
+                           body)))
     }
 }
 
-fn do_scan(scanner: &Scanner, format: Format, color: ColorSpace, source: Source)
-        -> Result<BodyReader<Box<Read + Send>>, ScannerError> {
+fn do_scan(scanner: &Scanner,
+           format: Format,
+           color: ColorSpace,
+           source: Source)
+           -> Result<BodyReader<Box<Read + Send>>, ScannerError> {
     let status = scanner.get_scan_status()?;
     if !status.is_idle() {
         return Err(ScannerError::Busy);
     }
     let input_source = choose_source(source, status.adf_state())?;
-    let mut job = scanner.start_job(ScanJob::new(input_source, 300, format, color))?;
+    let mut job = scanner
+        .start_job(ScanJob::new(input_source, 300, format, color))?;
     println!("Job: {:?}", job);
     loop {
         let ready = job.retrieve_status()?;
         if ready {
             println!("Job: {:?}", job);
             let reader = job.download_reader()?;
-            return Ok(BodyReader(reader))
+            return Ok(BodyReader(reader));
         }
         thread::sleep(Duration::from_millis(500));
     }
@@ -141,68 +153,72 @@ fn choose_source(source: Source, adf_state: AdfState) -> Result<InputSource, Sca
             } else {
                 InputSource::Platen
             }
-        },
+        }
         Source::adf => {
             if adf_state == AdfState::Loaded {
                 InputSource::Adf
             } else {
                 return Err(ScannerError::AdfEmpty);
             }
-        },
-        Source::glass => InputSource::Platen
+        }
+        Source::glass => InputSource::Platen,
     };
     Ok(input_source)
 }
 
 fn get_format_param(params: &HashMap<String, Vec<String>>) -> Format {
     match params.get("format") {
-        Some(values) => match values.first() {
-            Some(pdf) if pdf == "pdf" => Format::Pdf,
-            Some(jpeg) if jpeg == "jpeg" => Format::Jpeg,
-            _ => Format::Pdf,
-        },
-        _ => Format::Pdf
+        Some(values) => {
+            match values.first() {
+                Some(pdf) if pdf == "pdf" => Format::Pdf,
+                Some(jpeg) if jpeg == "jpeg" => Format::Jpeg,
+                _ => Format::Pdf,
+            }
+        }
+        _ => Format::Pdf,
     }
 }
 
 fn get_colorspace_param(params: &HashMap<String, Vec<String>>) -> ColorSpace {
     match params.get("colorspace") {
-        Some(values) => match values.first() {
-            Some(color) if color == "color" => ColorSpace::Color,
-            Some(gray) if gray == "gray" => ColorSpace::Color,
-            _ => ColorSpace::Color,
-        },
-        _ => ColorSpace::Color
+        Some(values) => {
+            match values.first() {
+                Some(color) if color == "color" => ColorSpace::Color,
+                Some(gray) if gray == "gray" => ColorSpace::Color,
+                _ => ColorSpace::Color,
+            }
+        }
+        _ => ColorSpace::Color,
     }
 }
 
 fn get_source_param(params: &HashMap<String, Vec<String>>) -> Source {
     match params.get("source") {
-        Some(values) => match values.first() {
-            Some(auto) if auto == "auto" => Source::auto,
-            Some(adf) if adf == "adf" => Source::adf,
-            Some(glass) if glass == "glass" => Source::glass,
-            _ => Source::auto,
-        },
-        _ => Source::auto
+        Some(values) => {
+            match values.first() {
+                Some(auto) if auto == "auto" => Source::auto,
+                Some(adf) if adf == "adf" => Source::adf,
+                Some(glass) if glass == "glass" => Source::glass,
+                _ => Source::auto,
+            }
+        }
+        _ => Source::auto,
     }
 }
 
 fn content_type(format: &Format) -> ContentType {
     match format {
         &Format::Pdf => ContentType("application/pdf".parse().unwrap()),
-        &Format::Jpeg => ContentType::jpeg()
+        &Format::Jpeg => ContentType::jpeg(),
     }
 }
 
 fn content_disposition(filename: String) -> ContentDisposition {
     ContentDisposition {
         disposition: DispositionType::Attachment,
-        parameters: vec![DispositionParam::Filename(
-            Charset::Ext("UTF-8".to_owned()),
-            None,
-            filename.into_bytes()
-        )]
+        parameters: vec![DispositionParam::Filename(Charset::Ext("UTF-8".to_owned()),
+                                                    None,
+                                                    filename.into_bytes())],
     }
 }
 

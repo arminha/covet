@@ -33,8 +33,12 @@ fn main() {
         let color = value_t!(matches.value_of("COLORSPACE"), cli::ColorSpace).unwrap();
         let source = value_t!(matches.value_of("SOURCE"), cli::Source).unwrap();
         let resolution = value_t!(matches.value_of("RESOLUTION"), u32).unwrap();
-        scan(host, format.to_internal(), color.to_internal(), source, resolution)
-            .unwrap_or_else(|e| println!("Error: {}", e));
+        scan(host,
+             format.to_internal(),
+             color.to_internal(),
+             source,
+             resolution)
+                .unwrap_or_else(|e| println!("Error: {}", e));
     } else if let Some(matches) = matches.subcommand_matches("web") {
         let host = matches.value_of("SCANNER").unwrap();
         let addr = matches.value_of("ADDR").unwrap();
@@ -51,7 +55,9 @@ fn status(host: &str) {
 fn print_scan_status(scanner: &Scanner) -> Result<(), ScannerError> {
     println!("Status of scanner {}", scanner.host());
     let status = scanner.get_scan_status()?;
-    println!("Scanner: {:?}, Adf: {:?}", status.scanner_state(), status.adf_state());
+    println!("Scanner: {:?}, Adf: {:?}",
+             status.scanner_state(),
+             status.adf_state());
     Ok(())
 }
 
@@ -59,7 +65,7 @@ impl cli::Format {
     fn to_internal(&self) -> Format {
         match self {
             &cli::Format::pdf => Format::Pdf,
-            &cli::Format::jpeg => Format::Jpeg
+            &cli::Format::jpeg => Format::Jpeg,
         }
     }
 }
@@ -68,7 +74,7 @@ impl cli::ColorSpace {
     fn to_internal(&self) -> ColorSpace {
         match self {
             &cli::ColorSpace::gray => ColorSpace::Gray,
-            &cli::ColorSpace::color => ColorSpace::Color
+            &cli::ColorSpace::color => ColorSpace::Color,
         }
     }
 }
@@ -81,20 +87,24 @@ fn choose_source(source: cli::Source, adf_state: AdfState) -> Result<InputSource
             } else {
                 InputSource::Platen
             }
-        },
+        }
         cli::Source::adf => {
             if adf_state == AdfState::Loaded {
                 InputSource::Adf
             } else {
                 return Err(ScannerError::AdfEmpty);
             }
-        },
-        cli::Source::glass => InputSource::Platen
+        }
+        cli::Source::glass => InputSource::Platen,
     };
     Ok(input_source)
 }
 
-fn scan(host: &str, format: Format, color: ColorSpace, source: cli::Source, resolution:u32)
+fn scan(host: &str,
+        format: Format,
+        color: ColorSpace,
+        source: cli::Source,
+        resolution: u32)
         -> Result<(), ScannerError> {
     let scanner = Scanner::new(host);
     let status = scanner.get_scan_status()?;
@@ -102,7 +112,8 @@ fn scan(host: &str, format: Format, color: ColorSpace, source: cli::Source, reso
         return Err(ScannerError::Busy);
     }
     let input_source = choose_source(source, status.adf_state())?;
-    let mut job = scanner.start_job(ScanJob::new(input_source, resolution, format, color))?;
+    let mut job = scanner
+        .start_job(ScanJob::new(input_source, resolution, format, color))?;
     println!("Job: {:?}", job);
     loop {
         let ready = job.retrieve_status()?;

@@ -4,7 +4,7 @@ use std::fmt;
 
 #[derive(Debug)]
 pub struct ParseError {
-    pub desc: String
+    pub desc: String,
 }
 
 impl ParseError {

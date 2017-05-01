@@ -36,8 +36,11 @@ pub struct ScanJob {
 }
 
 impl ScanJob {
-    pub fn new(input_source: InputSource, resolution: u32,
-               format: Format, color_space: ColorSpace) -> ScanJob {
+    pub fn new(input_source: InputSource,
+               resolution: u32,
+               format: Format,
+               color_space: ColorSpace)
+               -> ScanJob {
         ScanJob {
             input_source: input_source,
             resolution: resolution,
@@ -51,20 +54,14 @@ impl ScanJob {
             let mut namespace = Namespace::empty();
             namespace.put(PREFIX, XML_NAMESPACE);
             let empty_attrs = Vec::new();
-            w.write(
-                XmlEvent::StartElement {
-                    name: Name::qualified(name, XML_NAMESPACE, Option::from(PREFIX)),
-                    attributes: Cow::Borrowed(&empty_attrs),
-                    namespace: Cow::Borrowed(&namespace),
-                }
-            )
+            w.write(XmlEvent::StartElement {
+                        name: Name::qualified(name, XML_NAMESPACE, Option::from(PREFIX)),
+                        attributes: Cow::Borrowed(&empty_attrs),
+                        namespace: Cow::Borrowed(&namespace),
+                    })
         }
         fn exit_elem<W: Write>(w: &mut EventWriter<W>) -> Result<()> {
-            w.write(
-                XmlEvent::EndElement {
-                    name: Option::None,
-                }
-            )
+            w.write(XmlEvent::EndElement { name: Option::None })
         }
         fn write_value<W: Write>(w: &mut EventWriter<W>, name: &str, val: &str) -> Result<()> {
             enter_elem(w, name)?;
@@ -72,7 +69,9 @@ impl ScanJob {
             exit_elem(w)
         }
 
-        let config = EmitterConfig::new().write_document_declaration(true).perform_indent(true);
+        let config = EmitterConfig::new()
+            .write_document_declaration(true)
+            .perform_indent(true);
         let mut writer = config.create_writer(sink);
         enter_elem(&mut writer, "ScanJob")?;
         let resolution = self.resolution.to_string();
