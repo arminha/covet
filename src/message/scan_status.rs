@@ -67,12 +67,12 @@ impl ScanStatus {
         let scanner_state = element
             .get_child("ScannerState")
             .and_then(|v| v.clone().text)
-            .ok_or(ParseError::new("missing ScannerState"))
+            .ok_or_else(|| ParseError::new("missing ScannerState"))
             .and_then(|v| ScannerState::parse(&v))?;
         let adf_state = element
             .get_child("AdfState")
             .and_then(|v| v.clone().text)
-            .ok_or(ParseError::new("missing AdfState"))
+            .ok_or_else(|| ParseError::new("missing AdfState"))
             .and_then(|v| AdfState::parse(&v))?;
         Ok(ScanStatus::new(scanner_state, adf_state))
     }

@@ -65,17 +65,17 @@ impl From<io::Error> for ScannerError {
 
 impl fmt::Display for ScannerError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            &ScannerError::Io(ref err) => write!(f, "{}", err),
-            &ScannerError::Parse(ref err) => write!(f, "{}", err),
-            &ScannerError::AdfEmpty => write!(f, "Adf is empty"),
-            &ScannerError::Busy => write!(f, "Scanner is busy"),
-            &ScannerError::NotAvailable(ref err) => {
+        match *self {
+            ScannerError::Io(ref err) => write!(f, "{}", err),
+            ScannerError::Parse(ref err) => write!(f, "{}", err),
+            ScannerError::AdfEmpty => write!(f, "Adf is empty"),
+            ScannerError::Busy => write!(f, "Scanner is busy"),
+            ScannerError::NotAvailable(ref err) => {
                 write!(f,
                        "Scanner is not available. Is it turned off? Cause: {}",
                        err)
             }
-            &ScannerError::Other(ref err) => write!(f, "{}", err),
+            ScannerError::Other(ref err) => write!(f, "{}", err),
         }
     }
 }
@@ -160,7 +160,7 @@ impl<'a> Job<'a> {
 
     pub fn retrieve_status(&mut self) -> Result<bool, ScannerError> {
         // TODO error handling
-        let status = self.scanner.get_job_status(&self)?;
+        let status = self.scanner.get_job_status(self)?;
         let page = status.pages().get(0).unwrap();
         let page_state = page.state();
         if page_state == PageState::ReadyToUpload {
@@ -185,9 +185,9 @@ impl<'a> Job<'a> {
 }
 
 pub fn output_file_name(format: &Format, time: &time::Tm) -> String {
-    let extension = match format {
-        &Format::Pdf => "pdf",
-        &Format::Jpeg => "jpeg",
+    let extension = match *format {
+        Format::Pdf => "pdf",
+        Format::Jpeg => "jpeg",
     };
     let ts = time::strftime("%Y%m%d_%H%M%S", time).unwrap();
     format!("scan_{}.{}", ts, extension)

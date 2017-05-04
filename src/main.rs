@@ -36,7 +36,7 @@ fn main() {
         scan(host,
              format.to_internal(),
              color.to_internal(),
-             source,
+             &source,
              resolution)
                 .unwrap_or_else(|e| println!("Error: {}", e));
     } else if let Some(matches) = matches.subcommand_matches("web") {
@@ -63,24 +63,24 @@ fn print_scan_status(scanner: &Scanner) -> Result<(), ScannerError> {
 
 impl cli::Format {
     fn to_internal(&self) -> Format {
-        match self {
-            &cli::Format::pdf => Format::Pdf,
-            &cli::Format::jpeg => Format::Jpeg,
+        match *self {
+            cli::Format::pdf => Format::Pdf,
+            cli::Format::jpeg => Format::Jpeg,
         }
     }
 }
 
 impl cli::ColorSpace {
     fn to_internal(&self) -> ColorSpace {
-        match self {
-            &cli::ColorSpace::gray => ColorSpace::Gray,
-            &cli::ColorSpace::color => ColorSpace::Color,
+        match *self {
+            cli::ColorSpace::gray => ColorSpace::Gray,
+            cli::ColorSpace::color => ColorSpace::Color,
         }
     }
 }
 
-fn choose_source(source: cli::Source, adf_state: AdfState) -> Result<InputSource, ScannerError> {
-    let input_source = match source {
+fn choose_source(source: &cli::Source, adf_state: AdfState) -> Result<InputSource, ScannerError> {
+    let input_source = match *source {
         cli::Source::auto => {
             if adf_state == AdfState::Loaded {
                 InputSource::Adf
@@ -103,7 +103,7 @@ fn choose_source(source: cli::Source, adf_state: AdfState) -> Result<InputSource
 fn scan(host: &str,
         format: Format,
         color: ColorSpace,
-        source: cli::Source,
+        source: &cli::Source,
         resolution: u32)
         -> Result<(), ScannerError> {
     let scanner = Scanner::new(host);

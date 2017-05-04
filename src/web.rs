@@ -78,9 +78,9 @@ impl StaticContent {
 impl Handler for StaticContent {
     fn handle(&self, req: &mut Request) -> IronResult<Response> {
         if let Some(if_none_match) = req.headers.get::<IfNoneMatch>() {
-            let tag_matches = match if_none_match {
-                &IfNoneMatch::Any => true,
-                &IfNoneMatch::Items(ref tags) => tags.iter().any(|t| self.etag.strong_eq(t)),
+            let tag_matches = match *if_none_match {
+                IfNoneMatch::Any => true,
+                IfNoneMatch::Items(ref tags) => tags.iter().any(|t| self.etag.strong_eq(t)),
             };
             if tag_matches {
                 return Ok(Response::with((status::NotModified, self.etag_header())));
@@ -110,9 +110,9 @@ impl Handler for Scanner {
                  format,
                  color_space,
                  source);
-        let body = match do_scan(self, format, color_space, source) {
+        let body = match do_scan(self, format, color_space, &source) {
             Ok(body) => body,
-            Err(e) => return Ok(render_error(e)),
+            Err(e) => return Ok(render_error(&e)),
         };
         Ok(Response::with((status::Ok,
                            Header(content_disposition(filename)),
@@ -124,7 +124,7 @@ impl Handler for Scanner {
 fn do_scan(scanner: &Scanner,
            format: Format,
            color: ColorSpace,
-           source: Source)
+           source: &Source)
            -> Result<BodyReader<Box<Read + Send>>, ScannerError> {
     let status = scanner.get_scan_status()?;
     if !status.is_idle() {
@@ -145,8 +145,8 @@ fn do_scan(scanner: &Scanner,
     }
 }
 
-fn choose_source(source: Source, adf_state: AdfState) -> Result<InputSource, ScannerError> {
-    let input_source = match source {
+fn choose_source(source: &Source, adf_state: AdfState) -> Result<InputSource, ScannerError> {
+    let input_source = match *source {
         Source::auto => {
             if adf_state == AdfState::Loaded {
                 InputSource::Adf
@@ -207,9 +207,9 @@ fn get_source_param(params: &HashMap<String, Vec<String>>) -> Source {
 }
 
 fn content_type(format: &Format) -> ContentType {
-    match format {
-        &Format::Pdf => ContentType("application/pdf".parse().unwrap()),
-        &Format::Jpeg => ContentType::jpeg(),
+    match *format {
+        Format::Pdf => ContentType("application/pdf".parse().unwrap()),
+        Format::Jpeg => ContentType::jpeg(),
     }
 }
 
@@ -222,8 +222,8 @@ fn content_disposition(filename: String) -> ContentDisposition {
     }
 }
 
-fn render_error(error: ScannerError) -> Response {
-    match error {
+fn render_error(error: &ScannerError) -> Response {
+    match *error {
         ScannerError::AdfEmpty => Response::with((status::Ok, "ADF is empty")),
         ScannerError::Busy => Response::with((status::Ok, "Scanner is busy")),
         ScannerError::NotAvailable(_) => Response::with((status::Ok, format!("{}", error))),

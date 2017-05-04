@@ -83,7 +83,7 @@ fn read_child_value(element: &Element, name: &str) -> Result<String, ParseError>
     element
         .get_child(name)
         .and_then(|v| v.clone().text)
-        .ok_or(ParseError::new(format!("missing {}", name)))
+        .ok_or_else(|| ParseError::new(format!("missing {}", name)))
 }
 
 fn read_page(element: &Element) -> Result<ScanPage, ParseError> {
@@ -114,11 +114,8 @@ impl ScanJobStatus {
         let mut pages = Vec::new();
         for child in &job.children {
             match child.name.as_ref() {
-                "PreScanPage" => {
-                    pages.push(read_page(&child)?);
-                }
-                "PostScanPage" => {
-                    pages.push(read_page(&child)?);
+                "PreScanPage" | "PostScanPage" => {
+                    pages.push(read_page(child)?);
                 }
                 _ => (),
             }
