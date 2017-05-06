@@ -4,10 +4,12 @@
 Vagrant.configure(2) do |config|
   config.vm.box = "debian/jessie64"
 
+  config.vm.network :forwarded_port, guest: 8070, host: 8070, host_ip: "127.0.0.1"
+
   # install rust and gcc
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
-    apt-get install -y gcc
+    apt-get install -y gcc devscripts daemon
 
     wget --no-verbose -O rustup-init \
       https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init

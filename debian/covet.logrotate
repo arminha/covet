@@ -1,0 +1,9 @@
+/var/log/covet/covet.log {
+        weekly
+        copytruncate
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        notifempty
+}

@@ -1,0 +1,2 @@
+# store log files in their own directory
+var/log/covet
