@@ -24,6 +24,7 @@ use message::scan_status::AdfState;
 
 const INDEX_HTML: &'static [u8] = include_bytes!("resources/index.html");
 const STYLE_CSS: &'static [u8] = include_bytes!("resources/style.css");
+const ERROR_TEMPLATE: &'static str = include_str!("resources/error.html");
 
 struct StaticContent {
     content: &'static [u8],
@@ -224,14 +225,19 @@ fn content_disposition(filename: String) -> ContentDisposition {
 
 fn render_error(error: &ScannerError) -> Response {
     match *error {
-        ScannerError::AdfEmpty => Response::with((status::Ok, "ADF is empty")),
-        ScannerError::Busy => Response::with((status::Ok, "Scanner is busy")),
-        ScannerError::NotAvailable(_) => Response::with((status::Ok, format!("{}", error))),
+        ScannerError::AdfEmpty => error_page("ADF is empty"),
+        ScannerError::Busy => error_page("Scanner is busy"),
+        ScannerError::NotAvailable(_) => error_page(format!("{}", error).as_str()),
         _ => {
             println!("InternalServerError: Failed to scan. {:?}", error);
             Response::with(status::InternalServerError)
         }
     }
+}
+
+fn error_page(error_message: &str) -> Response {
+    let page = ERROR_TEMPLATE.replace("{error_message}", error_message);
+    Response::with((status::Ok, Header(ContentType::html()), page))
 }
 
 #[cfg(test)]
