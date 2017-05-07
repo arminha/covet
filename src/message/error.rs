@@ -1,15 +1,22 @@
 use xmltree;
 
+use std::error::Error;
 use std::fmt;
 
 #[derive(Debug)]
 pub struct ParseError {
-    pub desc: String,
+    desc: String,
 }
 
 impl ParseError {
     pub fn new<S: Into<String>>(desc: S) -> ParseError {
         ParseError { desc: desc.into() }
+    }
+}
+
+impl Error for ParseError {
+    fn description(&self) -> &str {
+        self.desc.as_str()
     }
 }
 
