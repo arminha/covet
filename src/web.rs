@@ -56,10 +56,10 @@ pub fn run_server(scanner_host: &str, listen_addr: &str, listen_port: u16) {
 
 impl StaticContent {
     fn new(content: &'static [u8], content_type: ContentType) -> Self {
-        let mut hasher = Sha512Trunc256::new();
+        let mut hasher = Sha512Trunc256::default();
         hasher.input(content);
         let hash = hasher.result();
-        let etag = EntityTag::strong(base64::encode_config(&hash, URL_SAFE_NO_PAD));
+        let etag = EntityTag::strong(base64::encode_config(&hash[..], URL_SAFE_NO_PAD));
         StaticContent {
             content: content,
             content_type: content_type,

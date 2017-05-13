@@ -12,14 +12,14 @@ lto = true
 
 [dependencies]
 hyper = "0.10"
-xmltree = "0.3"
-xml-rs = "0.3"
+xmltree = "0.4"
+xml-rs = "0.4"
 time = "0.1"
 # cli
-clap = "2.23"
+clap = "2.24"
 # web
 iron = "0.5"
 router = "0.5"
 urlencoded = "0.5"
-sha2 = "0.4"
-base64 = "0.4"
+sha2 = "0.5"
+base64 = "0.5"
