@@ -3,8 +3,10 @@ use xmltree::Element;
 use std::io::Read;
 use std::convert::From;
 use std::num::ParseIntError;
+use std::str::FromStr;
 
 use message::error::ParseError;
+use message::util;
 
 impl From<ParseIntError> for ParseError {
     fn from(err: ParseIntError) -> Self {
@@ -19,8 +21,10 @@ pub enum JobState {
     Canceled,
 }
 
-impl JobState {
-    pub fn parse(s: &str) -> Result<JobState, ParseError> {
+impl FromStr for JobState {
+    type Err = ParseError;
+
+    fn from_str(s: &str) -> Result<JobState, ParseError> {
         match s {
             "Processing" => Ok(JobState::Processing),
             "Completed" => Ok(JobState::Completed),
@@ -37,8 +41,10 @@ pub enum PageState {
     UploadCompleted,
 }
 
-impl PageState {
-    pub fn parse(s: &str) -> Result<PageState, ParseError> {
+impl FromStr for PageState {
+    type Err = ParseError;
+
+    fn from_str(s: &str) -> Result<PageState, ParseError> {
         match s {
             "PreparingScan" => Ok(PageState::PreparingScan),
             "ReadyToUpload" => Ok(PageState::ReadyToUpload),
@@ -79,18 +85,12 @@ pub struct ScanJobStatus {
     pages: Vec<ScanPage>,
 }
 
-fn read_child_value(element: &Element, name: &str) -> Result<String, ParseError> {
-    element
-        .get_child(name)
-        .and_then(|v| v.clone().text)
-        .ok_or_else(|| ParseError::new(format!("missing {}", name)))
-}
-
 fn read_page(element: &Element) -> Result<ScanPage, ParseError> {
-    let number = read_child_value(element, "PageNumber")?.parse::<u32>()?;
-    let state = read_child_value(element, "PageState")
-        .and_then(|v| PageState::parse(&v))?;
-    let url = read_child_value(element, "BinaryURL").ok();
+    let number: u32 = util::read_child_value(element, "PageNumber")?.parse()?;
+    let state: PageState = util::parse_child_value(element, "PageState")?;
+    let url = util::read_child_value(element, "BinaryURL")
+        .ok()
+        .map(|v| v.to_string());
     Ok(ScanPage::new(number, state, url))
 }
 
@@ -108,8 +108,7 @@ impl ScanJobStatus {
 
     pub fn read_xml<R: Read>(r: R) -> Result<ScanJobStatus, ParseError> {
         let element = Element::parse(r)?;
-        let state = read_child_value(&element, "JobState")
-            .and_then(|v| JobState::parse(&v))?;
+        let state = util::parse_child_value(&element, "JobState")?;
         let job = element.get_child("ScanJob").ok_or("missing ScanJob")?;
         let mut pages = Vec::new();
         for child in &job.children {

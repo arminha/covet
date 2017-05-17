@@ -1,8 +1,10 @@
 use xmltree::Element;
 
 use std::io::Read;
+use std::str::FromStr;
 
 use message::error::ParseError;
+use message::util;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ScannerState {
@@ -10,8 +12,10 @@ pub enum ScannerState {
     BusyWithScanJob,
 }
 
-impl ScannerState {
-    pub fn parse(s: &str) -> Result<ScannerState, ParseError> {
+impl FromStr for ScannerState {
+    type Err = ParseError;
+
+    fn from_str(s: &str) -> Result<ScannerState, ParseError> {
         match s {
             "Idle" => Ok(ScannerState::Idle),
             "BusyWithScanJob" => Ok(ScannerState::BusyWithScanJob),
@@ -26,8 +30,10 @@ pub enum AdfState {
     Loaded,
 }
 
-impl AdfState {
-    pub fn parse(s: &str) -> Result<AdfState, ParseError> {
+impl FromStr for AdfState {
+    type Err = ParseError;
+
+    fn from_str(s: &str) -> Result<AdfState, ParseError> {
         match s {
             "Empty" => Ok(AdfState::Empty),
             "Loaded" => Ok(AdfState::Loaded),
@@ -64,16 +70,8 @@ impl ScanStatus {
 
     pub fn read_xml<R: Read>(r: R) -> Result<ScanStatus, ParseError> {
         let element = Element::parse(r)?;
-        let scanner_state = element
-            .get_child("ScannerState")
-            .and_then(|v| v.clone().text)
-            .ok_or_else(|| ParseError::new("missing ScannerState"))
-            .and_then(|v| ScannerState::parse(&v))?;
-        let adf_state = element
-            .get_child("AdfState")
-            .and_then(|v| v.clone().text)
-            .ok_or_else(|| ParseError::new("missing AdfState"))
-            .and_then(|v| AdfState::parse(&v))?;
+        let scanner_state: ScannerState = util::parse_child_value(&element, "ScannerState")?;
+        let adf_state: AdfState = util::parse_child_value(&element, "AdfState")?;
         Ok(ScanStatus::new(scanner_state, adf_state))
     }
 }
