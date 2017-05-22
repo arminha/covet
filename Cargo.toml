@@ -6,9 +6,14 @@ license = "GPL-3.0"
 readme = "README.md"
 repository = "https://github.com/arminha/covet"
 homepage = "https://github.com/arminha/covet"
+# build
+build = "build.rs"
 
 [profile.release]
 lto = true
+
+[build-dependencies]
+clap = "2.23"
 
 [dependencies]
 hyper = "0.10"
