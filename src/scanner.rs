@@ -2,8 +2,10 @@ use hyper::client::{Client, Response};
 use hyper::error;
 use hyper::error::Result as HResult;
 use hyper::header::Location;
+use hyper::net::HttpsConnector;
 use hyper::status::StatusCode;
 use hyper::Url;
+use hyper_native_tls::NativeTlsClient;
 
 use time;
 
@@ -63,6 +65,12 @@ impl From<io::Error> for ScannerError {
     }
 }
 
+impl From<error::ParseError> for ScannerError {
+    fn from(err: error::ParseError) -> Self {
+        ScannerError::Other(err.description().to_string())
+    }
+}
+
 impl fmt::Display for ScannerError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -82,28 +90,40 @@ impl fmt::Display for ScannerError {
 
 #[derive(Debug)]
 pub struct Scanner {
-    host: String,
+    base_url: Url,
     client: Client,
 }
 
 #[derive(Debug)]
 pub struct Job<'a> {
     scanner: &'a Scanner,
-    location: String,
+    location: Url,
     binary_url: Option<String>,
 }
 
 impl Scanner {
-    pub fn new(host: &str) -> Scanner {
-        let client = Client::new();
+    pub fn new(host: &str, use_tls: bool) -> Scanner {
+        let client = if use_tls {
+            let ssl = NativeTlsClient::new().unwrap();
+            let connector = HttpsConnector::new(ssl);
+            Client::with_connector(connector)
+        } else {
+            Client::new()
+        };
+        let base_url_string = if use_tls {
+            format!("https://{}", host)
+        } else {
+            format!("http://{}", host)
+        };
+        let base_url = Url::parse(&base_url_string).unwrap();
         Scanner {
-            host: host.to_owned(),
             client: client,
+            base_url: base_url,
         }
     }
 
     pub fn host(&self) -> &str {
-        &self.host
+        self.base_url.host_str().unwrap()
     }
 
     pub fn get_scan_status(&self) -> Result<ScanStatus, ScannerError> {
@@ -113,8 +133,7 @@ impl Scanner {
     }
 
     fn retrieve_scan_status(&self) -> HResult<Response> {
-        let url = format!("http://{}/Scan/Status", self.host);
-        let url = Url::parse(&url)?;
+        let url = self.base_url.join("/Scan/Status")?;
         self.client.get(url).send()
     }
 
@@ -123,34 +142,33 @@ impl Scanner {
         job.write_xml(&mut target).unwrap();
         let result = String::from_utf8(target).unwrap();
         println!("{}", result);
-        let url = format!("http://{}/Scan/Jobs", self.host);
-        let url = Url::parse(&url).unwrap();
-
+        let url = self.base_url.join("/Scan/Jobs")?;
         let response = self.client.post(url).body(&result).send()?;
         if response.status != StatusCode::Created {
             return Err(ScannerError::Other(format!("Received status {}", response.status)));
         }
         let location: &Location = response.headers.get().unwrap();
-        Ok(Job::new(self, format!("{}", location)))
+        let loc_url = Url::parse(location)?;
+        let loc_url_rebase = self.base_url.join(loc_url.path())?;
+        println!("{}", loc_url_rebase);
+        Ok(Job::new(self, loc_url_rebase))
     }
 
     fn get_job_status(&self, job: &Job) -> Result<ScanJobStatus, ScannerError> {
-        let url = Url::parse(&(job.location)).map_err(|e| e.to_string())?;
-        let response = self.client.get(url).send()?;
+        let response = self.client.get(job.location.clone()).send()?;
         let status = ScanJobStatus::read_xml(response)?;
         Ok(status)
     }
 
     fn download_reader(&self, binary_url: &str) -> Result<Box<Read + Send>, ScannerError> {
-        let url = format!("http://{}{}", self.host, binary_url);
-        let url = Url::parse(&url).map_err(|e| e.to_string())?;
+        let url = self.base_url.join(binary_url)?;
         let response = self.client.get(url).send()?;
         Ok(Box::new(response))
     }
 }
 
 impl<'a> Job<'a> {
-    fn new(scanner: &Scanner, location: String) -> Job {
+    fn new(scanner: &Scanner, location: Url) -> Job {
         Job {
             scanner: scanner,
             location: location,

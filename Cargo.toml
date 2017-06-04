@@ -17,6 +17,7 @@ clap = "2.24"
 
 [dependencies]
 hyper = "0.10"
+hyper-native-tls = "0.2"
 xmltree = "0.4"
 xml-rs = "0.6"
 time = "0.1"

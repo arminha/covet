@@ -32,10 +32,10 @@ struct StaticContent {
     etag: EntityTag,
 }
 
-pub fn run_server(scanner_host: &str, listen_addr: &str, listen_port: u16) {
+pub fn run_server(scanner_host: &str, listen_addr: &str, listen_port: u16, use_tls: bool) {
     println!("Running on http://{}:{}/", listen_addr, listen_port);
 
-    let scanner = Scanner::new(scanner_host);
+    let scanner = Scanner::new(scanner_host, use_tls);
 
     let mut router = Router::new();
     router.get("/",
