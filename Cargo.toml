@@ -13,12 +13,12 @@ build = "build.rs"
 lto = true
 
 [build-dependencies]
-clap = "2.23"
+clap = "2.24"
 
 [dependencies]
 hyper = "0.10"
 xmltree = "0.4"
-xml-rs = "0.4"
+xml-rs = "0.6"
 time = "0.1"
 # cli
 clap = "2.24"
