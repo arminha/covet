@@ -88,9 +88,9 @@ pub struct ScanJobStatus {
 fn read_page(element: &Element) -> Result<ScanPage, ParseError> {
     let number: u32 = util::read_child_value(element, "PageNumber")?.parse()?;
     let state: PageState = util::parse_child_value(element, "PageState")?;
-    let url = util::read_child_value(element, "BinaryURL")
-        .ok()
-        .map(|v| v.to_string());
+    let url = util::read_child_value(element, "BinaryURL").ok().map(|v| {
+        v.to_string()
+    });
     Ok(ScanPage::new(number, state, url))
 }
 
@@ -213,20 +213,24 @@ mod test {
     fn read_job_status_xml_preparing() {
         let status = parse_job_status(FULL_JOB_STATUS);
         assert_eq!(JobState::Processing, status.state);
-        check_one_page(&status,
-                       1,
-                       PageState::PreparingScan,
-                       Some("/Scan/Jobs/2/Pages/1"));
+        check_one_page(
+            &status,
+            1,
+            PageState::PreparingScan,
+            Some("/Scan/Jobs/2/Pages/1"),
+        );
     }
 
     #[test]
     fn read_job_status_xml_ready_to_upload() {
         let status = parse_job_status(READY_TO_UPLOAD);
         assert_eq!(JobState::Processing, status.state);
-        check_one_page(&status,
-                       1,
-                       PageState::ReadyToUpload,
-                       Some("/Scan/Jobs/4/Pages/1"));
+        check_one_page(
+            &status,
+            1,
+            PageState::ReadyToUpload,
+            Some("/Scan/Jobs/4/Pages/1"),
+        );
     }
 
     #[test]

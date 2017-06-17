@@ -54,7 +54,8 @@ impl From<String> for ScannerError {
 impl From<io::Error> for ScannerError {
     fn from(err: io::Error) -> Self {
         if ErrorKind::Other == err.kind() &&
-           err.description().contains("Name or service not known") {
+            err.description().contains("Name or service not known")
+        {
             return ScannerError::NotAvailable(err);
         }
         match err.raw_os_error() {
@@ -79,9 +80,11 @@ impl fmt::Display for ScannerError {
             ScannerError::AdfEmpty => write!(f, "Adf is empty"),
             ScannerError::Busy => write!(f, "Scanner is busy"),
             ScannerError::NotAvailable(ref err) => {
-                write!(f,
-                       "Scanner is not available. Is it turned off? Cause: {}",
-                       err)
+                write!(
+                    f,
+                    "Scanner is not available. Is it turned off? Cause: {}",
+                    err
+                )
             }
             ScannerError::Other(ref err) => write!(f, "{}", err),
         }
@@ -145,7 +148,9 @@ impl Scanner {
         let url = self.base_url.join("/Scan/Jobs")?;
         let response = self.client.post(url).body(&result).send()?;
         if response.status != StatusCode::Created {
-            return Err(ScannerError::Other(format!("Received status {}", response.status)));
+            return Err(ScannerError::Other(
+                format!("Received status {}", response.status),
+            ));
         }
         let location: &Location = response.headers.get().unwrap();
         let loc_url = Url::parse(location)?;
@@ -219,9 +224,13 @@ mod test {
     #[test]
     fn check_output_file_name() {
         let time = time::at_utc(time::Timespec::new(1486905545, 0));
-        assert_eq!("scan_20170212_131905.pdf",
-                   output_file_name(&Format::Pdf, &time));
-        assert_eq!("scan_20170212_131905.jpeg",
-                   output_file_name(&Format::Jpeg, &time));
+        assert_eq!(
+            "scan_20170212_131905.pdf",
+            output_file_name(&Format::Pdf, &time)
+        );
+        assert_eq!(
+            "scan_20170212_131905.jpeg",
+            output_file_name(&Format::Jpeg, &time)
+        );
     }
 }

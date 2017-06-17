@@ -108,9 +108,11 @@ mod test {
             assert_eq!(adf_state, scan_status.adf_state());
         }
         check_parse_scan_status(SCAN_STATUS_IDLE, ScannerState::Idle, AdfState::Empty);
-        check_parse_scan_status(SCAN_STATUS_BUSY,
-                                ScannerState::BusyWithScanJob,
-                                AdfState::Empty);
+        check_parse_scan_status(
+            SCAN_STATUS_BUSY,
+            ScannerState::BusyWithScanJob,
+            AdfState::Empty,
+        );
         check_parse_scan_status(SCAN_STATUS_LOADED, ScannerState::Idle, AdfState::Loaded);
     }
 

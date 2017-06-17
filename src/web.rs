@@ -38,12 +38,16 @@ pub fn run_server(scanner_host: &str, listen_addr: &str, listen_port: u16, use_t
     let scanner = Scanner::new(scanner_host, use_tls);
 
     let mut router = Router::new();
-    router.get("/",
-               StaticContent::new(INDEX_HTML, ContentType::html()),
-               "index");
-    router.get("/style.css",
-               StaticContent::new(STYLE_CSS, ContentType("text/css".parse().unwrap())),
-               "style.css");
+    router.get(
+        "/",
+        StaticContent::new(INDEX_HTML, ContentType::html()),
+        "index",
+    );
+    router.get(
+        "/style.css",
+        StaticContent::new(STYLE_CSS, ContentType("text/css".parse().unwrap())),
+        "style.css",
+    );
     router.post("/scan", scanner, "scan_post");
 
     let iron = Iron {
@@ -87,10 +91,12 @@ impl Handler for StaticContent {
                 return Ok(Response::with((status::NotModified, self.etag_header())));
             }
         }
-        Ok(Response::with((status::Ok,
-                           self.content_type_header(),
-                           self.etag_header(),
-                           self.content)))
+        Ok(Response::with((
+            status::Ok,
+            self.content_type_header(),
+            self.etag_header(),
+            self.content,
+        )))
     }
 }
 
@@ -107,33 +113,39 @@ impl Handler for Scanner {
         let color_space = get_colorspace_param(params);
         let source = get_source_param(params);
         let filename = scanner::output_file_name(&format, &time::now());
-        println!("Scan parameters: format={:?}, color={:?}, source={:?}",
-                 format,
-                 color_space,
-                 source);
+        println!(
+            "Scan parameters: format={:?}, color={:?}, source={:?}",
+            format,
+            color_space,
+            source
+        );
         let body = match do_scan(self, format, color_space, &source) {
             Ok(body) => body,
             Err(e) => return Ok(render_error(&e)),
         };
-        Ok(Response::with((status::Ok,
-                           Header(content_disposition(filename)),
-                           Header(content_type(&format)),
-                           body)))
+        Ok(Response::with((
+            status::Ok,
+            Header(content_disposition(filename)),
+            Header(content_type(&format)),
+            body,
+        )))
     }
 }
 
-fn do_scan(scanner: &Scanner,
-           format: Format,
-           color: ColorSpace,
-           source: &Source)
-           -> Result<BodyReader<Box<Read + Send>>, ScannerError> {
+fn do_scan(
+    scanner: &Scanner,
+    format: Format,
+    color: ColorSpace,
+    source: &Source,
+) -> Result<BodyReader<Box<Read + Send>>, ScannerError> {
     let status = scanner.get_scan_status()?;
     if !status.is_idle() {
         return Err(ScannerError::Busy);
     }
     let input_source = choose_source(source, status.adf_state())?;
-    let mut job = scanner
-        .start_job(ScanJob::new(input_source, 300, format, color))?;
+    let mut job = scanner.start_job(
+        ScanJob::new(input_source, 300, format, color),
+    )?;
     println!("Job: {:?}", job);
     loop {
         let ready = job.retrieve_status()?;
@@ -217,9 +229,13 @@ fn content_type(format: &Format) -> ContentType {
 fn content_disposition(filename: String) -> ContentDisposition {
     ContentDisposition {
         disposition: DispositionType::Attachment,
-        parameters: vec![DispositionParam::Filename(Charset::Ext("UTF-8".to_owned()),
-                                                    None,
-                                                    filename.into_bytes())],
+        parameters: vec![
+            DispositionParam::Filename(
+                Charset::Ext("UTF-8".to_owned()),
+                None,
+                filename.into_bytes()
+            ),
+        ],
     }
 }
 

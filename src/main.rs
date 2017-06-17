@@ -36,13 +36,14 @@ fn main() {
         let color = value_t!(matches.value_of("COLORSPACE"), cli::ColorSpace).unwrap();
         let source = value_t!(matches.value_of("SOURCE"), cli::Source).unwrap();
         let resolution = value_t!(matches.value_of("RESOLUTION"), u32).unwrap();
-        scan(host,
-             use_tls,
-             format.to_internal(),
-             color.to_internal(),
-             &source,
-             resolution)
-                .unwrap_or_else(|e| println!("Error: {}", e));
+        scan(
+            host,
+            use_tls,
+            format.to_internal(),
+            color.to_internal(),
+            &source,
+            resolution,
+        ).unwrap_or_else(|e| println!("Error: {}", e));
     } else if let Some(matches) = matches.subcommand_matches("web") {
         let host = matches.value_of("SCANNER").unwrap();
         let use_tls = !matches.is_present("no-tls");
@@ -60,9 +61,11 @@ fn status(host: &str, use_tls: bool) {
 fn print_scan_status(scanner: &Scanner) -> Result<(), ScannerError> {
     println!("Status of scanner {}", scanner.host());
     let status = scanner.get_scan_status()?;
-    println!("Scanner: {:?}, Adf: {:?}",
-             status.scanner_state(),
-             status.adf_state());
+    println!(
+        "Scanner: {:?}, Adf: {:?}",
+        status.scanner_state(),
+        status.adf_state()
+    );
     Ok(())
 }
 
@@ -105,21 +108,23 @@ fn choose_source(source: &cli::Source, adf_state: AdfState) -> Result<InputSourc
     Ok(input_source)
 }
 
-fn scan(host: &str,
-        use_tls: bool,
-        format: Format,
-        color: ColorSpace,
-        source: &cli::Source,
-        resolution: u32)
-        -> Result<(), ScannerError> {
+fn scan(
+    host: &str,
+    use_tls: bool,
+    format: Format,
+    color: ColorSpace,
+    source: &cli::Source,
+    resolution: u32,
+) -> Result<(), ScannerError> {
     let scanner = Scanner::new(host, use_tls);
     let status = scanner.get_scan_status()?;
     if !status.is_idle() {
         return Err(ScannerError::Busy);
     }
     let input_source = choose_source(source, status.adf_state())?;
-    let mut job = scanner
-        .start_job(ScanJob::new(input_source, resolution, format, color))?;
+    let mut job = scanner.start_job(
+        ScanJob::new(input_source, resolution, format, color),
+    )?;
     println!("Job: {:?}", job);
     loop {
         let ready = job.retrieve_status()?;

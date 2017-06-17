@@ -36,11 +36,12 @@ pub struct ScanJob {
 }
 
 impl ScanJob {
-    pub fn new(input_source: InputSource,
-               resolution: u32,
-               format: Format,
-               color_space: ColorSpace)
-               -> ScanJob {
+    pub fn new(
+        input_source: InputSource,
+        resolution: u32,
+        format: Format,
+        color_space: ColorSpace,
+    ) -> ScanJob {
         ScanJob {
             input_source: input_source,
             resolution: resolution,
@@ -55,10 +56,10 @@ impl ScanJob {
             namespace.put(PREFIX, XML_NAMESPACE);
             let empty_attrs = Vec::new();
             w.write(XmlEvent::StartElement {
-                        name: Name::qualified(name, XML_NAMESPACE, Option::from(PREFIX)),
-                        attributes: Cow::Borrowed(&empty_attrs),
-                        namespace: Cow::Borrowed(&namespace),
-                    })
+                name: Name::qualified(name, XML_NAMESPACE, Option::from(PREFIX)),
+                attributes: Cow::Borrowed(&empty_attrs),
+                namespace: Cow::Borrowed(&namespace),
+            })
         }
         fn exit_elem<W: Write>(w: &mut EventWriter<W>) -> Result<()> {
             w.write(XmlEvent::EndElement { name: Option::None })
