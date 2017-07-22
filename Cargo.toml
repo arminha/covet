@@ -22,7 +22,7 @@ xmltree = "0.4"
 xml-rs = "0.6"
 time = "0.1"
 # cli
-clap = "2.24"
+clap = "2.25"
 # web
 iron = "0.5"
 router = "0.5"
