@@ -1,6 +1,6 @@
 [package]
 name = "covet"
-version = "0.5.0"
+version = "0.5.1"
 authors = ["Armin Häberling <armin.aha@gmail.com>"]
 license = "GPL-3.0"
 readme = "README.md"
