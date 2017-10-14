@@ -13,7 +13,7 @@ pushd covet
 
 # create changelog
 AUTHOR="Armin Häberling <armin.aha@gmail.com>"
-VERSION=`cargo metadata --no-deps | python3 -c "import sys, json; print(json.load(sys.stdin)['packages'][0]['version'])"`
+VERSION=`cargo metadata --format-version 1 --no-deps | python3 -c "import sys, json; print(json.load(sys.stdin)['packages'][0]['version'])"`
 
 cat > debian/changelog << EOF
 covet ($VERSION) unstable; urgency=low
