@@ -129,72 +129,72 @@ mod test {
 
     use super::*;
 
-    const FULL_JOB_STATUS: &'static str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
-            <j:Job xmlns:j=\"http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30\">\
-            <j:JobUrl>/Jobs/JobList/2</j:JobUrl>\
-            <j:JobCategory>Scan</j:JobCategory>\
-            <j:JobState>Processing</j:JobState>\
-            <j:JobStateUpdate>42-6</j:JobStateUpdate>\
-            <ScanJob xmlns=\"http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19\">\
-            <PreScanPage>\
-            <PageNumber>1</PageNumber>\
-            <PageState>PreparingScan</PageState>\
-            <BufferInfo>\
-            <ScanSettings>\
-            <XResolution>300</XResolution>\
-            <YResolution>300</YResolution>\
-            <XStart>0</XStart>\
-            <YStart>0</YStart>\
-            <Width>2480</Width>\
-            <Height>3508</Height>\
-            <Format>Jpeg</Format>\
-            <CompressionQFactor>25</CompressionQFactor>\
-            <ColorSpace>Color</ColorSpace>\
-            <BitDepth>8</BitDepth>\
-            <InputSource>Platen</InputSource>\
-            <ContentType>Photo</ContentType>\
-            </ScanSettings>\
-            <ImageWidth>2480</ImageWidth>\
-            <ImageHeight>3508</ImageHeight>\
-            <BytesPerLine>7440</BytesPerLine>\
-            <Cooked>enabled</Cooked>\
-            </BufferInfo>\
-            <BinaryURL>/Scan/Jobs/2/Pages/1</BinaryURL>\
-            <ImageOrientation>Normal</ImageOrientation>\
-            </PreScanPage>\
-            </ScanJob>\
-            </j:Job>";
+    const FULL_JOB_STATUS: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
+            <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30">
+            <j:JobUrl>/Jobs/JobList/2</j:JobUrl>
+            <j:JobCategory>Scan</j:JobCategory>
+            <j:JobState>Processing</j:JobState>
+            <j:JobStateUpdate>42-6</j:JobStateUpdate>
+            <ScanJob xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
+            <PreScanPage>
+            <PageNumber>1</PageNumber>
+            <PageState>PreparingScan</PageState>
+            <BufferInfo>
+            <ScanSettings>
+            <XResolution>300</XResolution>
+            <YResolution>300</YResolution>
+            <XStart>0</XStart>
+            <YStart>0</YStart>
+            <Width>2480</Width>
+            <Height>3508</Height>
+            <Format>Jpeg</Format>
+            <CompressionQFactor>25</CompressionQFactor>
+            <ColorSpace>Color</ColorSpace>
+            <BitDepth>8</BitDepth>
+            <InputSource>Platen</InputSource>
+            <ContentType>Photo</ContentType>
+            </ScanSettings>
+            <ImageWidth>2480</ImageWidth>
+            <ImageHeight>3508</ImageHeight>
+            <BytesPerLine>7440</BytesPerLine>
+            <Cooked>enabled</Cooked>
+            </BufferInfo>
+            <BinaryURL>/Scan/Jobs/2/Pages/1</BinaryURL>
+            <ImageOrientation>Normal</ImageOrientation>
+            </PreScanPage>
+            </ScanJob>
+            </j:Job>"#;
 
-    const READY_TO_UPLOAD: &'static str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
-            <j:Job xmlns:j=\"http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30\">\
-            <j:JobUrl>/Jobs/JobList/4</j:JobUrl>\
-            <j:JobCategory>Scan</j:JobCategory>\
-            <j:JobState>Processing</j:JobState>\
-            <j:JobStateUpdate>42-6</j:JobStateUpdate>\
-            <ScanJob xmlns=\"http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19\">
-            <PreScanPage>\
-            <PageNumber>1</PageNumber>\
-            <PageState>ReadyToUpload</PageState>\
-            <BinaryURL>/Scan/Jobs/4/Pages/1</BinaryURL>\
-            </PreScanPage>\
-            </ScanJob>\
-            </j:Job>";
+    const READY_TO_UPLOAD: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
+            <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30">
+            <j:JobUrl>/Jobs/JobList/4</j:JobUrl>
+            <j:JobCategory>Scan</j:JobCategory>
+            <j:JobState>Processing</j:JobState>
+            <j:JobStateUpdate>42-6</j:JobStateUpdate>
+            <ScanJob xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
+            <PreScanPage>
+            <PageNumber>1</PageNumber>
+            <PageState>ReadyToUpload</PageState>
+            <BinaryURL>/Scan/Jobs/4/Pages/1</BinaryURL>
+            </PreScanPage>
+            </ScanJob>
+            </j:Job>"#;
 
-    const COMPLETED: &'static str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
-            <j:Job xmlns:j=\"http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30\">\
+    const COMPLETED: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
+            <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30">
             <j:JobUrl>/Jobs/JobList/6</j:JobUrl>
             <j:JobCategory>Scan</j:JobCategory>
             <j:JobState>Completed</j:JobState>
             <j:JobStateUpdate>42-23</j:JobStateUpdate>
             <j:JobSource>userIO</j:JobSource>
-            <ScanJob xmlns=\"http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19\">\
-            <PostScanPage>\
-            <PageNumber>2</PageNumber>\
-            <PageState>UploadCompleted</PageState>\
-            <TotalLines>3501</TotalLines>\
-            </PostScanPage>\
-            </ScanJob>\
-            </j:Job>";
+            <ScanJob xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
+            <PostScanPage>
+            <PageNumber>2</PageNumber>
+            <PageState>UploadCompleted</PageState>
+            <TotalLines>3501</TotalLines>
+            </PostScanPage>
+            </ScanJob>
+            </j:Job>"#;
 
     fn parse_job_status(s: &str) -> ScanJobStatus {
         let status = s.as_bytes();

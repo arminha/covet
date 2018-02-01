@@ -81,23 +81,23 @@ mod test {
 
     use super::*;
 
-    const SCAN_STATUS_IDLE: &'static str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
-            <ScanStatus xmlns=\"http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19\">\
-            <ScannerState>Idle</ScannerState>\
-            <AdfState>Empty</AdfState>\
-            </ScanStatus>";
+    const SCAN_STATUS_IDLE: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
+            <ScanStatus xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
+            <ScannerState>Idle</ScannerState>
+            <AdfState>Empty</AdfState>
+            </ScanStatus>"#;
 
-    const SCAN_STATUS_BUSY: &'static str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
-            <ScanStatus xmlns=\"http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19\">\
-            <ScannerState>BusyWithScanJob</ScannerState>\
-            <AdfState>Empty</AdfState>\
-            </ScanStatus>";
+    const SCAN_STATUS_BUSY: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
+            <ScanStatus xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
+            <ScannerState>BusyWithScanJob</ScannerState>
+            <AdfState>Empty</AdfState>
+            </ScanStatus>"#;
 
-    const SCAN_STATUS_LOADED: &'static str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
-            <ScanStatus xmlns=\"http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19\">\
-            <ScannerState>Idle</ScannerState>\
-            <AdfState>Loaded</AdfState>\
-            </ScanStatus>";
+    const SCAN_STATUS_LOADED: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
+            <ScanStatus xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
+            <ScannerState>Idle</ScannerState>
+            <AdfState>Loaded</AdfState>
+            </ScanStatus>"#;
 
     #[test]
     fn read_scan_status_xml() {
