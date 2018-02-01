@@ -22,9 +22,9 @@ use scanner;
 use scanner::{Scanner, ScannerError};
 use message::scan_status::AdfState;
 
-const INDEX_HTML: &'static [u8] = include_bytes!("resources/index.html");
-const STYLE_CSS: &'static [u8] = include_bytes!("resources/style.css");
-const ERROR_TEMPLATE: &'static str = include_str!("resources/error.html");
+const INDEX_HTML: &[u8] = include_bytes!("resources/index.html");
+const STYLE_CSS: &[u8] = include_bytes!("resources/style.css");
+const ERROR_TEMPLATE: &str = include_str!("resources/error.html");
 
 struct StaticContent {
     content: &'static [u8],
@@ -261,7 +261,7 @@ mod test {
 
     use super::*;
 
-    const TEST_CONTENT: &'static [u8] = b"Hello world!";
+    const TEST_CONTENT: &[u8] = b"Hello world!";
 
     #[test]
     fn static_content_generate_etag() {
