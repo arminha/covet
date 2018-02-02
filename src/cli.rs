@@ -102,7 +102,7 @@ pub fn build_cli() -> App<'static, 'static> {
         )
         .subcommand(
             SubCommand::with_name("web")
-                .about("Start a web interface to handle scan jobs")
+                .about("Start a web server to handle scan jobs")
                 .arg(
                     Arg::with_name("SCANNER")
                         .help("The hostname of the scanner")
