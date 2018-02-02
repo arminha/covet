@@ -22,7 +22,9 @@ To start the web UI run
 ```
 covet web <SCANNER>
 ```
-where `<SCANNER>` is the hostname or IP address of your scanner. Then open [`http://127.0.0.1:3000/`](http://127.0.0.1:3000/) in your browser.
+where `<SCANNER>` is the hostname or IP address of your scanner. Then open [`http://127.0.0.1:3000/`](http://127.0.0.1:3000/) in your browser. It will show the following page with a simple form to scan a document.
+
+![Web UI Screenshot](doc/screenshots/webui.png)
 
 #### Options
 
