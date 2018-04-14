@@ -8,7 +8,7 @@ Homepage: https://github.com/arminha/covet
 
 Package: covet
 Architecture: any
-Depends: adduser, ${shlibs:Depends}, ${misc:Depends}
+Depends: adduser, lsb-base, ${shlibs:Depends}, ${misc:Depends}
 Description: Tools for operating HP scanners in a network
   Features
    * Supports HP Envy scanners
