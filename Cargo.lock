@@ -119,7 +119,7 @@ dependencies = [
 
 [[package]]
 name = "covet"
-version = "0.5.4"
+version = "0.5.5"
 dependencies = [
  "base64 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.31.2 (registry+https://github.com/rust-lang/crates.io-index)",
