@@ -64,9 +64,9 @@ pub struct ScanPage {
 impl ScanPage {
     pub fn new(number: u32, state: PageState, binary_url: Option<String>) -> ScanPage {
         ScanPage {
-            number: number,
-            state: state,
-            binary_url: binary_url,
+            number,
+            state,
+            binary_url,
         }
     }
 
@@ -96,10 +96,7 @@ fn read_page(element: &Element) -> Result<ScanPage, ParseError> {
 
 impl ScanJobStatus {
     pub fn new(state: JobState, pages: Vec<ScanPage>) -> ScanJobStatus {
-        ScanJobStatus {
-            state: state,
-            pages: pages,
-        }
+        ScanJobStatus { state, pages }
     }
 
     pub fn pages(&self) -> &Vec<ScanPage> {

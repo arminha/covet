@@ -43,10 +43,10 @@ impl ScanJob {
         color_space: ColorSpace,
     ) -> ScanJob {
         ScanJob {
-            input_source: input_source,
-            resolution: resolution,
-            format: format,
-            color_space: color_space,
+            input_source,
+            resolution,
+            format,
+            color_space,
         }
     }
 

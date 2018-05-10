@@ -51,8 +51,8 @@ pub struct ScanStatus {
 impl ScanStatus {
     pub fn new(scanner_state: ScannerState, adf_state: AdfState) -> ScanStatus {
         ScanStatus {
-            scanner_state: scanner_state,
-            adf_state: adf_state,
+            scanner_state,
+            adf_state,
         }
     }
 

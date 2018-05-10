@@ -119,10 +119,7 @@ impl Scanner {
             format!("http://{}", host)
         };
         let base_url = Url::parse(&base_url_string).unwrap();
-        Scanner {
-            client: client,
-            base_url: base_url,
-        }
+        Scanner { client, base_url }
     }
 
     pub fn host(&self) -> &str {
@@ -175,8 +172,8 @@ impl Scanner {
 impl<'a> Job<'a> {
     fn new(scanner: &Scanner, location: Url) -> Job {
         Job {
-            scanner: scanner,
-            location: location,
+            scanner,
+            location,
             binary_url: None,
         }
     }

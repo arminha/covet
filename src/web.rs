@@ -65,9 +65,9 @@ impl StaticContent {
         let hash = hasher.result();
         let etag = EntityTag::strong(base64::encode_config(&hash[..], URL_SAFE_NO_PAD));
         StaticContent {
-            content: content,
-            content_type: content_type,
-            etag: etag,
+            content,
+            content_type,
+            etag,
         }
     }
 
