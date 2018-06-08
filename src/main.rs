@@ -122,9 +122,7 @@ fn scan(
         return Err(ScannerError::Busy);
     }
     let input_source = choose_source(source, status.adf_state())?;
-    let mut job = scanner.start_job(
-        ScanJob::new(input_source, resolution, format, color),
-    )?;
+    let mut job = scanner.start_job(ScanJob::new(input_source, resolution, format, color))?;
     println!("Job: {:?}", job);
     loop {
         let ready = job.retrieve_status()?;

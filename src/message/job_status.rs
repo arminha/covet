@@ -88,9 +88,9 @@ pub struct ScanJobStatus {
 fn read_page(element: &Element) -> Result<ScanPage, ParseError> {
     let number: u32 = util::read_child_value(element, "PageNumber")?.parse()?;
     let state: PageState = util::parse_child_value(element, "PageState")?;
-    let url = util::read_child_value(element, "BinaryURL").ok().map(|v| {
-        v.to_string()
-    });
+    let url = util::read_child_value(element, "BinaryURL")
+        .ok()
+        .map(|v| v.to_string());
     Ok(ScanPage::new(number, state, url))
 }
 

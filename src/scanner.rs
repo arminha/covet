@@ -83,13 +83,11 @@ impl fmt::Display for ScannerError {
             ScannerError::Parse(ref err) => write!(f, "{}", err),
             ScannerError::AdfEmpty => write!(f, "Adf is empty"),
             ScannerError::Busy => write!(f, "Scanner is busy"),
-            ScannerError::NotAvailable(ref err) => {
-                write!(
-                    f,
-                    "Scanner is not available. Is it turned off? Cause: {}",
-                    err
-                )
-            }
+            ScannerError::NotAvailable(ref err) => write!(
+                f,
+                "Scanner is not available. Is it turned off? Cause: {}",
+                err
+            ),
             ScannerError::Other(ref err) => write!(f, "{}", err),
         }
     }
@@ -149,9 +147,10 @@ impl Scanner {
         let url = self.base_url.join("/Scan/Jobs")?;
         let response = self.client.post(url).body(&result).send()?;
         if response.status != StatusCode::Created {
-            return Err(ScannerError::Other(
-                format!("Received status {}", response.status),
-            ));
+            return Err(ScannerError::Other(format!(
+                "Received status {}",
+                response.status
+            )));
         }
         let location: &Location = response.headers.get().unwrap();
         let loc_url = Url::parse(location)?;

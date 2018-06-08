@@ -115,9 +115,7 @@ impl Handler for Scanner {
         let filename = scanner::output_file_name(&format, &time::now());
         println!(
             "Scan parameters: format={:?}, color={:?}, source={:?}",
-            format,
-            color_space,
-            source
+            format, color_space, source
         );
         let body = match do_scan(self, format, color_space, &source) {
             Ok(body) => body,
@@ -143,9 +141,7 @@ fn do_scan(
         return Err(ScannerError::Busy);
     }
     let input_source = choose_source(source, status.adf_state())?;
-    let mut job = scanner.start_job(
-        ScanJob::new(input_source, 300, format, color),
-    )?;
+    let mut job = scanner.start_job(ScanJob::new(input_source, 300, format, color))?;
     println!("Job: {:?}", job);
     loop {
         let ready = job.retrieve_status()?;
@@ -181,40 +177,34 @@ fn choose_source(source: &Source, adf_state: AdfState) -> Result<InputSource, Sc
 
 fn get_format_param(params: &HashMap<String, Vec<String>>) -> Format {
     match params.get("format") {
-        Some(values) => {
-            match values.first() {
-                Some(pdf) if pdf == "pdf" => Format::Pdf,
-                Some(jpeg) if jpeg == "jpeg" => Format::Jpeg,
-                _ => Format::Pdf,
-            }
-        }
+        Some(values) => match values.first() {
+            Some(pdf) if pdf == "pdf" => Format::Pdf,
+            Some(jpeg) if jpeg == "jpeg" => Format::Jpeg,
+            _ => Format::Pdf,
+        },
         _ => Format::Pdf,
     }
 }
 
 fn get_colorspace_param(params: &HashMap<String, Vec<String>>) -> ColorSpace {
     match params.get("colorspace") {
-        Some(values) => {
-            match values.first() {
-                Some(color) if color == "color" => ColorSpace::Color,
-                Some(gray) if gray == "gray" => ColorSpace::Color,
-                _ => ColorSpace::Color,
-            }
-        }
+        Some(values) => match values.first() {
+            Some(color) if color == "color" => ColorSpace::Color,
+            Some(gray) if gray == "gray" => ColorSpace::Color,
+            _ => ColorSpace::Color,
+        },
         _ => ColorSpace::Color,
     }
 }
 
 fn get_source_param(params: &HashMap<String, Vec<String>>) -> Source {
     match params.get("source") {
-        Some(values) => {
-            match values.first() {
-                Some(auto) if auto == "auto" => Source::auto,
-                Some(adf) if adf == "adf" => Source::adf,
-                Some(glass) if glass == "glass" => Source::glass,
-                _ => Source::auto,
-            }
-        }
+        Some(values) => match values.first() {
+            Some(auto) if auto == "auto" => Source::auto,
+            Some(adf) if adf == "adf" => Source::adf,
+            Some(glass) if glass == "glass" => Source::glass,
+            _ => Source::auto,
+        },
         _ => Source::auto,
     }
 }
@@ -229,13 +219,11 @@ fn content_type(format: &Format) -> ContentType {
 fn content_disposition(filename: String) -> ContentDisposition {
     ContentDisposition {
         disposition: DispositionType::Attachment,
-        parameters: vec![
-            DispositionParam::Filename(
-                Charset::Ext("UTF-8".to_owned()),
-                None,
-                filename.into_bytes()
-            ),
-        ],
+        parameters: vec![DispositionParam::Filename(
+            Charset::Ext("UTF-8".to_owned()),
+            None,
+            filename.into_bytes(),
+        )],
     }
 }
 
