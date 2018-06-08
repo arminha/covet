@@ -1,4 +1,4 @@
-use clap::{Arg, App, AppSettings, SubCommand};
+use clap::{App, AppSettings, Arg, SubCommand};
 
 arg_enum!{
     #[allow(non_camel_case_types)]

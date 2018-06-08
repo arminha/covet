@@ -1,13 +1,13 @@
 use base64::{self, URL_SAFE_NO_PAD};
-use iron::status;
-use iron::headers::{ContentDisposition, ContentType, DispositionType, DispositionParam, Charset,
-                    EntityTag, ETag, IfNoneMatch};
+use iron::headers::{Charset, ContentDisposition, ContentType, DispositionParam, DispositionType,
+                    ETag, EntityTag, IfNoneMatch};
 use iron::modifiers::Header;
 use iron::prelude::*;
 use iron::response::BodyReader;
+use iron::status;
 use iron::{Handler, Timeouts};
 use router::Router;
-use sha2::{Sha512Trunc256, Digest};
+use sha2::{Digest, Sha512Trunc256};
 use time;
 use urlencoded::UrlEncodedBody;
 
@@ -17,10 +17,10 @@ use std::thread;
 use std::time::Duration;
 
 use cli::Source;
-use message::scan_job::{ScanJob, ColorSpace, Format, InputSource};
+use message::scan_job::{ColorSpace, Format, InputSource, ScanJob};
+use message::scan_status::AdfState;
 use scanner;
 use scanner::{Scanner, ScannerError};
-use message::scan_status::AdfState;
 
 const INDEX_HTML: &[u8] = include_bytes!("resources/index.html");
 const STYLE_CSS: &[u8] = include_bytes!("resources/style.css");

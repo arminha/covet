@@ -16,7 +16,7 @@ use std::io::{self, ErrorKind, Read};
 
 use message::error::ParseError;
 use message::job_status::{PageState, ScanJobStatus};
-use message::scan_job::{ScanJob, Format};
+use message::scan_job::{Format, ScanJob};
 use message::scan_status::ScanStatus;
 
 #[derive(Debug)]

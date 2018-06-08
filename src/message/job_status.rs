@@ -1,7 +1,7 @@
 use xmltree::Element;
 
-use std::io::Read;
 use std::convert::From;
+use std::io::Read;
 use std::num::ParseIntError;
 use std::str::FromStr;
 

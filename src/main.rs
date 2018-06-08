@@ -12,14 +12,14 @@ extern crate xml;
 extern crate xmltree;
 
 mod cli;
-mod scanner;
 mod message;
+mod scanner;
 mod web;
 
 use std::thread;
 use std::time::Duration;
 
-use message::scan_job::{ScanJob, InputSource, Format, ColorSpace};
+use message::scan_job::{ColorSpace, Format, InputSource, ScanJob};
 use message::scan_status::AdfState;
 use scanner::{Scanner, ScannerError};
 
