@@ -13,11 +13,7 @@ sudo: false
 
 cache: cargo
 
-install:
-  - (rustfmt -V || cargo install rustfmt -f --vers 0.9.0)
-  - PATH=$PATH:/home/travis/.cargo/bin
-
 script:
-  - cargo fmt -- --write-mode=diff
+  - if [ $TRAVIS_RUST_VERSION = "stable" ] then cargo fmt -- --write-mode=diff fi
   - cargo build --verbose
   - cargo test --verbose
