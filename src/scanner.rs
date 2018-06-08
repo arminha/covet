@@ -53,15 +53,19 @@ impl From<String> for ScannerError {
 
 impl From<io::Error> for ScannerError {
     fn from(err: io::Error) -> Self {
-        if ErrorKind::Other == err.kind() &&
-            err.description().contains("Name or service not known")
-        {
-            return ScannerError::NotAvailable(err);
-        }
-        match err.raw_os_error() {
-            // ECONNREFUSED - 111 - Connection refused or EHOSTUNREACH 113 No route to host
-            Some(111) | Some(113) => ScannerError::NotAvailable(err),
-            _ => ScannerError::Io(err),
+        let not_available = match err.kind() {
+            ErrorKind::ConnectionRefused => true,
+            ErrorKind::Other if err.description().contains("Name or service not known") => true,
+            _ => match err.raw_os_error() {
+                // ECONNREFUSED - 111 - Connection refused or EHOSTUNREACH 113 No route to host
+                Some(111) | Some(113) => true,
+                _ => false,
+            },
+        };
+        if not_available {
+            ScannerError::NotAvailable(err)
+        } else {
+            ScannerError::Io(err)
         }
     }
 }
