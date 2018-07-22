@@ -85,7 +85,7 @@ impl Handler for StaticContent {
         if let Some(if_none_match) = req.headers.get::<IfNoneMatch>() {
             let tag_matches = match *if_none_match {
                 IfNoneMatch::Any => true,
-                IfNoneMatch::Items(ref tags) => tags.iter().any(|t| self.etag.strong_eq(t)),
+                IfNoneMatch::Items(ref tags) => tags.iter().any(|t| self.etag.weak_eq(t)),
             };
             if tag_matches {
                 return Ok(Response::with((status::NotModified, self.etag_header())));
