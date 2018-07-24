@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 extern crate base64;
 #[macro_use]
 extern crate clap;
