@@ -1,6 +1,8 @@
 use base64::{self, URL_SAFE_NO_PAD};
-use iron::headers::{Charset, ContentDisposition, ContentType, DispositionParam, DispositionType,
-                    ETag, EntityTag, IfNoneMatch};
+use iron::headers::{
+    Charset, ContentDisposition, ContentType, DispositionParam, DispositionType, ETag, EntityTag,
+    IfNoneMatch,
+};
 use iron::modifiers::Header;
 use iron::prelude::*;
 use iron::response::BodyReader;
