@@ -42,14 +42,12 @@ pub fn build_cli() -> App<'static, 'static> {
                         .help("The hostname of the scanner")
                         .required(true)
                         .index(1),
-                )
-                .arg(
+                ).arg(
                     Arg::with_name("no-tls")
                         .help("Do not use TLS to secure the connection to the scanner")
                         .long("no-tls"),
                 ),
-        )
-        .subcommand(
+        ).subcommand(
             SubCommand::with_name("scan")
                 .about("Scan a document")
                 .arg(
@@ -57,8 +55,7 @@ pub fn build_cli() -> App<'static, 'static> {
                         .help("The hostname of the scanner")
                         .required(true)
                         .index(1),
-                )
-                .arg(
+                ).arg(
                     Arg::with_name("SOURCE")
                         .help("The document source")
                         .takes_value(true)
@@ -66,8 +63,7 @@ pub fn build_cli() -> App<'static, 'static> {
                         .long("source")
                         .possible_values(&Source::variants())
                         .default_value("auto"),
-                )
-                .arg(
+                ).arg(
                     Arg::with_name("FORMAT")
                         .help("The format of the output")
                         .takes_value(true)
@@ -75,8 +71,7 @@ pub fn build_cli() -> App<'static, 'static> {
                         .long("format")
                         .possible_values(&Format::variants())
                         .default_value("pdf"),
-                )
-                .arg(
+                ).arg(
                     Arg::with_name("COLORSPACE")
                         .help("The color space of the output")
                         .takes_value(true)
@@ -84,8 +79,7 @@ pub fn build_cli() -> App<'static, 'static> {
                         .long("color")
                         .possible_values(&ColorSpace::variants())
                         .default_value("color"),
-                )
-                .arg(
+                ).arg(
                     Arg::with_name("RESOLUTION")
                         .help("The scan resolution in dpi")
                         .takes_value(true)
@@ -93,14 +87,12 @@ pub fn build_cli() -> App<'static, 'static> {
                         .long("resolution")
                         .possible_values(&["300", "600"])
                         .default_value("300"),
-                )
-                .arg(
+                ).arg(
                     Arg::with_name("no-tls")
                         .help("Do not use TLS to secure the connection to the scanner")
                         .long("no-tls"),
                 ),
-        )
-        .subcommand(
+        ).subcommand(
             SubCommand::with_name("web")
                 .about("Start a web server to handle scan jobs")
                 .arg(
@@ -108,24 +100,21 @@ pub fn build_cli() -> App<'static, 'static> {
                         .help("The hostname of the scanner")
                         .required(true)
                         .index(1),
-                )
-                .arg(
+                ).arg(
                     Arg::with_name("PORT")
                         .help("Port to use for the web server")
                         .takes_value(true)
                         .short("p")
                         .long("port")
                         .default_value("3000"),
-                )
-                .arg(
+                ).arg(
                     Arg::with_name("ADDR")
                         .help("Listen address to use for the web server")
                         .takes_value(true)
                         .short("l")
                         .long("listen")
                         .default_value("127.0.0.1"),
-                )
-                .arg(
+                ).arg(
                     Arg::with_name("no-tls")
                         .help("Do not use TLS to secure the connection to the scanner")
                         .long("no-tls"),
