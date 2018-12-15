@@ -61,7 +61,8 @@ fn main() {
             color.to_internal(),
             &source,
             resolution,
-        ).unwrap_or_else(|e| println!("Error: {}", e));
+        )
+        .unwrap_or_else(|e| println!("Error: {}", e));
     } else if let Some(matches) = matches.subcommand_matches("web") {
         let host = matches.value_of("SCANNER").unwrap();
         let use_tls = !matches.is_present("no-tls");
