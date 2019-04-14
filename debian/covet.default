@@ -1,4 +1,4 @@
-# defaults for web-video-dl server
+# defaults for covet server
 
 # pulled in from the init script; makes things easier.
 NAME=covet
