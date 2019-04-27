@@ -4,7 +4,7 @@ version = "0.5.5"
 authors = ["Armin Häberling <armin.aha@gmail.com>"]
 build = "build.rs"
 
-description = "A CLI and web frontend for scanning with HP Envy printer / scanners"
+description = "CLI and web frontend for scanning with HP Envy printer / scanners"
 homepage = "https://github.com/arminha/covet"
 repository = "https://github.com/arminha/covet"
 
