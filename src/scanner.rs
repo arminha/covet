@@ -93,7 +93,7 @@ impl From<error::ParseError> for ScannerError {
 }
 
 impl fmt::Display for ScannerError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             ScannerError::Io(ref err) => write!(f, "{}", err),
             ScannerError::Parse(ref err) => write!(f, "{}", err),
@@ -155,7 +155,7 @@ impl Scanner {
         self.client.get(url).send()
     }
 
-    pub fn start_job(&self, job: ScanJob) -> Result<Job, ScannerError> {
+    pub fn start_job(&self, job: ScanJob) -> Result<Job<'_>, ScannerError> {
         let mut target: Vec<u8> = Vec::new();
         job.write_xml(&mut target).unwrap();
         let result = String::from_utf8(target).unwrap();
@@ -175,13 +175,13 @@ impl Scanner {
         Ok(Job::new(self, loc_url_rebase))
     }
 
-    fn get_job_status(&self, job: &Job) -> Result<ScanJobStatus, ScannerError> {
+    fn get_job_status(&self, job: &Job<'_>) -> Result<ScanJobStatus, ScannerError> {
         let response = self.client.get(job.location.clone()).send()?;
         let status = ScanJobStatus::read_xml(response)?;
         Ok(status)
     }
 
-    fn download_reader(&self, binary_url: &str) -> Result<Box<Read + Send>, ScannerError> {
+    fn download_reader(&self, binary_url: &str) -> Result<Box<dyn Read + Send>, ScannerError> {
         let url = self.base_url.join(binary_url)?;
         let response = self.client.get(url).send()?;
         Ok(Box::new(response))
@@ -189,7 +189,7 @@ impl Scanner {
 }
 
 impl<'a> Job<'a> {
-    fn new(scanner: &Scanner, location: Url) -> Job {
+    fn new(scanner: &Scanner, location: Url) -> Job<'_> {
         Job {
             scanner,
             location,
@@ -210,7 +210,7 @@ impl<'a> Job<'a> {
         }
     }
 
-    pub fn download_reader(self) -> Result<Box<Read + Send>, ScannerError> {
+    pub fn download_reader(self) -> Result<Box<dyn Read + Send>, ScannerError> {
         // TODO error handling
         self.scanner.download_reader(&self.binary_url.unwrap())
     }

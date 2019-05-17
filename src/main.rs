@@ -16,18 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #![forbid(unsafe_code)]
 
-extern crate base64;
-#[macro_use]
-extern crate clap;
-extern crate hyper;
-extern crate hyper_native_tls;
-extern crate iron;
-extern crate router;
-extern crate sha2;
-extern crate time;
-extern crate urlencoded;
-extern crate xml;
-extern crate xmltree;
+use clap::value_t;
+use time;
 
 mod cli;
 mod message;

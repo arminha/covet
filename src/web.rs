@@ -99,7 +99,7 @@ impl StaticContent {
 }
 
 impl Handler for StaticContent {
-    fn handle(&self, req: &mut Request) -> IronResult<Response> {
+    fn handle(&self, req: &mut Request<'_, '_>) -> IronResult<Response> {
         if let Some(if_none_match) = req.headers.get::<IfNoneMatch>() {
             let tag_matches = match *if_none_match {
                 IfNoneMatch::Any => true,
@@ -119,7 +119,7 @@ impl Handler for StaticContent {
 }
 
 impl Handler for Scanner {
-    fn handle(&self, req: &mut Request) -> IronResult<Response> {
+    fn handle(&self, req: &mut Request<'_, '_>) -> IronResult<Response> {
         let params = match req.get_ref::<UrlEncodedBody>() {
             Ok(hashmap) => hashmap,
             Err(e) => {
@@ -153,7 +153,7 @@ fn do_scan(
     format: Format,
     color: ColorSpace,
     source: &Source,
-) -> Result<BodyReader<Box<Read + Send>>, ScannerError> {
+) -> Result<BodyReader<Box<dyn Read + Send>>, ScannerError> {
     let status = scanner.get_scan_status()?;
     if !status.is_idle() {
         return Err(ScannerError::Busy);

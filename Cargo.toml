@@ -3,6 +3,7 @@ name = "covet"
 version = "0.5.5"
 authors = ["Armin Häberling <armin.aha@gmail.com>"]
 build = "build.rs"
+edition = "2018"
 
 description = "CLI and web frontend for scanning with HP Envy printer / scanners"
 repository = "https://github.com/arminha/covet"
@@ -29,7 +30,7 @@ maintenance = { status = "passively-maintained" }
 lto = true
 
 [build-dependencies]
-clap = "2.31"
+clap = "2.33"
 
 [dependencies]
 hyper = "0.10"
@@ -38,7 +39,7 @@ xmltree = "0.8"
 xml-rs = "0.7"
 time = "0.1"
 # cli
-clap = "2.31"
+clap = "2.33"
 # web
 iron = "0.6"
 router = "0.6"
