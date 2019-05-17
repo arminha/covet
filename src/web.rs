@@ -34,11 +34,11 @@ use std::io::Read;
 use std::thread;
 use std::time::Duration;
 
-use cli::Source;
-use message::scan_job::{ColorSpace, Format, InputSource, ScanJob};
-use message::scan_status::AdfState;
-use scanner;
-use scanner::{Scanner, ScannerError};
+use crate::cli::Source;
+use crate::message::scan_job::{ColorSpace, Format, InputSource, ScanJob};
+use crate::message::scan_status::AdfState;
+use crate::scanner;
+use crate::scanner::{Scanner, ScannerError};
 
 const INDEX_HTML: &[u8] = include_bytes!("resources/index.html");
 const STYLE_CSS: &[u8] = include_bytes!("resources/style.css");

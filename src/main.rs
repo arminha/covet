@@ -37,9 +37,9 @@ mod web;
 use std::thread;
 use std::time::Duration;
 
-use message::scan_job::{ColorSpace, Format, InputSource, ScanJob};
-use message::scan_status::AdfState;
-use scanner::{Scanner, ScannerError};
+use crate::message::scan_job::{ColorSpace, Format, InputSource, ScanJob};
+use crate::message::scan_status::AdfState;
+use crate::scanner::{Scanner, ScannerError};
 
 fn main() {
     let matches = cli::build_cli().get_matches();

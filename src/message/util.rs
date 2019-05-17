@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017  Armin Häberling
+Copyright (C) 2018  Armin Häberling
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@ use xmltree::Element;
 
 use std::str::FromStr;
 
-use message::error::ParseError;
+use crate::message::error::ParseError;
 
 /// Reads the value of a child element with the given name
 pub fn read_child_value<'a>(element: &'a Element, name: &str) -> Result<&'a String, ParseError> {

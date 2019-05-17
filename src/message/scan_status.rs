@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017  Armin Häberling
+Copyright (C) 2018  Armin Häberling
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@ use xmltree::Element;
 use std::io::Read;
 use std::str::FromStr;
 
-use message::error::ParseError;
-use message::util;
+use crate::message::error::ParseError;
+use crate::message::util;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ScannerState {

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017  Armin Häberling
+Copyright (C) 2019  Armin Häberling
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@ use std::io::Read;
 use std::num::ParseIntError;
 use std::str::FromStr;
 
-use message::error::ParseError;
-use message::util;
+use crate::message::error::ParseError;
+use crate::message::util;
 
 impl From<ParseIntError> for ParseError {
     fn from(err: ParseIntError) -> Self {

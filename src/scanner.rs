@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017  Armin Häberling
+Copyright (C) 2019  Armin Häberling
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,10 +30,10 @@ use std::fmt;
 use std::fs::File;
 use std::io::{self, ErrorKind, Read};
 
-use message::error::ParseError;
-use message::job_status::{PageState, ScanJobStatus};
-use message::scan_job::{Format, ScanJob};
-use message::scan_status::ScanStatus;
+use crate::message::error::ParseError;
+use crate::message::job_status::{PageState, ScanJobStatus};
+use crate::message::scan_job::{Format, ScanJob};
+use crate::message::scan_status::ScanStatus;
 
 #[derive(Debug)]
 pub enum ScannerError {
