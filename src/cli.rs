@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017  Armin Häberling
+Copyright (C) 2019  Armin Häberling
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -109,6 +109,14 @@ pub fn build_cli() -> App<'static, 'static> {
                         .long("resolution")
                         .possible_values(&["300", "600"])
                         .default_value("300"),
+                )
+                .arg(
+                    Arg::with_name("QUALITY")
+                        .help("Compression quality level (lower is better)")
+                        .takes_value(true)
+                        .short("q")
+                        .long("compression-quality")
+                        .default_value("25"),
                 )
                 .arg(
                     Arg::with_name("no-tls")

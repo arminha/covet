@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017  Armin Häberling
+Copyright (C) 2019  Armin Häberling
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@ pub enum ColorSpace {
 pub struct ScanJob {
     input_source: InputSource,
     resolution: u32,
+    quality: u32,
     format: Format,
     color_space: ColorSpace,
 }
@@ -55,12 +56,14 @@ impl ScanJob {
     pub fn new(
         input_source: InputSource,
         resolution: u32,
+        quality: u32,
         format: Format,
         color_space: ColorSpace,
     ) -> ScanJob {
         ScanJob {
             input_source,
             resolution,
+            quality,
             format,
             color_space,
         }
@@ -103,7 +106,7 @@ impl ScanJob {
             Format::Pdf => "Pdf",
         };
         write_value(&mut writer, "Format", format)?;
-        write_value(&mut writer, "CompressionQFactor", "25")?;
+        write_value(&mut writer, "CompressionQFactor", &self.quality.to_string())?;
         let color = match self.color_space {
             ColorSpace::Color => "Color",
             ColorSpace::Gray => "Gray",
@@ -176,7 +179,7 @@ mod test {
   <scan:Width>2480</scan:Width>
   <scan:Height>3508</scan:Height>
   <scan:Format>Pdf</scan:Format>
-  <scan:CompressionQFactor>25</scan:CompressionQFactor>
+  <scan:CompressionQFactor>1</scan:CompressionQFactor>
   <scan:ColorSpace>Gray</scan:ColorSpace>
   <scan:BitDepth>8</scan:BitDepth>
   <scan:InputSource>Adf</scan:InputSource>
@@ -200,13 +203,19 @@ mod test {
 
     #[test]
     fn scan_job_write_xml_jpeg() {
-        let job = ScanJob::new(InputSource::Platen, 300, Format::Jpeg, ColorSpace::Color);
+        let job = ScanJob::new(
+            InputSource::Platen,
+            300,
+            25,
+            Format::Jpeg,
+            ColorSpace::Color,
+        );
         assert_eq!(JPEG_GLASS_LOW, write_to_string(job));
     }
 
     #[test]
     fn scan_job_write_xml_pdf() {
-        let job = ScanJob::new(InputSource::Adf, 600, Format::Pdf, ColorSpace::Gray);
+        let job = ScanJob::new(InputSource::Adf, 600, 1, Format::Pdf, ColorSpace::Gray);
         assert_eq!(PDF_ADF_HIGH, write_to_string(job));
     }
 }

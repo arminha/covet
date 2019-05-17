@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017  Armin Häberling
+Copyright (C) 2019  Armin Häberling
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -54,6 +54,7 @@ fn main() {
         let color = value_t!(matches.value_of("COLORSPACE"), cli::ColorSpace).unwrap();
         let source = value_t!(matches.value_of("SOURCE"), cli::Source).unwrap();
         let resolution = value_t!(matches.value_of("RESOLUTION"), u32).unwrap();
+        let quality = value_t!(matches.value_of("QUALITY"), u32).unwrap();
         scan(
             host,
             use_tls,
@@ -61,6 +62,7 @@ fn main() {
             color.to_internal(),
             &source,
             resolution,
+            quality,
         )
         .unwrap_or_else(|e| println!("Error: {}", e));
     } else if let Some(matches) = matches.subcommand_matches("web") {
@@ -134,6 +136,7 @@ fn scan(
     color: ColorSpace,
     source: &cli::Source,
     resolution: u32,
+    quality: u32,
 ) -> Result<(), ScannerError> {
     let scanner = Scanner::new(host, use_tls);
     let status = scanner.get_scan_status()?;
@@ -141,7 +144,13 @@ fn scan(
         return Err(ScannerError::Busy);
     }
     let input_source = choose_source(source, status.adf_state())?;
-    let mut job = scanner.start_job(ScanJob::new(input_source, resolution, format, color))?;
+    let mut job = scanner.start_job(ScanJob::new(
+        input_source,
+        resolution,
+        quality,
+        format,
+        color,
+    ))?;
     println!("Job: {:?}", job);
     loop {
         let ready = job.retrieve_status()?;

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017  Armin Häberling
+Copyright (C) 2019  Armin Häberling
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -159,7 +159,7 @@ fn do_scan(
         return Err(ScannerError::Busy);
     }
     let input_source = choose_source(source, status.adf_state())?;
-    let mut job = scanner.start_job(ScanJob::new(input_source, 300, format, color))?;
+    let mut job = scanner.start_job(ScanJob::new(input_source, 300, 25, format, color))?;
     println!("Job: {:?}", job);
     loop {
         let ready = job.retrieve_status()?;
