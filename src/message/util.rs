@@ -21,7 +21,10 @@ use std::str::FromStr;
 use crate::message::error::ParseError;
 
 /// Reads the value of a child element with the given name
-pub (super) fn read_child_value<'a>(element: &'a Element, name: &str) -> Result<&'a String, ParseError> {
+pub(super) fn read_child_value<'a>(
+    element: &'a Element,
+    name: &str,
+) -> Result<&'a String, ParseError> {
     element
         .get_child(name)
         .and_then(|v| v.text.as_ref())
@@ -29,7 +32,7 @@ pub (super) fn read_child_value<'a>(element: &'a Element, name: &str) -> Result<
 }
 
 /// Reads the value of a child element with the given name and parses it
-pub (super) fn parse_child_value<T>(element: &Element, name: &str) -> Result<T, ParseError>
+pub(super) fn parse_child_value<T>(element: &Element, name: &str) -> Result<T, ParseError>
 where
     T: FromStr<Err = ParseError>,
 {
