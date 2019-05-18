@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017  Armin Häberling
+Copyright (C) 2019  Armin Häberling
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,4 +18,4 @@ pub mod error;
 pub mod job_status;
 pub mod scan_job;
 pub mod scan_status;
-pub mod util;
+mod util;
