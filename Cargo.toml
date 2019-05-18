@@ -31,6 +31,7 @@ lto = true
 
 [build-dependencies]
 clap = "2.33"
+structopt = "0.2.15"
 
 [dependencies]
 hyper = "0.10"
@@ -40,6 +41,7 @@ xml-rs = "0.7"
 time = "0.1"
 # cli
 clap = "2.33"
+structopt = "0.2.15"
 # web
 iron = "0.6"
 router = "0.6"

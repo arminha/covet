@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #![forbid(unsafe_code)]
 
-use clap::value_t;
+use structopt::StructOpt;
 use time;
 
 mod cli;
@@ -27,45 +27,48 @@ mod web;
 use std::thread;
 use std::time::Duration;
 
+use crate::cli::{Opt, ScannerOpt};
 use crate::message::scan_job::{ColorSpace, Format, InputSource, ScanJob};
 use crate::message::scan_status::AdfState;
 use crate::scanner::{Scanner, ScannerError};
 
 fn main() {
-    let matches = cli::build_cli().get_matches();
-    if let Some(matches) = matches.subcommand_matches("status") {
-        let host = matches.value_of("SCANNER").unwrap();
-        let use_tls = !matches.is_present("no-tls");
-        status(host, use_tls);
-    } else if let Some(matches) = matches.subcommand_matches("scan") {
-        let host = matches.value_of("SCANNER").unwrap();
-        let use_tls = !matches.is_present("no-tls");
-        let format = value_t!(matches.value_of("FORMAT"), cli::Format).unwrap();
-        let color = value_t!(matches.value_of("COLORSPACE"), cli::ColorSpace).unwrap();
-        let source = value_t!(matches.value_of("SOURCE"), cli::Source).unwrap();
-        let resolution = value_t!(matches.value_of("RESOLUTION"), u32).unwrap();
-        let quality = value_t!(matches.value_of("QUALITY"), u32).unwrap();
-        scan(
-            host,
-            use_tls,
-            format.to_internal(),
-            color.to_internal(),
-            &source,
-            resolution,
-            quality,
-        )
-        .unwrap_or_else(|e| println!("Error: {}", e));
-    } else if let Some(matches) = matches.subcommand_matches("web") {
-        let host = matches.value_of("SCANNER").unwrap();
-        let use_tls = !matches.is_present("no-tls");
-        let addr = matches.value_of("ADDR").unwrap();
-        let port = value_t!(matches, "PORT", u16).unwrap();
-        web::run_server(host, addr, port, use_tls);
+    let opt = Opt::from_args();
+    match opt {
+        Opt::Status(opt) => {
+            status(opt);
+        }
+        Opt::Scan(opt) => {
+            let host = &opt.scanner_opts.scanner;
+            let use_tls = !opt.scanner_opts.no_tls;
+            let format = opt.format;
+            let color = opt.color;
+            let source = opt.source;
+            let resolution = opt.resolution;
+            let quality = opt.compression_quality;
+            scan(
+                host,
+                use_tls,
+                format.to_internal(),
+                color.to_internal(),
+                &source,
+                resolution,
+                quality,
+            )
+            .unwrap_or_else(|e| println!("Error: {}", e));
+        }
+        Opt::Web(opt) => {
+            let host = &opt.scanner_opts.scanner;
+            let use_tls = !opt.scanner_opts.no_tls;
+            let addr = &opt.listen;
+            let port = opt.port;
+            web::run_server(host, addr, port, use_tls);
+        }
     }
 }
 
-fn status(host: &str, use_tls: bool) {
-    let scanner = Scanner::new(host, use_tls);
+fn status(opt: ScannerOpt) {
+    let scanner = Scanner::new(&opt.scanner, !opt.no_tls);
     print_scan_status(&scanner).unwrap_or_else(|e| println!("Error: {}", e));
 }
 

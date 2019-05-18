@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2017  Armin Häberling
+Copyright (C) 2019  Armin Häberling
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,6 +24,6 @@ fn main() {
         None => return,
         Some(outdir) => outdir,
     };
-    let mut app = build_cli();
-    app.gen_completions("covet", Shell::Bash, outdir);
+    let mut app = Opt::clap();
+    app.gen_completions(env!("CARGO_PKG_NAME"), Shell::Bash, outdir);
 }

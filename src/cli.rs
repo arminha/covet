@@ -14,8 +14,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-use clap::{arg_enum, crate_version};
-use clap::{App, AppSettings, Arg, SubCommand};
+use clap::arg_enum;
+use structopt::{self, StructOpt};
 
 arg_enum! {
     #[allow(non_camel_case_types)]
@@ -45,115 +45,101 @@ arg_enum! {
     }
 }
 
-pub fn build_cli() -> App<'static, 'static> {
-    App::new("covet")
-        .version(crate_version!())
-        .setting(AppSettings::SubcommandRequiredElseHelp)
-        .setting(AppSettings::VersionlessSubcommands)
-        .setting(AppSettings::InferSubcommands)
-        .subcommand(
-            SubCommand::with_name("status")
-                .about("Display the status of the scanner")
-                .arg(
-                    Arg::with_name("SCANNER")
-                        .help("The hostname of the scanner")
-                        .required(true)
-                        .index(1),
-                )
-                .arg(
-                    Arg::with_name("no-tls")
-                        .help("Do not use TLS to secure the connection to the scanner")
-                        .long("no-tls"),
-                ),
-        )
-        .subcommand(
-            SubCommand::with_name("scan")
-                .about("Scan a document")
-                .arg(
-                    Arg::with_name("SCANNER")
-                        .help("The hostname of the scanner")
-                        .required(true)
-                        .index(1),
-                )
-                .arg(
-                    Arg::with_name("SOURCE")
-                        .help("The document source")
-                        .takes_value(true)
-                        .short("s")
-                        .long("source")
-                        .possible_values(&Source::variants())
-                        .default_value("auto"),
-                )
-                .arg(
-                    Arg::with_name("FORMAT")
-                        .help("The format of the output")
-                        .takes_value(true)
-                        .short("f")
-                        .long("format")
-                        .possible_values(&Format::variants())
-                        .default_value("pdf"),
-                )
-                .arg(
-                    Arg::with_name("COLORSPACE")
-                        .help("The color space of the output")
-                        .takes_value(true)
-                        .short("c")
-                        .long("color")
-                        .possible_values(&ColorSpace::variants())
-                        .default_value("color"),
-                )
-                .arg(
-                    Arg::with_name("RESOLUTION")
-                        .help("The scan resolution in dpi")
-                        .takes_value(true)
-                        .short("r")
-                        .long("resolution")
-                        .possible_values(&["300", "600"])
-                        .default_value("300"),
-                )
-                .arg(
-                    Arg::with_name("QUALITY")
-                        .help("Compression quality level (lower is better)")
-                        .takes_value(true)
-                        .short("q")
-                        .long("compression-quality")
-                        .default_value("25"),
-                )
-                .arg(
-                    Arg::with_name("no-tls")
-                        .help("Do not use TLS to secure the connection to the scanner")
-                        .long("no-tls"),
-                ),
-        )
-        .subcommand(
-            SubCommand::with_name("web")
-                .about("Start a web server to handle scan jobs")
-                .arg(
-                    Arg::with_name("SCANNER")
-                        .help("The hostname of the scanner")
-                        .required(true)
-                        .index(1),
-                )
-                .arg(
-                    Arg::with_name("PORT")
-                        .help("Port to use for the web server")
-                        .takes_value(true)
-                        .short("p")
-                        .long("port")
-                        .default_value("3000"),
-                )
-                .arg(
-                    Arg::with_name("ADDR")
-                        .help("Listen address to use for the web server")
-                        .takes_value(true)
-                        .short("l")
-                        .long("listen")
-                        .default_value("127.0.0.1"),
-                )
-                .arg(
-                    Arg::with_name("no-tls")
-                        .help("Do not use TLS to secure the connection to the scanner")
-                        .long("no-tls"),
-                ),
-        )
+#[derive(StructOpt, Debug)]
+pub struct ScannerOpt {
+    /// The hostname of the scanner
+    #[structopt(name = "SCANNER")]
+    pub scanner: String,
+
+    /// Do not use TLS to secure the connection to the scanner
+    #[structopt(long = "no-tls")]
+    pub no_tls: bool,
+}
+
+#[derive(StructOpt, Debug)]
+pub struct ScanOpt {
+    #[structopt(flatten)]
+    pub scanner_opts: ScannerOpt,
+
+    /// The document source
+    #[structopt(
+        short,
+        long,
+        name = "SOURCE",
+        default_value = "auto",
+        raw(possible_values = "&Source::variants()", case_insensitive = "true")
+    )]
+    pub source: Source,
+
+    /// The format of the output
+    #[structopt(
+        short,
+        long,
+        name = "FORMAT",
+        default_value = "pdf",
+        raw(possible_values = "&Format::variants()", case_insensitive = "true")
+    )]
+    pub format: Format,
+
+    /// The color space of the output
+    #[structopt(
+        short,
+        long,
+        name = "COLORSPACE",
+        default_value = "color",
+        raw(possible_values = "&ColorSpace::variants()", case_insensitive = "true")
+    )]
+    pub color: ColorSpace,
+
+    /// The scan resolution in dpi
+    #[structopt(
+        short,
+        long,
+        name = "RESOLUTION",
+        default_value = "300",
+        raw(possible_values = "&[\"300\", \"600\"]")
+    )]
+    pub resolution: u32,
+
+    /// Compression quality level (lower is better)
+    #[structopt(
+        short = "q",
+        long = "compression-quality",
+        name = "QUALITY",
+        default_value = "25"
+    )]
+    pub compression_quality: u32,
+}
+
+#[derive(StructOpt, Debug)]
+pub struct WebOpt {
+    #[structopt(flatten)]
+    pub scanner_opts: ScannerOpt,
+
+    /// Port to use for the web server
+    #[structopt(short, long, name = "PORT", default_value = "3000")]
+    pub port: u16,
+
+    /// Listen address to use for the web server
+    #[structopt(short, long, name = "ADDR", default_value = "127.0.0.1")]
+    pub listen: String,
+}
+
+#[derive(StructOpt, Debug)]
+#[structopt(raw(
+    setting = "structopt::clap::AppSettings::VersionlessSubcommands",
+    setting = "structopt::clap::AppSettings::InferSubcommands"
+))]
+pub enum Opt {
+    /// Display the status of the scanner
+    #[structopt(name = "status")]
+    Status(ScannerOpt),
+
+    /// Scan a document
+    #[structopt(name = "scan")]
+    Scan(ScanOpt),
+
+    /// Start a web server to handle scan jobs
+    #[structopt(name = "web")]
+    Web(WebOpt),
 }
