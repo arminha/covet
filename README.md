@@ -74,10 +74,12 @@ FLAGS:
         --no-tls    Do not use TLS to secure the connection to the scanner
 
 OPTIONS:
-    -c, --color <COLORSPACE>         The color space of the output [default: color]  [values: gray, color]
-    -f, --format <FORMAT>            The format of the output [default: pdf]  [values: pdf, jpeg]
-    -r, --resolution <RESOLUTION>    The scan resolution in dpi [default: 300]  [values: 300, 600]
-    -s, --source <SOURCE>            The document source [default: auto]  [values: auto, adf, glass]
+    -c, --color <COLORSPACE>               The color space of the output [default: color]  [possible values: gray,
+                                           color]
+    -f, --format <FORMAT>                  The format of the output [default: pdf]  [possible values: pdf, jpeg]
+    -q, --compression-quality <QUALITY>    Compression quality level (lower is better) [default: 25]
+    -r, --resolution <RESOLUTION>          The scan resolution in dpi [default: 300]  [possible values: 300, 600]
+    -s, --source <SOURCE>                  The document source [default: auto]  [possible values: auto, adf, glass]
 
 ARGS:
     <SCANNER>    The hostname of the scanner
