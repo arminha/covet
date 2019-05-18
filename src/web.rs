@@ -130,19 +130,19 @@ impl Handler for Scanner {
         let format = get_format_param(params);
         let color_space = get_colorspace_param(params);
         let source = get_source_param(params);
-        let filename = scanner::output_file_name(&format, &time::now());
+        let filename = scanner::output_file_name(format, &time::now());
         println!(
             "Scan parameters: format={:?}, color={:?}, source={:?}",
             format, color_space, source
         );
-        let body = match do_scan(self, format, color_space, &source) {
+        let body = match do_scan(self, format, color_space, source) {
             Ok(body) => body,
             Err(e) => return Ok(render_error(&e)),
         };
         Ok(Response::with((
             status::Ok,
             Header(content_disposition(filename)),
-            Header(content_type(&format)),
+            Header(content_type(format)),
             body,
         )))
     }
@@ -152,7 +152,7 @@ fn do_scan(
     scanner: &Scanner,
     format: Format,
     color: ColorSpace,
-    source: &Source,
+    source: Source,
 ) -> Result<BodyReader<Box<dyn Read + Send>>, ScannerError> {
     let status = scanner.get_scan_status()?;
     if !status.is_idle() {
@@ -172,8 +172,8 @@ fn do_scan(
     }
 }
 
-fn choose_source(source: &Source, adf_state: AdfState) -> Result<InputSource, ScannerError> {
-    let input_source = match *source {
+fn choose_source(source: Source, adf_state: AdfState) -> Result<InputSource, ScannerError> {
+    let input_source = match source {
         Source::auto => {
             if adf_state == AdfState::Loaded {
                 InputSource::Adf
@@ -227,8 +227,8 @@ fn get_source_param(params: &HashMap<String, Vec<String>>) -> Source {
     }
 }
 
-fn content_type(format: &Format) -> ContentType {
-    match *format {
+fn content_type(format: Format) -> ContentType {
+    match format {
         Format::Pdf => ContentType("application/pdf".parse().unwrap()),
         Format::Jpeg => ContentType::jpeg(),
     }

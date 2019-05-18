@@ -223,8 +223,8 @@ impl<'a> Job<'a> {
     }
 }
 
-pub fn output_file_name(format: &Format, time: &time::Tm) -> String {
-    let extension = match *format {
+pub fn output_file_name(format: Format, time: &time::Tm) -> String {
+    let extension = match format {
         Format::Pdf => "pdf",
         Format::Jpeg => "jpeg",
     };
@@ -242,11 +242,11 @@ mod test {
         let time = time::at_utc(time::Timespec::new(1486905545, 0));
         assert_eq!(
             "scan_20170212_131905.pdf",
-            output_file_name(&Format::Pdf, &time)
+            output_file_name(Format::Pdf, &time)
         );
         assert_eq!(
             "scan_20170212_131905.jpeg",
-            output_file_name(&Format::Jpeg, &time)
+            output_file_name(Format::Jpeg, &time)
         );
     }
 }

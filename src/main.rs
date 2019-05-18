@@ -39,30 +39,21 @@ fn main() {
             status(opt);
         }
         Opt::Scan(opt) => {
-            let host = &opt.scanner_opts.scanner;
             let use_tls = !opt.scanner_opts.no_tls;
-            let format = opt.format;
-            let color = opt.color;
-            let source = opt.source;
-            let resolution = opt.resolution;
-            let quality = opt.compression_quality;
             scan(
-                host,
+                &opt.scanner_opts.scanner,
                 use_tls,
-                format.to_internal(),
-                color.to_internal(),
-                &source,
-                resolution,
-                quality,
+                opt.format.to_internal(),
+                opt.color.to_internal(),
+                opt.source,
+                opt.resolution,
+                opt.compression_quality,
             )
             .unwrap_or_else(|e| println!("Error: {}", e));
         }
         Opt::Web(opt) => {
-            let host = &opt.scanner_opts.scanner;
             let use_tls = !opt.scanner_opts.no_tls;
-            let addr = &opt.listen;
-            let port = opt.port;
-            web::run_server(host, addr, port, use_tls);
+            web::run_server(&opt.scanner_opts.scanner, &opt.listen, opt.port, use_tls);
         }
     }
 }
@@ -84,8 +75,8 @@ fn print_scan_status(scanner: &Scanner) -> Result<(), ScannerError> {
 }
 
 impl cli::Format {
-    fn to_internal(&self) -> Format {
-        match *self {
+    fn to_internal(self) -> Format {
+        match self {
             cli::Format::pdf => Format::Pdf,
             cli::Format::jpeg => Format::Jpeg,
         }
@@ -93,16 +84,16 @@ impl cli::Format {
 }
 
 impl cli::ColorSpace {
-    fn to_internal(&self) -> ColorSpace {
-        match *self {
+    fn to_internal(self) -> ColorSpace {
+        match self {
             cli::ColorSpace::gray => ColorSpace::Gray,
             cli::ColorSpace::color => ColorSpace::Color,
         }
     }
 }
 
-fn choose_source(source: &cli::Source, adf_state: AdfState) -> Result<InputSource, ScannerError> {
-    let input_source = match *source {
+fn choose_source(source: cli::Source, adf_state: AdfState) -> Result<InputSource, ScannerError> {
+    let input_source = match source {
         cli::Source::auto => {
             if adf_state == AdfState::Loaded {
                 InputSource::Adf
@@ -127,7 +118,7 @@ fn scan(
     use_tls: bool,
     format: Format,
     color: ColorSpace,
-    source: &cli::Source,
+    source: cli::Source,
     resolution: u32,
     quality: u32,
 ) -> Result<(), ScannerError> {
@@ -149,7 +140,7 @@ fn scan(
         let ready = job.retrieve_status()?;
         if ready {
             println!("Job: {:?}", job);
-            let output_file = scanner::output_file_name(&format, &time::now());
+            let output_file = scanner::output_file_name(format, &time::now());
             job.download_to_file(&output_file)?;
             break;
         }

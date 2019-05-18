@@ -106,7 +106,7 @@ fn read_page(element: &Element) -> Result<ScanPage, ParseError> {
     let state: PageState = util::parse_child_value(element, "PageState")?;
     let url = util::read_child_value(element, "BinaryURL")
         .ok()
-        .map(|v| v.to_string());
+        .map(std::string::ToString::to_string);
     Ok(ScanPage::new(number, state, url))
 }
 

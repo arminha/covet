@@ -19,7 +19,7 @@ use structopt::{self, StructOpt};
 
 arg_enum! {
     #[allow(non_camel_case_types)]
-    #[derive(Debug)]
+    #[derive(Debug, Clone, Copy)]
     pub enum Source {
         auto,
         adf,
@@ -29,7 +29,7 @@ arg_enum! {
 
 arg_enum! {
     #[allow(non_camel_case_types)]
-    #[derive(Debug)]
+    #[derive(Debug, Clone, Copy)]
     pub enum Format {
         pdf,
         jpeg
@@ -38,7 +38,7 @@ arg_enum! {
 
 arg_enum! {
     #[allow(non_camel_case_types)]
-    #[derive(Debug)]
+    #[derive(Debug, Clone, Copy)]
     pub enum ColorSpace {
         gray,
         color
