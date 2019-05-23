@@ -130,12 +130,13 @@ impl Handler for Scanner {
         let format = get_format_param(params);
         let color_space = get_colorspace_param(params);
         let source = get_source_param(params);
+        let (resolution, compression) = get_quality_param(params);
         let filename = scanner::output_file_name(format, &time::now());
         println!(
-            "Scan parameters: format={:?}, color={:?}, source={:?}",
-            format, color_space, source
+            "Scan parameters: format={:?}, color={:?}, source={:?}, resolution={}, compression={}",
+            format, color_space, source, resolution, compression
         );
-        let body = match do_scan(self, format, color_space, source) {
+        let body = match do_scan(self, format, color_space, source, resolution, compression) {
             Ok(body) => body,
             Err(e) => return Ok(render_error(&e)),
         };
@@ -153,13 +154,21 @@ fn do_scan(
     format: Format,
     color: ColorSpace,
     source: Source,
+    resolution: u32,
+    compression: u32,
 ) -> Result<BodyReader<Box<dyn Read + Send>>, ScannerError> {
     let status = scanner.get_scan_status()?;
     if !status.is_idle() {
         return Err(ScannerError::Busy);
     }
     let input_source = choose_source(source, status.adf_state())?;
-    let mut job = scanner.start_job(ScanJob::new(input_source, 300, 25, format, color))?;
+    let mut job = scanner.start_job(ScanJob::new(
+        input_source,
+        resolution,
+        compression,
+        format,
+        color,
+    ))?;
     println!("Job: {:?}", job);
     loop {
         let ready = job.retrieve_status()?;
@@ -224,6 +233,18 @@ fn get_source_param(params: &HashMap<String, Vec<String>>) -> Source {
             _ => Source::auto,
         },
         _ => Source::auto,
+    }
+}
+
+fn get_quality_param(params: &HashMap<String, Vec<String>>) -> (u32, u32) {
+    match params.get("quality") {
+        Some(values) => match values.first() {
+            Some(auto) if auto == "base" => (300, 25),
+            Some(adf) if adf == "high" => (600, 25),
+            Some(glass) if glass == "best" => (600, 1),
+            _ => (300, 25),
+        },
+        _ => (300, 25),
     }
 }
 
