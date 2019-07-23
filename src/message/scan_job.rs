@@ -70,74 +70,97 @@ impl ScanJob {
     }
 
     pub fn write_xml<W: Write>(&self, sink: W) -> Result<()> {
-        fn enter_elem<W: Write>(w: &mut EventWriter<W>, name: &str) -> Result<()> {
-            let mut namespace = Namespace::empty();
-            namespace.put(PREFIX, XML_NAMESPACE);
-            let empty_attrs = Vec::new();
-            w.write(XmlEvent::StartElement {
-                name: Name::qualified(name, XML_NAMESPACE, Option::from(PREFIX)),
-                attributes: Cow::Borrowed(&empty_attrs),
-                namespace: Cow::Borrowed(&namespace),
-            })
-        }
-        fn exit_elem<W: Write>(w: &mut EventWriter<W>) -> Result<()> {
-            w.write(XmlEvent::EndElement { name: Option::None })
-        }
-        fn write_value<W: Write>(w: &mut EventWriter<W>, name: &str, val: &str) -> Result<()> {
-            enter_elem(w, name)?;
-            w.write(val)?;
-            exit_elem(w)
-        }
-
         let config = EmitterConfig::new()
             .write_document_declaration(true)
             .perform_indent(true);
-        let mut writer = config.create_writer(sink);
-        enter_elem(&mut writer, "ScanJob")?;
+        let mut writer = XmlWriter::new(config.create_writer(sink));
+        writer.enter_elem("ScanJob")?;
         let resolution = self.resolution.to_string();
-        write_value(&mut writer, "XResolution", &resolution)?;
-        write_value(&mut writer, "YResolution", &resolution)?;
-        write_value(&mut writer, "XStart", "0")?;
-        write_value(&mut writer, "YStart", "0")?;
-        write_value(&mut writer, "Width", "2480")?;
-        write_value(&mut writer, "Height", "3508")?;
+        writer.write_value("XResolution", &resolution)?;
+        writer.write_value("YResolution", &resolution)?;
+        writer.write_value("XStart", "0")?;
+        writer.write_value("YStart", "0")?;
+        writer.write_value("Width", "2480")?;
+        writer.write_value("Height", "3508")?;
         let format = match self.format {
             Format::Jpeg => "Jpeg",
             Format::Pdf => "Pdf",
         };
-        write_value(&mut writer, "Format", format)?;
-        write_value(&mut writer, "CompressionQFactor", &self.quality.to_string())?;
+        writer.write_value("Format", format)?;
+        writer.write_value("CompressionQFactor", &self.quality.to_string())?;
         let color = match self.color_space {
             ColorSpace::Color => "Color",
             ColorSpace::Gray => "Gray",
         };
-        write_value(&mut writer, "ColorSpace", color)?;
-        write_value(&mut writer, "BitDepth", "8")?;
+        writer.write_value("ColorSpace", color)?;
+        writer.write_value("BitDepth", "8")?;
         let source = match self.input_source {
             InputSource::Platen => "Platen",
             InputSource::Adf => "Adf",
         };
-        write_value(&mut writer, "InputSource", source)?;
+        writer.write_value("InputSource", source)?;
         if self.input_source == InputSource::Adf {
-            enter_elem(&mut writer, "AdfOptions")?;
-            exit_elem(&mut writer)?;
+            writer.empty_elem("AdfOptions")?;
         }
-        write_value(&mut writer, "GrayRendering", "NTSC")?;
+        writer.write_value("GrayRendering", "NTSC")?;
 
-        enter_elem(&mut writer, "ToneMap")?;
-        write_value(&mut writer, "Gamma", "1000")?;
-        write_value(&mut writer, "Brightness", "1000")?;
-        write_value(&mut writer, "Contrast", "1000")?;
-        write_value(&mut writer, "Highlite", "179")?;
-        write_value(&mut writer, "Shadow", "25")?;
-        exit_elem(&mut writer)?;
+        writer.with_elem("ToneMap", |w| {
+            w.write_value("Gamma", "1000")?;
+            w.write_value("Brightness", "1000")?;
+            w.write_value("Contrast", "1000")?;
+            w.write_value("Highlite", "179")?;
+            w.write_value("Shadow", "25")
+        })?;
 
         let content_type = match self.format {
             Format::Jpeg => "Photo",
             Format::Pdf => "Document",
         };
-        write_value(&mut writer, "ContentType", content_type)?;
-        exit_elem(&mut writer)
+        writer.write_value("ContentType", content_type)?;
+        writer.exit_elem()
+    }
+}
+
+struct XmlWriter<W: Write> {
+    inner: EventWriter<W>,
+}
+
+impl<W: Write> XmlWriter<W> {
+    fn new(inner: EventWriter<W>) -> Self {
+        Self { inner }
+    }
+
+    fn enter_elem(&mut self, name: &str) -> Result<()> {
+        let mut namespace = Namespace::empty();
+        namespace.put(PREFIX, XML_NAMESPACE);
+        let empty_attrs = Vec::new();
+        self.inner.write(XmlEvent::StartElement {
+            name: Name::qualified(name, XML_NAMESPACE, Option::from(PREFIX)),
+            attributes: Cow::Borrowed(&empty_attrs),
+            namespace: Cow::Borrowed(&namespace),
+        })
+    }
+
+    fn exit_elem(&mut self) -> Result<()> {
+        self.inner
+            .write(XmlEvent::EndElement { name: Option::None })
+    }
+
+    fn write_value(&mut self, name: &str, val: &str) -> Result<()> {
+        self.enter_elem(name)?;
+        self.inner.write(val)?;
+        self.exit_elem()
+    }
+
+    fn empty_elem(&mut self, name: &str) -> Result<()> {
+        self.enter_elem(name)?;
+        self.exit_elem()
+    }
+
+    fn with_elem(&mut self, name: &str, closure: impl Fn(&mut Self) -> Result<()>) -> Result<()> {
+        self.enter_elem(name)?;
+        closure(self)?;
+        self.exit_elem()
     }
 }
 
