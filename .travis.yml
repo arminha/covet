@@ -20,3 +20,11 @@ script:
   - if [ $TRAVIS_RUST_VERSION = "stable" ]; then cargo fmt --all -- --check; fi
   - cargo build --verbose
   - cargo test --verbose
+
+deploy:
+  provider: cargo
+  token:
+    secure: BG/rmK0cuiB44x5jRV091IMvXayIvP1EP1lZRW2BdfACKXygwzyP4hgKbODupumVnRP2UwiPQjawceIbAG6r7GPqk3JOtS2hUYYWo8QNeE/szxAJhaZhSkwEWzbmaWKb5sLk5hmUtCYOVhgGkzZnXmx/r10wDEvlawbt3TvWo6nFLxBY0uXyx40MkRz9c0UKaNgDBzEGukCWKVMy2n3QonzY3gqm33bJG7C/S+MKJTfSd4RjV0Fj2jo46VSDx20zVfTWAJizeTWV0i+GsgozuUkozSYZMRujlH0rY/3w8YlZx/vaeK0kdyjesTNIa8Rf2vspI5srVo+4V1dIEcIG3nK8ftL54dQr6l4XqivKI/gkpH8NMz369x0G4Za9sq9jmanFn9Rg+Gla2q5SzLgfDRmxiAoD5t4CevdR51VhxYgj47/GIFl428ny2wv5US+DWtQNigy96ibBLAJUSz/u3MI7Plj6khv2BWPEkIOzqSCPeQAmOYGm7OG2BNfRMUI1UPJV33Fvd6mpqSaNEcz3F5WP7IGcIf6evaOJUZpZSLsKxvlR3vk2FftxRrM3nvV/cxlfB9U8qoiPhRUTt1GGMW9++8l4ClWgqihE98XJP5m/t62wo/vPR5qoQ6L/C0VSl8TvJxMuTdXp4FGTLjGMWemm56s9GPLqIX/9IIgwV4Y=
+  on:
+    tags: true
+    rust: stable
