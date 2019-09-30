@@ -131,5 +131,4 @@ mod test {
         );
         check_parse_scan_status(SCAN_STATUS_LOADED, ScannerState::Idle, AdfState::Loaded);
     }
-
 }

@@ -295,5 +295,4 @@ mod test {
         let sc = StaticContent::new(TEST_CONTENT, ContentType::plaintext());
         assert_eq!("-BYq1JGWwcEr3bz_HTYt2s8DriRranhkt1wkS5Zf5HU", sc.etag.tag());
     }
-
 }

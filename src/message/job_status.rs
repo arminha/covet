@@ -252,5 +252,4 @@ mod test {
         assert_eq!(JobState::Completed, status.state);
         check_one_page(&status, 2, PageState::UploadCompleted, None);
     }
-
 }
