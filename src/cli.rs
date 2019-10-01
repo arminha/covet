@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-use clap::arg_enum;
+use structopt::clap::{arg_enum, AppSettings};
 use structopt::{self, StructOpt};
 
 arg_enum! {
@@ -67,7 +67,8 @@ pub struct ScanOpt {
         long,
         name = "SOURCE",
         default_value = "auto",
-        raw(possible_values = "&Source::variants()", case_insensitive = "true")
+        possible_values(&Source::variants()),
+        case_insensitive(true)
     )]
     pub source: Source,
 
@@ -77,7 +78,8 @@ pub struct ScanOpt {
         long,
         name = "FORMAT",
         default_value = "pdf",
-        raw(possible_values = "&Format::variants()", case_insensitive = "true")
+        possible_values(&Format::variants()),
+        case_insensitive(true)
     )]
     pub format: Format,
 
@@ -87,7 +89,8 @@ pub struct ScanOpt {
         long,
         name = "COLORSPACE",
         default_value = "color",
-        raw(possible_values = "&ColorSpace::variants()", case_insensitive = "true")
+        possible_values(&ColorSpace::variants()),
+        case_insensitive(true)
     )]
     pub color: ColorSpace,
 
@@ -97,7 +100,7 @@ pub struct ScanOpt {
         long,
         name = "RESOLUTION",
         default_value = "300",
-        raw(possible_values = "&[\"300\", \"600\"]")
+        possible_values(&["300", "600"])
     )]
     pub resolution: u32,
 
@@ -126,10 +129,10 @@ pub struct WebOpt {
 }
 
 #[derive(StructOpt, Debug)]
-#[structopt(raw(
-    setting = "structopt::clap::AppSettings::VersionlessSubcommands",
-    setting = "structopt::clap::AppSettings::InferSubcommands"
-))]
+#[structopt(
+    setting(AppSettings::VersionlessSubcommands),
+    setting(AppSettings::InferSubcommands)
+)]
 pub enum Opt {
     /// Display the status of the scanner
     #[structopt(name = "status")]

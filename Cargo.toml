@@ -30,8 +30,7 @@ maintenance = { status = "passively-maintained" }
 lto = true
 
 [build-dependencies]
-clap = "2.33"
-structopt = "0.2.15"
+structopt = "0.3.2"
 
 [dependencies]
 hyper = "0.10"
@@ -40,8 +39,7 @@ xmltree = "0.8"
 xml-rs = "0.7"
 time = "0.1"
 # cli
-clap = "2.33"
-structopt = "0.2.15"
+structopt = "0.3.2"
 # web
 iron = "0.6"
 router = "0.6"
