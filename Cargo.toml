@@ -28,6 +28,8 @@ maintenance = { status = "passively-maintained" }
 
 [profile.release]
 lto = true
+opt-level = "z"
+codegen-units = 1
 
 [build-dependencies]
 structopt = "0.3.2"
