@@ -23,7 +23,7 @@ use hyper::status::StatusCode;
 use hyper::Url;
 use hyper_native_tls::NativeTlsClient;
 
-use time;
+use time::OffsetDateTime;
 
 use std::error::Error;
 use std::fmt;
@@ -223,12 +223,12 @@ impl<'a> Job<'a> {
     }
 }
 
-pub fn output_file_name(format: Format, time: &time::Tm) -> String {
+pub fn output_file_name(format: Format, time: &OffsetDateTime) -> String {
     let extension = match format {
         Format::Pdf => "pdf",
         Format::Jpeg => "jpeg",
     };
-    let ts = time::strftime("%Y%m%d_%H%M%S", time).unwrap();
+    let ts = time.format("%Y%m%d_%H%M%S");
     format!("scan_{}.{}", ts, extension)
 }
 
@@ -239,7 +239,7 @@ mod test {
 
     #[test]
     fn check_output_file_name() {
-        let time = time::at_utc(time::Timespec::new(1486905545, 0));
+        let time = OffsetDateTime::from_unix_timestamp(1486905545);
         assert_eq!(
             "scan_20170212_131905.pdf",
             output_file_name(Format::Pdf, &time)

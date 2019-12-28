@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 #![forbid(unsafe_code)]
 
 use structopt::StructOpt;
-use time;
+use time::OffsetDateTime;
 
 mod cli;
 mod message;
@@ -140,7 +140,7 @@ fn scan(
         let ready = job.retrieve_status()?;
         if ready {
             println!("Job: {:?}", job);
-            let output_file = scanner::output_file_name(format, &time::now());
+            let output_file = scanner::output_file_name(format, &OffsetDateTime::now());
             job.download_to_file(&output_file)?;
             break;
         }

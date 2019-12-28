@@ -26,7 +26,7 @@ use iron::status;
 use iron::{Handler, Timeouts};
 use router::Router;
 use sha2::{Digest, Sha512Trunc256};
-use time;
+use time::OffsetDateTime;
 use urlencoded::UrlEncodedBody;
 
 use std::collections::HashMap;
@@ -131,7 +131,7 @@ impl Handler for Scanner {
         let color_space = get_colorspace_param(params);
         let source = get_source_param(params);
         let (resolution, compression) = get_quality_param(params);
-        let filename = scanner::output_file_name(format, &time::now());
+        let filename = scanner::output_file_name(format, &OffsetDateTime::now());
         println!(
             "Scan parameters: format={:?}, color={:?}, source={:?}, resolution={}, compression={}",
             format, color_space, source, resolution, compression
