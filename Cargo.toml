@@ -37,8 +37,8 @@ structopt = "0.3.2"
 [dependencies]
 hyper = "0.10"
 hyper-native-tls = "0.3"
-xmltree = "0.8"
-xml-rs = "0.7"
+xmltree = "0.9.0"
+xml-rs = "0.8.0"
 time = "0.1"
 # cli
 structopt = "0.3.2"
