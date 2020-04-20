@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 use xmltree::Element;
 
+use std::borrow::Cow;
 use std::convert::From;
 use std::io::Read;
 use std::num::ParseIntError;
@@ -106,7 +107,7 @@ fn read_page(element: &Element) -> Result<ScanPage, ParseError> {
     let state: PageState = util::parse_child_value(element, "PageState")?;
     let url = util::read_child_value(element, "BinaryURL")
         .ok()
-        .map(std::string::ToString::to_string);
+        .map(Cow::into_owned);
     Ok(ScanPage::new(number, state, url))
 }
 
@@ -125,11 +126,13 @@ impl ScanJobStatus {
         let job = element.get_child("ScanJob").ok_or("missing ScanJob")?;
         let mut pages = Vec::new();
         for child in &job.children {
-            match child.name.as_ref() {
-                "PreScanPage" | "PostScanPage" => {
-                    pages.push(read_page(child)?);
+            if let Some(child_elem) = child.as_element() {
+                match child_elem.name.as_ref() {
+                    "PreScanPage" | "PostScanPage" => {
+                        pages.push(read_page(child_elem)?);
+                    }
+                    _ => (),
                 }
-                _ => (),
             }
         }
 

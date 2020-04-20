@@ -150,8 +150,8 @@ dependencies = [
  "structopt 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "time 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "urlencoded 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "xml-rs 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "xmltree 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "xml-rs 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "xmltree 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -937,15 +937,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "xml-rs"
-version = "0.8.0"
+version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "xmltree"
-version = "0.9.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "xml-rs 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "xml-rs 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [metadata]
@@ -1065,5 +1065,5 @@ dependencies = [
 "checksum winapi 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)" = "f10e386af2b13e47c89e7236a7a14a086791a2b88ebad6df9bf42040195cf770"
 "checksum winapi-i686-pc-windows-gnu 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6"
 "checksum winapi-x86_64-pc-windows-gnu 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
-"checksum xml-rs 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "541b12c998c5b56aa2b4e6f18f03664eef9a4fd0a246a55594efae6cc2d964b5"
-"checksum xmltree 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)" = "28b5d5751be424d8fc0eff399d8e762d4201eefc70fa780895059b9d68d73018"
+"checksum xml-rs 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)" = "2bb76e5c421bbbeb8924c60c030331b345555024d56261dae8f3e786ed817c23"
+"checksum xmltree 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)" = "77a607efe600db25447a8d9bab1f39217a82c4ba160b51b027d7c4f6053004df"

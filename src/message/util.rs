@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 use xmltree::Element;
 
+use std::borrow::Cow;
 use std::str::FromStr;
 
 use crate::message::error::ParseError;
@@ -24,10 +25,10 @@ use crate::message::error::ParseError;
 pub(super) fn read_child_value<'a>(
     element: &'a Element,
     name: &str,
-) -> Result<&'a String, ParseError> {
+) -> Result<Cow<'a, str>, ParseError> {
     element
         .get_child(name)
-        .and_then(|v| v.text.as_ref())
+        .and_then(|v| v.get_text())
         .ok_or_else(|| ParseError::new(format!("missing {}", name)))
 }
 
