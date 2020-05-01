@@ -140,7 +140,7 @@ fn scan(
         let ready = job.retrieve_status()?;
         if ready {
             println!("Job: {:?}", job);
-            let output_file = scanner::output_file_name(format, &OffsetDateTime::now());
+            let output_file = scanner::output_file_name(format, &OffsetDateTime::now_utc());
             job.download_to_file(&output_file)?;
             break;
         }

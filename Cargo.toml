@@ -32,19 +32,19 @@ opt-level = "z"
 codegen-units = 1
 
 [build-dependencies]
-structopt = "0.3.2"
+structopt = "0.3.14"
 
 [dependencies]
 hyper = "0.10"
 hyper-native-tls = "0.3"
 xmltree = "0.10.0"
-xml-rs = "0.8.2"
-time = "0.2.1"
+xml-rs = "0.8.3"
+time = "0.2.12"
 # cli
-structopt = "0.3.2"
+structopt = "0.3.14"
 # web
 iron = "0.6"
 router = "0.6"
 urlencoded = "0.6"
-sha2 = "0.8"
+sha2 = "0.8.1"
 base64 = "0.9"
