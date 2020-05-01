@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "debian/stretch64"
+  config.vm.box = "debian/buster64"
 
   config.vm.network :forwarded_port, guest: 8070, host: 8070, host_ip: "127.0.0.1"
 
@@ -14,7 +14,7 @@ Vagrant.configure(2) do |config|
     wget --no-verbose -O rustup-init \
       https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init
     chmod a+x rustup-init
-    su -c './rustup-init -vy' vagrant
+    su -c './rustup-init --profile minimal -vy' vagrant
     rm rustup-init
   SHELL
 
