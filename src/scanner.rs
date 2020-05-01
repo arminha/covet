@@ -25,7 +25,6 @@ use hyper_native_tls::NativeTlsClient;
 
 use time::OffsetDateTime;
 
-use std::error::Error;
 use std::fmt;
 use std::fs::File;
 use std::io::{self, ErrorKind, Read};
@@ -71,7 +70,7 @@ impl From<io::Error> for ScannerError {
     fn from(err: io::Error) -> Self {
         let not_available = match err.kind() {
             ErrorKind::ConnectionRefused => true,
-            ErrorKind::Other if err.description().contains("Name or service not known") => true,
+            ErrorKind::Other if format!("{}", err).contains("Name or service not known") => true,
             _ => match err.raw_os_error() {
                 // ECONNREFUSED - 111 - Connection refused or EHOSTUNREACH 113 No route to host
                 Some(111) | Some(113) => true,
@@ -88,7 +87,7 @@ impl From<io::Error> for ScannerError {
 
 impl From<error::ParseError> for ScannerError {
     fn from(err: error::ParseError) -> Self {
-        ScannerError::Other(err.description().to_string())
+        ScannerError::Other(format!("{}", err))
     }
 }
 
