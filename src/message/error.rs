@@ -14,46 +14,30 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-use std::error::Error;
-use std::fmt;
+use std::num::ParseIntError;
+use thiserror::Error;
 
-#[derive(Debug)]
-pub struct ParseError {
-    desc: String,
+#[derive(Debug, Error)]
+pub enum ParseError {
+    #[error(transparent)]
+    XmlParseError(#[from] xmltree::ParseError),
+    #[error(transparent)]
+    IntParseError(#[from] ParseIntError),
+    #[error("missing element {name}")]
+    MissingElement { name: &'static str },
+    #[error("unknown {name}: {value}")]
+    UnknownEnumValue { name: &'static str, value: String },
 }
 
 impl ParseError {
-    pub fn new<S: Into<String>>(desc: S) -> ParseError {
-        ParseError { desc: desc.into() }
+    pub fn missing_element(name: &'static str) -> Self {
+        ParseError::MissingElement { name }
     }
-}
 
-impl Error for ParseError {
-    fn description(&self) -> &str {
-        self.desc.as_str()
-    }
-}
-
-impl From<String> for ParseError {
-    fn from(err: String) -> Self {
-        ParseError::new(err)
-    }
-}
-
-impl From<&'static str> for ParseError {
-    fn from(err: &'static str) -> Self {
-        ParseError::new(err)
-    }
-}
-
-impl From<xmltree::ParseError> for ParseError {
-    fn from(err: xmltree::ParseError) -> Self {
-        ParseError::new(err.to_string())
-    }
-}
-
-impl fmt::Display for ParseError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.desc)
+    pub fn unknown_enum_value(name: &'static str, value: &str) -> Self {
+        ParseError::UnknownEnumValue {
+            name,
+            value: value.to_owned(),
+        }
     }
 }

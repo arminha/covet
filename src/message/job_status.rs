@@ -17,19 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 use xmltree::Element;
 
 use std::borrow::Cow;
-use std::convert::From;
 use std::io::Read;
-use std::num::ParseIntError;
 use std::str::FromStr;
 
 use crate::message::error::ParseError;
 use crate::message::util;
-
-impl From<ParseIntError> for ParseError {
-    fn from(err: ParseIntError) -> Self {
-        ParseError::new(err.to_string())
-    }
-}
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum JobState {
@@ -46,7 +38,7 @@ impl FromStr for JobState {
             "Processing" => Ok(JobState::Processing),
             "Completed" => Ok(JobState::Completed),
             "Canceled" => Ok(JobState::Canceled),
-            _ => Err(ParseError::new(format!("Unknown JobState: {}", s))),
+            _ => Err(ParseError::unknown_enum_value("JobState", s)),
         }
     }
 }
@@ -66,7 +58,7 @@ impl FromStr for PageState {
             "PreparingScan" => Ok(PageState::PreparingScan),
             "ReadyToUpload" => Ok(PageState::ReadyToUpload),
             "UploadCompleted" => Ok(PageState::UploadCompleted),
-            _ => Err(ParseError::new(format!("Unknown PageState: {}", s))),
+            _ => Err(ParseError::unknown_enum_value("PageState", s)),
         }
     }
 }
@@ -123,7 +115,9 @@ impl ScanJobStatus {
     pub fn read_xml<R: Read>(r: R) -> Result<ScanJobStatus, ParseError> {
         let element = Element::parse(r)?;
         let state = util::parse_child_value(&element, "JobState")?;
-        let job = element.get_child("ScanJob").ok_or("missing ScanJob")?;
+        let job = element
+            .get_child("ScanJob")
+            .ok_or_else(|| ParseError::missing_element("ScanJob"))?;
         let mut pages = Vec::new();
         for child in &job.children {
             if let Some(child_elem) = child.as_element() {

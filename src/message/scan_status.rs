@@ -35,7 +35,7 @@ impl FromStr for ScannerState {
         match s {
             "Idle" => Ok(ScannerState::Idle),
             "BusyWithScanJob" => Ok(ScannerState::BusyWithScanJob),
-            _ => Err(ParseError::new(format!("Unknown ScannerState: {}", s))),
+            _ => Err(ParseError::unknown_enum_value("ScannerState", s)),
         }
     }
 }
@@ -53,7 +53,7 @@ impl FromStr for AdfState {
         match s {
             "Empty" => Ok(AdfState::Empty),
             "Loaded" => Ok(AdfState::Loaded),
-            _ => Err(ParseError::new(format!("Unknown AdfState: {}", s))),
+            _ => Err(ParseError::unknown_enum_value("AdfState", s)),
         }
     }
 }
