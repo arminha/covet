@@ -15,7 +15,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 use hyper::client::{Client, Response};
-use hyper::error;
 use hyper::error::Result as HResult;
 use hyper::header::Location;
 use hyper::net::HttpsConnector;
@@ -23,9 +22,9 @@ use hyper::status::StatusCode;
 use hyper::Url;
 use hyper_native_tls::NativeTlsClient;
 
+use thiserror::Error;
 use time::OffsetDateTime;
 
-use std::fmt;
 use std::fs::File;
 use std::io::{self, ErrorKind, Read};
 
@@ -34,35 +33,33 @@ use crate::message::job_status::{PageState, ScanJobStatus};
 use crate::message::scan_job::{Format, ScanJob};
 use crate::message::scan_status::ScanStatus;
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum ScannerError {
+    #[error(transparent)]
     Io(io::Error),
-    Parse(ParseError),
+    #[error(transparent)]
+    Parse(#[from] ParseError),
+    #[error("Adf is empty")]
     AdfEmpty,
+    #[error("Scanner is busy")]
     Busy,
+    #[error("Scanner is not available. Is it turned off? Cause: {0}")]
     NotAvailable(io::Error),
-    Other(String),
+    #[error(transparent)]
+    UrlParseError(#[from] hyper::error::ParseError),
+    #[error(transparent)]
+    HyperError(hyper::error::Error),
+    #[error("Received status {0}")]
+    JobCreationFailed(StatusCode),
 }
 
-impl From<ParseError> for ScannerError {
-    fn from(err: ParseError) -> Self {
-        ScannerError::Parse(err)
-    }
-}
-
-impl From<error::Error> for ScannerError {
-    fn from(err: error::Error) -> Self {
-        if let error::Error::Io(io) = err {
+impl From<hyper::error::Error> for ScannerError {
+    fn from(err: hyper::error::Error) -> Self {
+        if let hyper::error::Error::Io(io) = err {
             ScannerError::from(io)
         } else {
-            ScannerError::Other(err.to_string())
+            ScannerError::HyperError(err)
         }
-    }
-}
-
-impl From<String> for ScannerError {
-    fn from(err: String) -> Self {
-        ScannerError::Other(err)
     }
 }
 
@@ -81,29 +78,6 @@ impl From<io::Error> for ScannerError {
             ScannerError::NotAvailable(err)
         } else {
             ScannerError::Io(err)
-        }
-    }
-}
-
-impl From<error::ParseError> for ScannerError {
-    fn from(err: error::ParseError) -> Self {
-        ScannerError::Other(format!("{}", err))
-    }
-}
-
-impl fmt::Display for ScannerError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
-            ScannerError::Io(ref err) => write!(f, "{}", err),
-            ScannerError::Parse(ref err) => write!(f, "{}", err),
-            ScannerError::AdfEmpty => write!(f, "Adf is empty"),
-            ScannerError::Busy => write!(f, "Scanner is busy"),
-            ScannerError::NotAvailable(ref err) => write!(
-                f,
-                "Scanner is not available. Is it turned off? Cause: {}",
-                err
-            ),
-            ScannerError::Other(ref err) => write!(f, "{}", err),
         }
     }
 }
@@ -162,10 +136,7 @@ impl Scanner {
         let url = self.base_url.join("/Scan/Jobs")?;
         let response = self.client.post(url).body(&result).send()?;
         if response.status != StatusCode::Created {
-            return Err(ScannerError::Other(format!(
-                "Received status {}",
-                response.status
-            )));
+            return Err(ScannerError::JobCreationFailed(response.status));
         }
         let location: &Location = response.headers.get().unwrap();
         let loc_url = Url::parse(location)?;
