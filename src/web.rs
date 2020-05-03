@@ -50,7 +50,12 @@ struct StaticContent {
     etag: EntityTag,
 }
 
-pub fn run_server(scanner_host: &str, listen_addr: &str, listen_port: u16, use_tls: bool) {
+pub fn run_server(
+    scanner_host: &str,
+    listen_addr: &str,
+    listen_port: u16,
+    use_tls: bool,
+) -> Result<(), iron::error::HttpError> {
     println!("Running on http://{}:{}/", listen_addr, listen_port);
 
     let scanner = Scanner::new(scanner_host, use_tls);
@@ -73,7 +78,8 @@ pub fn run_server(scanner_host: &str, listen_addr: &str, listen_port: u16, use_t
         threads: 2,
         timeouts: Timeouts::default(),
     };
-    iron.http((listen_addr, listen_port)).unwrap();
+    iron.http((listen_addr, listen_port))?;
+    Ok(())
 }
 
 impl StaticContent {

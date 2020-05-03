@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #![forbid(unsafe_code)]
 
+use anyhow::Result;
 use structopt::StructOpt;
 use time::OffsetDateTime;
 
@@ -32,11 +33,11 @@ use crate::message::scan_job::{ColorSpace, Format, InputSource, ScanJob};
 use crate::message::scan_status::AdfState;
 use crate::scanner::{Scanner, ScannerError};
 
-fn main() {
+fn main() -> Result<()> {
     let opt = Opt::from_args();
     match opt {
         Opt::Status(opt) => {
-            status(opt);
+            status(opt)?;
         }
         Opt::Scan(opt) => {
             let use_tls = !opt.scanner_opts.no_tls;
@@ -48,22 +49,18 @@ fn main() {
                 opt.source,
                 opt.resolution,
                 opt.compression_quality,
-            )
-            .unwrap_or_else(|e| println!("Error: {}", e));
+            )?;
         }
         Opt::Web(opt) => {
             let use_tls = !opt.scanner_opts.no_tls;
-            web::run_server(&opt.scanner_opts.scanner, &opt.listen, opt.port, use_tls);
+            web::run_server(&opt.scanner_opts.scanner, &opt.listen, opt.port, use_tls)?;
         }
     }
+    Ok(())
 }
 
-fn status(opt: ScannerOpt) {
+fn status(opt: ScannerOpt) -> Result<(), ScannerError> {
     let scanner = Scanner::new(&opt.scanner, !opt.no_tls);
-    print_scan_status(&scanner).unwrap_or_else(|e| println!("Error: {}", e));
-}
-
-fn print_scan_status(scanner: &Scanner) -> Result<(), ScannerError> {
     println!("Status of scanner {}", scanner.host());
     let status = scanner.get_scan_status()?;
     println!(
