@@ -35,21 +35,24 @@ use crate::message::scan_status::ScanStatus;
 
 #[derive(Debug, Error)]
 pub enum ScannerError {
-    #[error(transparent)]
-    Io(io::Error),
-    #[error(transparent)]
-    Parse(#[from] ParseError),
+    #[error("Io error")]
+    Io { source: io::Error },
+    #[error("Parse error")]
+    Parse {
+        #[from]
+        source: ParseError,
+    },
     #[error("Adf is empty")]
     AdfEmpty,
     #[error("Scanner is busy")]
     Busy,
-    #[error("Scanner is not available. Is it turned off? Cause: {0}")]
-    NotAvailable(io::Error),
+    #[error("Scanner is not available. Is it turned off?")]
+    NotAvailable { source: io::Error },
     #[error(transparent)]
     UrlParseError(#[from] hyper::error::ParseError),
     #[error(transparent)]
     HyperError(hyper::error::Error),
-    #[error("Received status {0}")]
+    #[error("Job creation failed: received status {0}")]
     JobCreationFailed(StatusCode),
 }
 
@@ -75,9 +78,9 @@ impl From<io::Error> for ScannerError {
             },
         };
         if not_available {
-            ScannerError::NotAvailable(err)
+            ScannerError::NotAvailable { source: err }
         } else {
-            ScannerError::Io(err)
+            ScannerError::Io { source: err }
         }
     }
 }
