@@ -35,6 +35,7 @@ codegen-units = 1
 structopt = "0.3.14"
 
 [dependencies]
+anyhow = "1.0.28"
 hyper = "0.10"
 hyper-native-tls = "0.3"
 xmltree = "0.10.0"
@@ -49,4 +50,3 @@ router = "0.6"
 urlencoded = "0.6"
 sha2 = "0.8.1"
 base64 = "0.9"
-anyhow = "1.0.28"
