@@ -8,7 +8,7 @@ mod cli;
 mod message;
 mod scanner;
 mod util;
-mod web;
+// mod web;
 
 use std::thread;
 use std::time::Duration;
@@ -35,9 +35,9 @@ fn main() -> Result<()> {
                 opt.compression_quality,
             )?;
         }
-        Opt::Web(opt) => {
-            let use_tls = !opt.scanner_opts.no_tls;
-            web::run_server(&opt.scanner_opts.scanner, &opt.listen, opt.port, use_tls)?;
+        Opt::Web(_opt) => {
+            //let use_tls = !opt.scanner_opts.no_tls;
+            //web::run_server(&opt.scanner_opts.scanner, &opt.listen, opt.port, use_tls)?;
         }
     }
     Ok(())
