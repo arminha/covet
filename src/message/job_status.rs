@@ -16,7 +16,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 use xmltree::Element;
 
-use std::borrow::Cow;
 use std::io::Read;
 use std::str::FromStr;
 
@@ -43,48 +42,26 @@ impl FromStr for JobState {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum PageState {
     PreparingScan,
-    ReadyToUpload,
+    ReadyToUpload { binary_url: String },
     UploadCompleted,
-}
-
-impl FromStr for PageState {
-    type Err = ParseError;
-
-    fn from_str(s: &str) -> Result<PageState, ParseError> {
-        match s {
-            "PreparingScan" => Ok(PageState::PreparingScan),
-            "ReadyToUpload" => Ok(PageState::ReadyToUpload),
-            "UploadCompleted" => Ok(PageState::UploadCompleted),
-            _ => Err(ParseError::unknown_enum_value("PageState", s)),
-        }
-    }
 }
 
 #[derive(Debug)]
 pub struct ScanPage {
     number: u32,
     state: PageState,
-    binary_url: Option<String>,
 }
 
 impl ScanPage {
-    pub fn new(number: u32, state: PageState, binary_url: Option<String>) -> ScanPage {
-        ScanPage {
-            number,
-            state,
-            binary_url,
-        }
+    pub fn new(number: u32, state: PageState) -> ScanPage {
+        ScanPage { number, state }
     }
 
-    pub fn state(&self) -> PageState {
-        self.state
-    }
-
-    pub fn binary_url(&self) -> Option<&String> {
-        self.binary_url.as_ref()
+    pub fn state(&self) -> &PageState {
+        &self.state
     }
 }
 
@@ -96,11 +73,17 @@ pub struct ScanJobStatus {
 
 fn read_page(element: &Element) -> Result<ScanPage, ParseError> {
     let number: u32 = util::read_child_value(element, "PageNumber")?.parse()?;
-    let state: PageState = util::parse_child_value(element, "PageState")?;
-    let url = util::read_child_value(element, "BinaryURL")
-        .ok()
-        .map(Cow::into_owned);
-    Ok(ScanPage::new(number, state, url))
+    let state = util::read_child_value(element, "PageState")?;
+    let state = match state.as_ref() {
+        "PreparingScan" => PageState::PreparingScan,
+        "ReadyToUpload" => {
+            let url = util::read_child_value(element, "BinaryURL")?.into_owned();
+            PageState::ReadyToUpload { binary_url: url }
+        }
+        "UploadCompleted" => PageState::UploadCompleted,
+        s => return Err(ParseError::unknown_enum_value("PageState", s)),
+    };
+    Ok(ScanPage::new(number, state))
 }
 
 impl ScanJobStatus {
@@ -108,7 +91,7 @@ impl ScanJobStatus {
         ScanJobStatus { state, pages }
     }
 
-    pub fn pages(&self) -> &Vec<ScanPage> {
+    pub fn pages(&self) -> &[ScanPage] {
         &self.pages
     }
 
@@ -211,24 +194,18 @@ mod test {
         ScanJobStatus::read_xml(status).expect("parsing failed")
     }
 
-    fn check_one_page(job_status: &ScanJobStatus, num: u32, ps: PageState, bin_url: Option<&str>) {
+    fn check_one_page(job_status: &ScanJobStatus, num: u32, ps: PageState) {
         assert_eq!(1, job_status.pages().len());
         let page = job_status.pages().get(0).unwrap();
         assert_eq!(num, page.number);
-        assert_eq!(ps, page.state());
-        assert_eq!(bin_url.map(|v| v.to_string()).as_ref(), page.binary_url())
+        assert_eq!(&ps, page.state());
     }
 
     #[test]
     fn read_job_status_xml_preparing() {
         let status = parse_job_status(FULL_JOB_STATUS);
         assert_eq!(JobState::Processing, status.state);
-        check_one_page(
-            &status,
-            1,
-            PageState::PreparingScan,
-            Some("/Scan/Jobs/2/Pages/1"),
-        );
+        check_one_page(&status, 1, PageState::PreparingScan);
     }
 
     #[test]
@@ -238,8 +215,9 @@ mod test {
         check_one_page(
             &status,
             1,
-            PageState::ReadyToUpload,
-            Some("/Scan/Jobs/4/Pages/1"),
+            PageState::ReadyToUpload {
+                binary_url: "/Scan/Jobs/4/Pages/1".to_owned(),
+            },
         );
     }
 
@@ -247,6 +225,6 @@ mod test {
     fn read_job_status_xml_completed() {
         let status = parse_job_status(COMPLETED);
         assert_eq!(JobState::Completed, status.state);
-        check_one_page(&status, 2, PageState::UploadCompleted, None);
+        check_one_page(&status, 2, PageState::UploadCompleted);
     }
 }

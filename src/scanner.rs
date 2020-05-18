@@ -175,8 +175,8 @@ impl<'a> Job<'a> {
         let status = self.scanner.get_job_status(self)?;
         let page = status.pages().get(0).unwrap();
         let page_state = page.state();
-        if page_state == PageState::ReadyToUpload {
-            self.binary_url = Some(page.binary_url().unwrap().to_owned());
+        if let PageState::ReadyToUpload { binary_url } = page_state {
+            self.binary_url = Some(binary_url.clone());
             Ok(true)
         } else {
             Ok(false)
