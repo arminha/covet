@@ -187,17 +187,17 @@ fn do_scan(
     }
 }
 
-fn choose_source(source: Source, adf_state: AdfState) -> Result<InputSource, ScannerError> {
+fn choose_source(source: Source, adf_state: Option<AdfState>) -> Result<InputSource, ScannerError> {
     let input_source = match source {
         Source::auto => {
-            if adf_state == AdfState::Loaded {
+            if adf_state == Some(AdfState::Loaded) {
                 InputSource::Adf
             } else {
                 InputSource::Platen
             }
         }
         Source::adf => {
-            if adf_state == AdfState::Loaded {
+            if adf_state == Some(AdfState::Loaded) {
                 InputSource::Adf
             } else {
                 return Err(ScannerError::AdfEmpty);

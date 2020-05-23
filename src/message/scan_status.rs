@@ -61,11 +61,11 @@ impl FromStr for AdfState {
 #[derive(Debug)]
 pub struct ScanStatus {
     scanner_state: ScannerState,
-    adf_state: AdfState,
+    adf_state: Option<AdfState>,
 }
 
 impl ScanStatus {
-    pub fn new(scanner_state: ScannerState, adf_state: AdfState) -> ScanStatus {
+    pub fn new(scanner_state: ScannerState, adf_state: Option<AdfState>) -> ScanStatus {
         ScanStatus {
             scanner_state,
             adf_state,
@@ -80,14 +80,14 @@ impl ScanStatus {
         self.scanner_state == ScannerState::Idle
     }
 
-    pub fn adf_state(&self) -> AdfState {
+    pub fn adf_state(&self) -> Option<AdfState> {
         self.adf_state
     }
 
     pub fn read_xml<R: Read>(r: R) -> Result<ScanStatus, ParseError> {
         let element = Element::parse(r)?;
         let scanner_state: ScannerState = util::parse_child_value(&element, "ScannerState")?;
-        let adf_state: AdfState = util::parse_child_value(&element, "AdfState")?;
+        let adf_state: Option<AdfState> = util::parse_child_value(&element, "AdfState").ok();
         Ok(ScanStatus::new(scanner_state, adf_state))
     }
 }
@@ -115,20 +115,34 @@ mod test {
             <AdfState>Loaded</AdfState>
             </ScanStatus>"#;
 
+    const SCAN_STATUS_NO_ADF: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
+            <ScanStatus xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
+            <ScannerState>Idle</ScannerState>
+            </ScanStatus>"#;
+
     #[test]
     fn read_scan_status_xml() {
-        fn check_parse_scan_status(s: &str, scanner_state: ScannerState, adf_state: AdfState) {
+        fn check_parse_scan_status(
+            s: &str,
+            scanner_state: ScannerState,
+            adf_state: Option<AdfState>,
+        ) {
             let status = s.as_bytes();
             let scan_status = ScanStatus::read_xml(status).expect("parsing failed");
             assert_eq!(scanner_state, scan_status.scanner_state());
             assert_eq!(adf_state, scan_status.adf_state());
         }
-        check_parse_scan_status(SCAN_STATUS_IDLE, ScannerState::Idle, AdfState::Empty);
+        check_parse_scan_status(SCAN_STATUS_IDLE, ScannerState::Idle, Some(AdfState::Empty));
         check_parse_scan_status(
             SCAN_STATUS_BUSY,
             ScannerState::BusyWithScanJob,
-            AdfState::Empty,
+            Some(AdfState::Empty),
         );
-        check_parse_scan_status(SCAN_STATUS_LOADED, ScannerState::Idle, AdfState::Loaded);
+        check_parse_scan_status(
+            SCAN_STATUS_LOADED,
+            ScannerState::Idle,
+            Some(AdfState::Loaded),
+        );
+        check_parse_scan_status(SCAN_STATUS_NO_ADF, ScannerState::Idle, None);
     }
 }

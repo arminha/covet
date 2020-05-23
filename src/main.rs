@@ -89,17 +89,20 @@ impl cli::ColorSpace {
     }
 }
 
-fn choose_source(source: cli::Source, adf_state: AdfState) -> Result<InputSource, ScannerError> {
+fn choose_source(
+    source: cli::Source,
+    adf_state: Option<AdfState>,
+) -> Result<InputSource, ScannerError> {
     let input_source = match source {
         cli::Source::auto => {
-            if adf_state == AdfState::Loaded {
+            if adf_state == Some(AdfState::Loaded) {
                 InputSource::Adf
             } else {
                 InputSource::Platen
             }
         }
         cli::Source::adf => {
-            if adf_state == AdfState::Loaded {
+            if adf_state == Some(AdfState::Loaded) {
                 InputSource::Adf
             } else {
                 return Err(ScannerError::AdfEmpty);
