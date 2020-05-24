@@ -28,6 +28,7 @@ pub enum ColorSpace {
     Gray,
 }
 
+#[derive(Debug)]
 pub struct ScanJob {
     input_source: InputSource,
     resolution: u32,

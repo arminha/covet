@@ -1,15 +1,13 @@
-use hyper::client::{Client, Response};
-use hyper::error::Result as HResult;
-use hyper::header::Location;
-use hyper::net::HttpsConnector;
-use hyper::status::StatusCode;
-use hyper::Url;
-use hyper_native_tls::NativeTlsClient;
+use bytes::Bytes;
+use futures_util::stream::{Stream, StreamExt};
+use reqwest::header::LOCATION;
+use reqwest::{self, Client, Response, StatusCode, Url};
 use thiserror::Error;
 use time::OffsetDateTime;
+use tokio::fs::File;
+use tokio::io::AsyncWriteExt;
 
-use std::fs::File;
-use std::io::{self, ErrorKind, Read};
+use std::io::{self, Cursor};
 
 use crate::message::error::ParseError;
 use crate::message::job_status::{PageState, ScanJobStatus};
@@ -19,7 +17,10 @@ use crate::message::scan_status::ScanStatus;
 #[derive(Debug, Error)]
 pub enum ScannerError {
     #[error("Io error")]
-    Io { source: io::Error },
+    Io {
+        #[from]
+        source: io::Error,
+    },
     #[error("Parse error")]
     Parse {
         #[from]
@@ -30,40 +31,26 @@ pub enum ScannerError {
     #[error("Scanner is busy")]
     Busy,
     #[error("Scanner is not available. Is it turned off?")]
-    NotAvailable { source: io::Error },
+    NotAvailable { source: reqwest::Error },
     #[error(transparent)]
-    UrlParseError(#[from] hyper::error::ParseError),
+    UrlParseError(#[from] url::ParseError),
     #[error(transparent)]
-    HyperError(hyper::error::Error),
+    ReqwestError(reqwest::Error),
     #[error("Job creation failed: received status {0}")]
     JobCreationFailed(StatusCode),
 }
 
-impl From<hyper::error::Error> for ScannerError {
-    fn from(err: hyper::error::Error) -> Self {
-        if let hyper::error::Error::Io(io) = err {
-            ScannerError::from(io)
-        } else {
-            ScannerError::HyperError(err)
-        }
-    }
-}
-
-impl From<io::Error> for ScannerError {
-    fn from(err: io::Error) -> Self {
-        let not_available = match err.kind() {
-            ErrorKind::ConnectionRefused => true,
-            ErrorKind::Other if format!("{}", err).contains("Name or service not known") => true,
-            _ => match err.raw_os_error() {
-                // ECONNREFUSED - 111 - Connection refused or EHOSTUNREACH 113 No route to host
-                Some(111) | Some(113) => true,
-                _ => false,
-            },
+impl From<reqwest::Error> for ScannerError {
+    fn from(err: reqwest::Error) -> Self {
+        use std::error::Error;
+        let not_available = match err.source().and_then(|e| e.downcast_ref::<hyper::Error>()) {
+            Some(hyper_err) => hyper_err.is_connect(),
+            _ => false,
         };
         if not_available {
             ScannerError::NotAvailable { source: err }
         } else {
-            ScannerError::Io { source: err }
+            ScannerError::ReqwestError(err)
         }
     }
 }
@@ -83,19 +70,16 @@ pub struct Job<'a> {
 
 impl Scanner {
     pub fn new(host: &str, use_tls: bool) -> Scanner {
-        let client = if use_tls {
-            let ssl = NativeTlsClient::new().unwrap();
-            let connector = HttpsConnector::new(ssl);
-            Client::with_connector(connector)
-        } else {
-            Client::new()
-        };
+        let client = Client::builder()
+            .http1_title_case_headers()
+            .build()
+            .unwrap();
         let base_url_string = if use_tls {
             format!("https://{}", host)
         } else {
             format!("http://{}", host)
         };
-        let base_url = Url::parse(&base_url_string).unwrap();
+        let base_url = base_url_string.parse().unwrap();
         Scanner { client, base_url }
     }
 
@@ -103,44 +87,56 @@ impl Scanner {
         self.base_url.host_str().unwrap()
     }
 
-    pub fn get_scan_status(&self) -> Result<ScanStatus, ScannerError> {
-        let resp = self.retrieve_scan_status()?;
-        let status = ScanStatus::read_xml(resp)?;
+    pub async fn get_scan_status(&self) -> Result<ScanStatus, ScannerError> {
+        let data = self.get("/Scan/Status").await?;
+        let c = Cursor::new(data);
+        let status = ScanStatus::read_xml(c)?;
         Ok(status)
     }
 
-    fn retrieve_scan_status(&self) -> HResult<Response> {
-        let url = self.base_url.join("/Scan/Status")?;
-        self.client.get(url).send()
-    }
-
-    pub fn start_job(&self, job: ScanJob) -> Result<Job<'_>, ScannerError> {
-        let mut target: Vec<u8> = Vec::new();
-        job.write_xml(&mut target).unwrap();
-        let result = String::from_utf8(target).unwrap();
-        println!("{}", result);
-        let url = self.base_url.join("/Scan/Jobs")?;
-        let response = self.client.post(url).body(&result).send()?;
-        if response.status != StatusCode::Created {
-            return Err(ScannerError::JobCreationFailed(response.status));
+    pub async fn start_job(&self, job: ScanJob) -> Result<Job<'_>, ScannerError> {
+        let mut data: Vec<u8> = Vec::new();
+        job.write_xml(&mut data).unwrap();
+        let data: Bytes = data.into();
+        let response = self.post("/Scan/Jobs", data).await?;
+        let status = response.status();
+        if status != StatusCode::CREATED {
+            return Err(ScannerError::JobCreationFailed(status));
         }
-        let location: &Location = response.headers.get().unwrap();
-        let loc_url = Url::parse(location)?;
+        let location = response.headers().get(LOCATION).unwrap();
+        let loc_url: Url = location.to_str().unwrap().parse()?;
         let loc_url_rebase = self.base_url.join(loc_url.path())?;
         println!("{}", loc_url_rebase);
         Ok(Job::new(self, loc_url_rebase))
     }
 
-    fn get_job_status(&self, job: &Job<'_>) -> Result<ScanJobStatus, ScannerError> {
-        let response = self.client.get(job.location.clone()).send()?;
-        let status = ScanJobStatus::read_xml(response)?;
+    async fn get(&self, path: &str) -> Result<Bytes, ScannerError> {
+        let url = self.base_url.join(path)?;
+        let data = self.client.get(url).send().await?.bytes().await?;
+        Ok(data)
+    }
+
+    async fn post(&self, path: &str, data: Bytes) -> Result<Response, ScannerError> {
+        let url = self.base_url.join(path)?;
+        let response = self.client.post(url).body(data).send().await?;
+        Ok(response)
+    }
+
+    async fn get_job_status(&self, job: &Job<'_>) -> Result<ScanJobStatus, ScannerError> {
+        let url = job.location.clone();
+        let data = self.client.get(url).send().await?.bytes().await?;
+        let c = Cursor::new(data);
+        let status = ScanJobStatus::read_xml(c)?;
         Ok(status)
     }
 
-    fn download_reader(&self, binary_url: &str) -> Result<Box<dyn Read + Send>, ScannerError> {
+    async fn download_stream(
+        &self,
+        binary_url: &str,
+    ) -> Result<impl Stream<Item = Result<Bytes, reqwest::Error>>, ScannerError> {
         let url = self.base_url.join(binary_url)?;
-        let response = self.client.get(url).send()?;
-        Ok(Box::new(response))
+        let response = self.client.get(url).send().await?;
+        Ok(response.bytes_stream())
     }
 }
 
@@ -153,9 +149,9 @@ impl<'a> Job<'a> {
         }
     }
 
-    pub fn retrieve_status(&mut self) -> Result<bool, ScannerError> {
+    pub async fn retrieve_status(&mut self) -> Result<bool, ScannerError> {
         // TODO error handling
-        let status = self.scanner.get_job_status(self)?;
+        let status = self.scanner.get_job_status(self).await?;
         let page = status.pages().get(0).unwrap();
         let page_state = page.state();
         if let PageState::ReadyToUpload { binary_url } = page_state {
@@ -166,15 +162,21 @@ impl<'a> Job<'a> {
         }
     }
 
-    pub fn download_reader(self) -> Result<Box<dyn Read + Send>, ScannerError> {
+    pub async fn download_stream(
+        self,
+    ) -> Result<impl Stream<Item = Result<Bytes, reqwest::Error>>, ScannerError> {
         // TODO error handling
-        self.scanner.download_reader(&self.binary_url.unwrap())
+        self.scanner
+            .download_stream(&self.binary_url.unwrap())
+            .await
     }
 
-    pub fn download_to_file(self, target: &str) -> Result<(), ScannerError> {
-        let mut reader = self.download_reader()?;
-        let mut file = File::create(target)?;
-        io::copy(&mut reader, &mut file)?;
+    pub async fn download_to_file(self, target: &str) -> Result<(), ScannerError> {
+        let mut stream = self.download_stream().await?;
+        let mut file = File::create(target).await?;
+        while let Some(item) = stream.next().await {
+            file.write_all(item?.as_ref()).await?;
+        }
         Ok(())
     }
 }
