@@ -14,6 +14,15 @@ Features
 *   Scan documents from the command line or in a web UI
 *   covet communicates with the scanner through a REST interface implemented in HP Envy scanners
 
+Installation
+------------
+
+covet can be installed with cargo.
+
+```
+$ cargo install covet
+```
+
 Usage
 -----
 
@@ -21,7 +30,7 @@ Usage
 
 To start the web UI run
 ```
-covet web <SCANNER>
+$ covet web <SCANNER>
 ```
 where `<SCANNER>` is the hostname or IP address of your scanner. Then open [`http://127.0.0.1:3000/`](http://127.0.0.1:3000/) in your browser. It will show the following page with a simple form to scan a document.
 
