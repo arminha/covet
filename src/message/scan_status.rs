@@ -70,8 +70,8 @@ impl ScanStatus {
 
     pub fn read_xml<R: Read>(r: R) -> Result<ScanStatus, ParseError> {
         let element = Element::parse(r)?;
-        let scanner_state: ScannerState = util::parse_child_value(&element, "ScannerState")?;
-        let adf_state: Option<AdfState> = util::parse_child_value(&element, "AdfState").ok();
+        let scanner_state = util::parse_child_value(&element, "ScannerState")?;
+        let adf_state = util::parse_optional_child_value(&element, "AdfState")?;
         Ok(ScanStatus::new(scanner_state, adf_state))
     }
 }
@@ -97,6 +97,12 @@ mod test {
             <ScanStatus xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
             <ScannerState>Idle</ScannerState>
             <AdfState>Loaded</AdfState>
+            </ScanStatus>"#;
+
+    const SCAN_STATUS_UNKNOWN_ADF_STATE: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
+            <ScanStatus xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
+            <ScannerState>Idle</ScannerState>
+            <AdfState>Laoded</AdfState>
             </ScanStatus>"#;
 
     const SCAN_STATUS_NO_ADF: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
@@ -128,5 +134,12 @@ mod test {
             Some(AdfState::Loaded),
         );
         check_parse_scan_status(SCAN_STATUS_NO_ADF, ScannerState::Idle, None);
+    }
+
+    #[test]
+    fn read_scan_status_xml_unknown_adf_state() {
+        let error = ScanStatus::read_xml(SCAN_STATUS_UNKNOWN_ADF_STATE.as_bytes())
+            .expect_err("parsing succeeded");
+        assert_eq!(error.to_string(), "unknown AdfState: Laoded")
     }
 }
