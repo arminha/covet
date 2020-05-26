@@ -7,14 +7,14 @@ use time::OffsetDateTime;
 mod cli;
 mod message;
 mod scanner;
+mod util;
 mod web;
 
 use std::thread;
 use std::time::Duration;
 
 use crate::cli::{Opt, ScannerOpt};
-use crate::message::scan_job::{ColorSpace, Format, InputSource, ScanJob};
-use crate::message::scan_status::AdfState;
+use crate::message::scan_job::{ColorSpace, Format, ScanJob};
 use crate::scanner::{Scanner, ScannerError};
 
 fn main() -> Result<()> {
@@ -73,30 +73,6 @@ impl cli::ColorSpace {
     }
 }
 
-fn choose_source(
-    source: cli::Source,
-    adf_state: Option<AdfState>,
-) -> Result<InputSource, ScannerError> {
-    let input_source = match source {
-        cli::Source::auto => {
-            if adf_state == Some(AdfState::Loaded) {
-                InputSource::Adf
-            } else {
-                InputSource::Platen
-            }
-        }
-        cli::Source::adf => {
-            if adf_state == Some(AdfState::Loaded) {
-                InputSource::Adf
-            } else {
-                return Err(ScannerError::AdfEmpty);
-            }
-        }
-        cli::Source::glass => InputSource::Platen,
-    };
-    Ok(input_source)
-}
-
 fn scan(
     host: &str,
     use_tls: bool,
@@ -111,7 +87,7 @@ fn scan(
     if !status.is_idle() {
         return Err(ScannerError::Busy);
     }
-    let input_source = choose_source(source, status.adf_state())?;
+    let input_source = util::choose_source(source, status.adf_state())?;
     let mut job = scanner.start_job(ScanJob::new(
         input_source,
         resolution,

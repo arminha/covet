@@ -19,10 +19,10 @@ use std::thread;
 use std::time::Duration;
 
 use crate::cli::Source;
-use crate::message::scan_job::{ColorSpace, Format, InputSource, ScanJob};
-use crate::message::scan_status::AdfState;
+use crate::message::scan_job::{ColorSpace, Format, ScanJob};
 use crate::scanner;
 use crate::scanner::{Scanner, ScannerError};
+use crate::util::choose_source;
 
 const INDEX_HTML: &[u8] = include_bytes!("resources/index.html");
 const STYLE_CSS: &[u8] = include_bytes!("resources/style.css");
@@ -169,27 +169,6 @@ fn do_scan(
         }
         thread::sleep(Duration::from_millis(500));
     }
-}
-
-fn choose_source(source: Source, adf_state: Option<AdfState>) -> Result<InputSource, ScannerError> {
-    let input_source = match source {
-        Source::auto => {
-            if adf_state == Some(AdfState::Loaded) {
-                InputSource::Adf
-            } else {
-                InputSource::Platen
-            }
-        }
-        Source::adf => {
-            if adf_state == Some(AdfState::Loaded) {
-                InputSource::Adf
-            } else {
-                return Err(ScannerError::AdfEmpty);
-            }
-        }
-        Source::glass => InputSource::Platen,
-    };
-    Ok(input_source)
 }
 
 fn get_format_param(params: &HashMap<String, Vec<String>>) -> Format {
