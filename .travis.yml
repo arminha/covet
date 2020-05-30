@@ -14,7 +14,7 @@ sudo: false
 cache: cargo
 
 install:
-  - if [ $TRAVIS_RUST_VERSION = "stable" ]; then rustup component add rustfmt-preview; fi
+  - if [ $TRAVIS_RUST_VERSION = "stable" ]; then rustup component add rustfmt; fi
 
 script:
   - if [ $TRAVIS_RUST_VERSION = "stable" ]; then cargo fmt --all -- --check; fi
