@@ -159,7 +159,13 @@ fn content_type(format: Format) -> HeaderValue {
 }
 
 fn content_disposition(filename: String) -> HeaderValue {
-    let value = format!("attachment; filename*==utf-8''{}", filename);
+    let mut value = "attachment; ".to_owned();
+    if filename.is_ascii() {
+        value += "filename=";
+    } else {
+        value += "filename*=utf-8''";
+    }
+    value += &filename;
     HeaderValue::from_str(&value).expect("valid header value")
 }
 
@@ -200,6 +206,18 @@ mod test {
         assert_eq!(
             "\"-BYq1JGWwcEr3bz_HTYt2s8DriRranhkt1wkS5Zf5HU\"",
             compute_etag(TEST_CONTENT)
+        );
+    }
+
+    #[test]
+    fn generate_content_disposition() {
+        assert_eq!(
+            "attachment; filename=test.txt",
+            content_disposition("test.txt".to_owned()).to_str().unwrap()
+        );
+        assert_eq!(
+            "attachment; filename*=utf-8''äöü.txt",
+            String::from_utf8_lossy(content_disposition("äöü.txt".to_owned()).as_bytes())
         );
     }
 }
