@@ -1,7 +1,6 @@
 #![forbid(unsafe_code)]
 
 use anyhow::Result;
-use env_logger;
 use structopt::StructOpt;
 use tokio::runtime::Runtime;
 
