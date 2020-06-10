@@ -1,7 +1,5 @@
 use anyhow::Result;
 use base64::{self, URL_SAFE_NO_PAD};
-use bytes::Bytes;
-use futures_util::stream::Stream;
 use headers::{ETag, HeaderMapExt, IfNoneMatch};
 use hyper::header::{HeaderMap, HeaderValue, CONTENT_DISPOSITION, CONTENT_TYPE};
 use hyper::{Body, Response, StatusCode};
@@ -15,13 +13,11 @@ use std::collections::HashMap;
 use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::sync::Arc;
-use std::time::Duration;
 
 use crate::cli::Source;
-use crate::message::scan_job::{ColorSpace, Format, ScanJob};
-use crate::scanner;
-use crate::scanner::{Scanner, ScannerError};
-use crate::util::choose_source;
+use crate::message::scan_job::{ColorSpace, Format};
+use crate::scanner::{self, Scanner, ScannerError};
+use crate::util::scan_to_stream;
 
 const INDEX_HTML: &[u8] = include_bytes!("resources/index.html");
 const STYLE_CSS: &[u8] = include_bytes!("resources/style.css");
@@ -99,24 +95,15 @@ async fn handle_scan_form(
     params: HashMap<String, String>,
 ) -> Result<Response<Body>, Infallible> {
     let format = get_format_param(&params);
-    let color_space = get_colorspace_param(&params);
+    let color = get_colorspace_param(&params);
     let source = get_source_param(&params);
-    let (resolution, compression) = get_quality_param(&params);
+    let (resolution, quality) = get_quality_param(&params);
     let filename = scanner::output_file_name(format, &OffsetDateTime::now_utc());
     info!(
-        "Scan parameters: format={:?}, color={:?}, source={:?}, resolution={}, compression={}",
-        format, color_space, source, resolution, compression
+        "Scan parameters: format={:?}, color={:?}, source={:?}, resolution={}, quality={}",
+        format, color, source, resolution, quality
     );
-    let stream = match do_scan(
-        &scanner,
-        format,
-        color_space,
-        source,
-        resolution,
-        compression,
-    )
-    .await
-    {
+    let stream = match scan_to_stream(&scanner, format, color, source, resolution, quality).await {
         Ok(s) => s,
         Err(e) => return Ok(render_error(&e)),
     };
@@ -174,39 +161,6 @@ fn content_type(format: Format) -> HeaderValue {
 fn content_disposition(filename: String) -> HeaderValue {
     let value = format!("attachment; filename*==utf-8''{}", filename);
     HeaderValue::from_str(&value).expect("valid header value")
-}
-
-async fn do_scan(
-    scanner: &Scanner,
-    format: Format,
-    color: ColorSpace,
-    source: Source,
-    resolution: u32,
-    compression: u32,
-) -> Result<impl Stream<Item = Result<Bytes, reqwest::Error>>, ScannerError> {
-    let status = scanner.get_scan_status().await?;
-    if !status.is_idle() {
-        return Err(ScannerError::Busy);
-    }
-    let input_source = choose_source(source, status.adf_state())?;
-    let mut job = scanner
-        .start_job(ScanJob::new(
-            input_source,
-            resolution,
-            compression,
-            format,
-            color,
-        ))
-        .await?;
-    println!("Job: {:?}", job);
-    loop {
-        let ready = job.retrieve_status().await?;
-        if ready {
-            println!("Job: {:?}", job);
-            return job.download_stream().await;
-        }
-        tokio::time::delay_for(Duration::from_millis(500)).await;
-    }
 }
 
 fn render_error(error: &ScannerError) -> Response<Body> {

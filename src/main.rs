@@ -3,7 +3,6 @@
 use anyhow::Result;
 use env_logger;
 use structopt::StructOpt;
-use time::OffsetDateTime;
 use tokio::runtime::Runtime;
 
 mod cli;
@@ -12,10 +11,8 @@ mod scanner;
 mod util;
 mod web;
 
-use std::time::Duration;
-
 use crate::cli::{Opt, ScanOpt, ScannerOpt};
-use crate::message::scan_job::{ColorSpace, Format, ScanJob};
+use crate::message::scan_job::{ColorSpace, Format};
 use crate::scanner::{Scanner, ScannerError};
 
 fn main() -> Result<()> {
@@ -75,7 +72,7 @@ impl cli::ColorSpace {
 fn scan(opt: ScanOpt) -> Result<(), ScannerError> {
     let scanner = Scanner::new(&opt.scanner_opts.scanner, !opt.scanner_opts.no_tls);
     let mut rt = Runtime::new()?;
-    rt.block_on(scan_async(
+    rt.block_on(util::scan_to_file(
         scanner,
         opt.format.to_internal(),
         opt.color.to_internal(),
@@ -83,41 +80,5 @@ fn scan(opt: ScanOpt) -> Result<(), ScannerError> {
         opt.resolution,
         opt.compression_quality,
     ))?;
-    Ok(())
-}
-
-async fn scan_async(
-    scanner: Scanner,
-    format: Format,
-    color: ColorSpace,
-    source: cli::Source,
-    resolution: u32,
-    quality: u32,
-) -> Result<(), ScannerError> {
-    let status = scanner.get_scan_status().await?;
-    if !status.is_idle() {
-        return Err(ScannerError::Busy);
-    }
-    let input_source = util::choose_source(source, status.adf_state())?;
-    let mut job = scanner
-        .start_job(ScanJob::new(
-            input_source,
-            resolution,
-            quality,
-            format,
-            color,
-        ))
-        .await?;
-    println!("Job: {:?}", job);
-    loop {
-        let ready = job.retrieve_status().await?;
-        if ready {
-            println!("Job: {:?}", job);
-            let output_file = scanner::output_file_name(format, &OffsetDateTime::now_utc());
-            job.download_to_file(&output_file).await?;
-            break;
-        }
-        tokio::time::delay_for(Duration::from_millis(500)).await;
-    }
     Ok(())
 }

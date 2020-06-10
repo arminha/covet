@@ -1,11 +1,9 @@
 use bytes::Bytes;
-use futures_util::stream::{Stream, StreamExt};
+use futures_util::stream::Stream;
 use reqwest::header::LOCATION;
 use reqwest::{self, Client, Response, StatusCode, Url};
 use thiserror::Error;
 use time::OffsetDateTime;
-use tokio::fs::File;
-use tokio::io::AsyncWriteExt;
 
 use std::io::{self, Cursor};
 
@@ -169,15 +167,6 @@ impl<'a> Job<'a> {
         self.scanner
             .download_stream(&self.binary_url.unwrap())
             .await
-    }
-
-    pub async fn download_to_file(self, target: &str) -> Result<(), ScannerError> {
-        let mut stream = self.download_stream().await?;
-        let mut file = File::create(target).await?;
-        while let Some(item) = stream.next().await {
-            file.write_all(item?.as_ref()).await?;
-        }
-        Ok(())
     }
 }
 
