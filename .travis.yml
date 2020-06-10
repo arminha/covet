@@ -19,7 +19,7 @@ install:
 
 script:
   - if [ $TRAVIS_RUST_VERSION = "stable" ]; then cargo fmt --all -- --check; fi
-  - if [ $TRAVIS_RUST_VERSION = "stable" ]; then cargo clippy --verbose; fi
+  - if [ $TRAVIS_RUST_VERSION = "stable" ]; then cargo clippy -- -D warnings; fi
   - cargo build --verbose
   - cargo test --verbose
 
