@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 use anyhow::Result;
+use env_logger;
 use structopt::StructOpt;
 use time::OffsetDateTime;
 use tokio::runtime::Runtime;
@@ -9,7 +10,7 @@ mod cli;
 mod message;
 mod scanner;
 mod util;
-// mod web;
+mod web;
 
 use std::time::Duration;
 
@@ -26,9 +27,10 @@ fn main() -> Result<()> {
         Opt::Scan(opt) => {
             scan(opt)?;
         }
-        Opt::Web(_opt) => {
-            //let use_tls = !opt.scanner_opts.no_tls;
-            //web::run_server(&opt.scanner_opts.scanner, &opt.listen, opt.port, use_tls)?;
+        Opt::Web(opt) => {
+            env_logger::init();
+            let use_tls = !opt.scanner_opts.no_tls;
+            web::run_server(&opt.scanner_opts.scanner, &opt.listen, opt.port, use_tls)?;
         }
     }
     Ok(())
