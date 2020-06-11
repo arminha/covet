@@ -1,6 +1,6 @@
 [package]
 name = "covet"
-version = "1.0.0"
+version = "1.1.0"
 authors = ["Armin Häberling <armin.aha@gmail.com>"]
 build = "build.rs"
 edition = "2018"
