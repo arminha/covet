@@ -2,7 +2,7 @@
 
 use anyhow::Result;
 use structopt::StructOpt;
-use time::OffsetDateTime;
+use tokio::runtime::Runtime;
 
 mod cli;
 mod message;
@@ -10,11 +10,8 @@ mod scanner;
 mod util;
 mod web;
 
-use std::thread;
-use std::time::Duration;
-
-use crate::cli::{Opt, ScannerOpt};
-use crate::message::scan_job::{ColorSpace, Format, ScanJob};
+use crate::cli::{Opt, ScanOpt, ScannerOpt};
+use crate::message::scan_job::{ColorSpace, Format};
 use crate::scanner::{Scanner, ScannerError};
 
 fn main() -> Result<()> {
@@ -24,18 +21,10 @@ fn main() -> Result<()> {
             status(opt)?;
         }
         Opt::Scan(opt) => {
-            let use_tls = !opt.scanner_opts.no_tls;
-            scan(
-                &opt.scanner_opts.scanner,
-                use_tls,
-                opt.format.to_internal(),
-                opt.color.to_internal(),
-                opt.source,
-                opt.resolution,
-                opt.compression_quality,
-            )?;
+            scan(opt)?;
         }
         Opt::Web(opt) => {
+            env_logger::init();
             let use_tls = !opt.scanner_opts.no_tls;
             web::run_server(&opt.scanner_opts.scanner, &opt.listen, opt.port, use_tls)?;
         }
@@ -45,8 +34,14 @@ fn main() -> Result<()> {
 
 fn status(opt: ScannerOpt) -> Result<(), ScannerError> {
     let scanner = Scanner::new(&opt.scanner, !opt.no_tls);
+    let mut rt = Runtime::new()?;
+    rt.block_on(print_scan_status(&scanner))?;
+    Ok(())
+}
+
+async fn print_scan_status(scanner: &Scanner) -> Result<(), ScannerError> {
     println!("Status of scanner {}", scanner.host());
-    let status = scanner.get_scan_status()?;
+    let status = scanner.get_scan_status().await?;
     println!(
         "Scanner: {:?}, Adf: {:?}",
         status.scanner_state(),
@@ -73,38 +68,16 @@ impl cli::ColorSpace {
     }
 }
 
-fn scan(
-    host: &str,
-    use_tls: bool,
-    format: Format,
-    color: ColorSpace,
-    source: cli::Source,
-    resolution: u32,
-    quality: u32,
-) -> Result<(), ScannerError> {
-    let scanner = Scanner::new(host, use_tls);
-    let status = scanner.get_scan_status()?;
-    if !status.is_idle() {
-        return Err(ScannerError::Busy);
-    }
-    let input_source = util::choose_source(source, status.adf_state())?;
-    let mut job = scanner.start_job(ScanJob::new(
-        input_source,
-        resolution,
-        quality,
-        format,
-        color,
+fn scan(opt: ScanOpt) -> Result<(), ScannerError> {
+    let scanner = Scanner::new(&opt.scanner_opts.scanner, !opt.scanner_opts.no_tls);
+    let mut rt = Runtime::new()?;
+    rt.block_on(util::scan_to_file(
+        scanner,
+        opt.format.to_internal(),
+        opt.color.to_internal(),
+        opt.source,
+        opt.resolution,
+        opt.compression_quality,
     ))?;
-    println!("Job: {:?}", job);
-    loop {
-        let ready = job.retrieve_status()?;
-        if ready {
-            println!("Job: {:?}", job);
-            let output_file = scanner::output_file_name(format, &OffsetDateTime::now_utc());
-            job.download_to_file(&output_file)?;
-            break;
-        }
-        thread::sleep(Duration::from_millis(500));
-    }
     Ok(())
 }
