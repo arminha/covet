@@ -5,7 +5,7 @@ NAME=covet
 
 PIDFILE=/var/run/$NAME/$NAME.pid
 
-# user and group to be invoked as (default to web-video-dl)
+# user and group to be invoked as (default to covet)
 COVET_USER=$NAME
 COVET_GROUP=$NAME
 

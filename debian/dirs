@@ -1,2 +1,4 @@
+# home directory for covet user
+var/lib/covet
 # store log files in their own directory
 var/log/covet

@@ -29,16 +29,16 @@ case "$1" in
           addgroup --system --quiet "$COVET_GROUP"
       fi
       if ! id "$COVET_USER" >/dev/null 2>&1 ; then
-          adduser --system --quiet --home /var/lib/web-video-dl --no-create-home \
+          adduser --system --quiet --home /var/lib/covet --no-create-home \
                       --ingroup "$COVET_GROUP" --disabled-password \
                       "$COVET_USER"
       fi
 
       # directories needed for covet
       # we don't do -R because it can take a long time on big installation
-      chown $COVET_USER:$COVET_GROUP /var/log/covet
+      chown $COVET_USER:$COVET_GROUP /var/lib/covet /var/log/covet
       # we don't do "chmod 750" so that the user can choose the pemission for g and o on their own
-      chmod u+rwx /var/log/covet
+      chmod u+rwx /var/lib/covet /var/log/covet
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
