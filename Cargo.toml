@@ -31,22 +31,22 @@ opt-level = "z"
 codegen-units = 1
 
 [build-dependencies]
-structopt = "0.3.20"
+structopt = "0.3.21"
 
 [dependencies]
-anyhow = "1.0.34"
+anyhow = "1.0.37"
 bytes = "0.5.6"
 futures-util = "0.3.8"
 hyper = "0.13.9"
-reqwest = { version = "0.10.9", features = ["stream"] }
-thiserror = "1.0.22"
+reqwest = { version = "0.10.10", features = ["stream"] }
+thiserror = "1.0.23"
 time = "0.2.23"
-tokio = { version = "0.2.23", features = ["fs"] }
+tokio = { version = "0.2.24", features = ["fs"] }
 url = "2.2.0"
 xmltree = "0.10.2"
 xml-rs = "0.8.3"
 # cli
-structopt = "0.3.20"
+structopt = "0.3.21"
 # web
 base64 = "0.13.0"
 sha2 = "0.9.2"
