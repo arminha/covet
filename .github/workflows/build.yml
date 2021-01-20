@@ -16,7 +16,7 @@ jobs:
           - stable
           - beta
           - nightly
-          - 1.41.0
+          - 1.45.2
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
@@ -41,7 +41,7 @@ jobs:
           - stable
           - beta
           - nightly
-          - 1.41.0
+          - 1.45.2
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
@@ -92,7 +92,7 @@ jobs:
           - stable
           - beta
           - nightly
-          - 1.41.0
+          - 1.45.2
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
