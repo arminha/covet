@@ -35,7 +35,7 @@ pub fn run_server(
     let addr = SocketAddr::new(listen_addr.parse()?, listen_port);
     println!("Running on http://{}:{}/", listen_addr, listen_port);
     let scanner = Scanner::new(scanner_host, use_tls);
-    let mut rt = Runtime::new()?;
+    let rt = Runtime::new()?;
     rt.block_on(run_server_async(addr, scanner))
 }
 

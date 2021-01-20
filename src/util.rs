@@ -57,7 +57,7 @@ pub(crate) async fn scan_to_stream(
             println!("Job: {:?}", job);
             return job.download_stream().await;
         }
-        tokio::time::delay_for(Duration::from_millis(500)).await;
+        tokio::time::sleep(Duration::from_millis(500)).await;
     }
 }
 

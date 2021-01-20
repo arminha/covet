@@ -34,7 +34,7 @@ fn main() -> Result<()> {
 
 fn status(opt: ScannerOpt) -> Result<(), ScannerError> {
     let scanner = Scanner::new(&opt.scanner, !opt.no_tls);
-    let mut rt = Runtime::new()?;
+    let rt = Runtime::new()?;
     rt.block_on(print_scan_status(&scanner))?;
     Ok(())
 }
@@ -70,7 +70,7 @@ impl cli::ColorSpace {
 
 fn scan(opt: ScanOpt) -> Result<(), ScannerError> {
     let scanner = Scanner::new(&opt.scanner_opts.scanner, !opt.scanner_opts.no_tls);
-    let mut rt = Runtime::new()?;
+    let rt = Runtime::new()?;
     rt.block_on(util::scan_to_file(
         scanner,
         opt.format.to_internal(),
