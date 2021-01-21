@@ -1,7 +1,6 @@
 covet
 =====
 
-[![Build Status](https://travis-ci.org/arminha/covet.svg?branch=master)](https://travis-ci.org/arminha/covet)
 [![build](https://github.com/arminha/covet/workflows/build/badge.svg)](https://github.com/arminha/covet/actions?query=workflow%3Abuild)
 [![dependency status](https://deps.rs/repo/github/arminha/covet/status.svg)](https://deps.rs/repo/github/arminha/covet)
 [![Crates.io](https://img.shields.io/crates/v/covet)](https://crates.io/crates/covet)
