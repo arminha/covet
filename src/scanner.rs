@@ -55,8 +55,8 @@ impl From<reqwest::Error> for ScannerError {
 
 #[derive(Debug)]
 pub struct Scanner {
-    base_url: Url,
     client: Client,
+    base_url: Url,
 }
 
 #[derive(Debug)]
