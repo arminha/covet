@@ -1,0 +1,28 @@
+on:
+  push:
+    tags:
+      - v*
+
+name: release
+
+jobs:
+  release:
+    name: Release to cates.io
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout sources
+      uses: actions/checkout@v2
+
+    - name: Install toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
+    - name: Login
+      run: cargo login ${CRATES_IO_TOKEN}
+      env:
+        CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+
+    - name: Publish
+      run: cargo publish
