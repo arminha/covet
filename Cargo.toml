@@ -34,14 +34,14 @@ codegen-units = 1
 structopt = "0.3.21"
 
 [dependencies]
-anyhow = "1.0.38"
+anyhow = "1.0.39"
 bytes = "1.0.1"
 futures-util = { version = "0.3.13", default-features = false }
 hyper = "0.14.4"
-reqwest = { version = "0.11.1", features = ["stream"] }
+reqwest = { version = "0.11.2", features = ["stream"] }
 thiserror = "1.0.24"
-time = "0.2.25"
-tokio = { version = "1.2.0", features = ["fs", "rt-multi-thread", "time"] }
+time = "0.2.26"
+tokio = { version = "1.4.0", features = ["fs", "rt-multi-thread", "time"] }
 url = "2.2.1"
 xmltree = "0.10.2"
 xml-rs = "0.8.3"
