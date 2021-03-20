@@ -22,7 +22,6 @@ include = [
 ]
 
 [badges]
-travis-ci = { repository = "arminha/covet", branch = "master" }
 maintenance = { status = "passively-maintained" }
 
 [profile.release]
