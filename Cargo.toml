@@ -33,10 +33,10 @@ codegen-units = 1
 structopt = "0.3.21"
 
 [dependencies]
-anyhow = "1.0.39"
+anyhow = "1.0.40"
 bytes = "1.0.1"
 futures-util = { version = "0.3.13", default-features = false }
-hyper = "0.14.4"
+hyper = "0.14.5"
 reqwest = { version = "0.11.2", features = ["stream"] }
 thiserror = "1.0.24"
 time = "0.2.26"
@@ -49,7 +49,7 @@ structopt = "0.3.21"
 # web
 base64 = "0.13.0"
 sha2 = "0.9.3"
-warp = { version = "0.3.0", default-features = false }
+warp = { version = "0.3.1", default-features = false }
 headers = "0.3.4"
 log = "0.4.14"
 env_logger = "0.8.3"
