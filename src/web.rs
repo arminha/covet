@@ -165,7 +165,7 @@ fn content_disposition(filename: &str) -> HeaderValue {
     } else {
         value += "filename*=utf-8''";
     }
-    value += &filename;
+    value += filename;
     HeaderValue::from_str(&value).expect("valid header value")
 }
 
