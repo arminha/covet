@@ -113,7 +113,7 @@ async fn handle_scan_form(
         .insert(CONTENT_TYPE, content_type(format));
     response
         .headers_mut()
-        .insert(CONTENT_DISPOSITION, content_disposition(filename));
+        .insert(CONTENT_DISPOSITION, content_disposition(&filename));
     Ok(response)
 }
 
@@ -158,7 +158,7 @@ fn content_type(format: Format) -> HeaderValue {
     }
 }
 
-fn content_disposition(filename: String) -> HeaderValue {
+fn content_disposition(filename: &str) -> HeaderValue {
     let mut value = "attachment; ".to_owned();
     if filename.is_ascii() {
         value += "filename=";
@@ -213,11 +213,11 @@ mod test {
     fn generate_content_disposition() {
         assert_eq!(
             "attachment; filename=test.txt",
-            content_disposition("test.txt".to_owned()).to_str().unwrap()
+            content_disposition("test.txt").to_str().unwrap()
         );
         assert_eq!(
             "attachment; filename*=utf-8''äöü.txt",
-            String::from_utf8_lossy(content_disposition("äöü.txt".to_owned()).as_bytes())
+            String::from_utf8_lossy(content_disposition("äöü.txt").as_bytes())
         );
     }
 }

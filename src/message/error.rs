@@ -4,9 +4,9 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum ParseError {
     #[error(transparent)]
-    XmlParseError(#[from] xmltree::ParseError),
+    Xml(#[from] xmltree::ParseError),
     #[error(transparent)]
-    IntParseError(#[from] ParseIntError),
+    Int(#[from] ParseIntError),
     #[error("missing element {name}")]
     MissingElement { name: &'static str },
     #[error("unknown {name}: {value}")]
