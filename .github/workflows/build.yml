@@ -95,7 +95,8 @@ jobs:
           - stable
           - beta
           - nightly
-          - 1.46.0
+          # disable clippy for 1.46.0
+          #- 1.46.0
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
