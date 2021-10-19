@@ -3,7 +3,7 @@ use futures_util::stream::Stream;
 use reqwest::header::LOCATION;
 use reqwest::{self, Client, Response, StatusCode, Url};
 use thiserror::Error;
-use time::OffsetDateTime;
+use time::{macros::format_description, OffsetDateTime};
 
 use std::io::{self, Cursor};
 
@@ -175,7 +175,7 @@ pub fn output_file_name(format: Format, time: &OffsetDateTime) -> String {
         Format::Pdf => "pdf",
         Format::Jpeg => "jpeg",
     };
-    let ts = time.format("%Y%m%d_%H%M%S");
+    let ts = time.format(&format_description!("[year][month][day]_[hour][minute][second]")).expect("msg");
     format!("scan_{}.{}", ts, extension)
 }
 
@@ -186,7 +186,7 @@ mod test {
 
     #[test]
     fn check_output_file_name() {
-        let time = OffsetDateTime::from_unix_timestamp(1486905545);
+        let time = OffsetDateTime::from_unix_timestamp(1486905545).unwrap();
         assert_eq!(
             "scan_20170212_131905.pdf",
             output_file_name(Format::Pdf, &time)
