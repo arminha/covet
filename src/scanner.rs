@@ -175,7 +175,11 @@ pub fn output_file_name(format: Format, time: &OffsetDateTime) -> String {
         Format::Pdf => "pdf",
         Format::Jpeg => "jpeg",
     };
-    let ts = time.format(&format_description!("[year][month][day]_[hour][minute][second]")).expect("msg");
+    let ts = time
+        .format(&format_description!(
+            "[year][month][day]_[hour][minute][second]"
+        ))
+        .expect("time format failed");
     format!("scan_{}.{}", ts, extension)
 }
 
