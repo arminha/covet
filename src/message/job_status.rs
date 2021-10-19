@@ -35,6 +35,7 @@ pub enum PageState {
 
 #[derive(Debug)]
 pub struct ScanPage {
+    #[allow(dead_code)]
     number: u32,
     state: PageState,
 }
@@ -51,6 +52,7 @@ impl ScanPage {
 
 #[derive(Debug)]
 pub struct ScanJobStatus {
+    #[allow(dead_code)]
     state: JobState,
     pages: Vec<ScanPage>,
 }
