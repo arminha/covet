@@ -4,7 +4,7 @@ use headers::{ETag, HeaderMapExt, IfNoneMatch};
 use hyper::header::{HeaderMap, HeaderValue, CONTENT_DISPOSITION, CONTENT_TYPE};
 use hyper::{Body, Response, StatusCode};
 use log::{error, info};
-use sha2::{Digest, Sha512Trunc256};
+use sha2::{Digest, Sha512_256};
 use time::OffsetDateTime;
 use tokio::runtime::Runtime;
 use warp::Filter;
@@ -60,7 +60,7 @@ async fn run_server_async(addr: SocketAddr, scanner: Scanner) -> Result<()> {
 }
 
 fn compute_etag(content: &[u8]) -> String {
-    let hash = Sha512Trunc256::digest(content);
+    let hash = Sha512_256::digest(content);
     format!("\"{}\"", base64::encode_config(&hash[..], URL_SAFE_NO_PAD))
 }
 
