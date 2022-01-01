@@ -33,14 +33,14 @@ codegen-units = 1
 structopt = "0.3.25"
 
 [dependencies]
-anyhow = "1.0.44"
+anyhow = "1.0.52"
 bytes = "1.1.0"
-futures-util = { version = "0.3.17", default-features = false }
-hyper = "0.14.13"
-reqwest = { version = "0.11.6", features = ["stream"] }
+futures-util = { version = "0.3.19", default-features = false }
+hyper = "0.14.16"
+reqwest = { version = "0.11.8", features = ["stream"] }
 thiserror = "1.0.30"
-time = { version = "0.3.3", features = ["formatting", "macros"] }
-tokio = { version = "1.12.0", features = ["fs", "rt-multi-thread", "time"] }
+time = { version = "0.3.5", features = ["formatting", "macros"] }
+tokio = { version = "1.15.0", features = ["fs", "rt-multi-thread", "time"] }
 url = "2.2.2"
 xmltree = "0.10.3"
 xml-rs = "0.8.4"
@@ -49,7 +49,7 @@ structopt = "0.3.25"
 # web
 base64 = "0.13.0"
 sha2 = "0.9.8"
-warp = { version = "0.3.1", default-features = false }
+warp = { version = "0.3.2", default-features = false }
 headers = "0.3.5"
 log = "0.4.14"
 env_logger = "0.9.0"
