@@ -18,10 +18,10 @@ fn main() -> Result<()> {
     let opt = Opt::from_args();
     match opt {
         Opt::Status(opt) => {
-            status(opt)?;
+            status(&opt)?;
         }
         Opt::Scan(opt) => {
-            scan(opt)?;
+            scan(&opt)?;
         }
         Opt::Web(opt) => {
             env_logger::init();
@@ -32,7 +32,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn status(opt: ScannerOpt) -> Result<(), ScannerError> {
+fn status(opt: &ScannerOpt) -> Result<(), ScannerError> {
     let scanner = Scanner::new(&opt.scanner, !opt.no_tls);
     let rt = Runtime::new()?;
     rt.block_on(print_scan_status(&scanner))?;
@@ -68,7 +68,7 @@ impl cli::ColorSpace {
     }
 }
 
-fn scan(opt: ScanOpt) -> Result<(), ScannerError> {
+fn scan(opt: &ScanOpt) -> Result<(), ScannerError> {
     let scanner = Scanner::new(&opt.scanner_opts.scanner, !opt.scanner_opts.no_tls);
     let rt = Runtime::new()?;
     rt.block_on(util::scan_to_file(

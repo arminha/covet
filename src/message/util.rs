@@ -12,7 +12,7 @@ pub(super) fn read_child_value<'a>(
 ) -> Result<Cow<'a, str>, ParseError> {
     element
         .get_child(name)
-        .and_then(|v| v.get_text())
+        .and_then(Element::get_text)
         .ok_or_else(|| ParseError::missing_element(name))
 }
 
