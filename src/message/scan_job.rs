@@ -10,19 +10,19 @@ use std::io::Write;
 const XML_NAMESPACE: &str = "http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19";
 const PREFIX: &str = "scan";
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum InputSource {
     Platen,
     Adf,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Format {
     Jpeg,
     Pdf,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ColorSpace {
     Color,
     Gray,

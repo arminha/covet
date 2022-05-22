@@ -6,7 +6,7 @@ use std::str::FromStr;
 use crate::message::error::ParseError;
 use crate::message::util;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum JobState {
     Processing,
     Completed,
@@ -26,7 +26,7 @@ impl FromStr for JobState {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum PageState {
     PreparingScan,
     ReadyToUpload { binary_url: String },

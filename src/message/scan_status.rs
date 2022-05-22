@@ -6,7 +6,7 @@ use std::str::FromStr;
 use crate::message::error::ParseError;
 use crate::message::util;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ScannerState {
     Idle,
     BusyWithScanJob,
@@ -24,7 +24,7 @@ impl FromStr for ScannerState {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum AdfState {
     Empty,
     Loaded,
