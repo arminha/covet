@@ -41,7 +41,7 @@ reqwest = { version = "0.11.9", features = ["stream"] }
 thiserror = "1.0.30"
 time = { version = "0.3.5", features = ["formatting", "macros"] }
 tokio = { version = "1.15.0", features = ["fs", "rt-multi-thread", "time"] }
-url = "2.2.2"
+url = "2.3.0"
 xmltree = "0.10.3"
 xml-rs = "0.8.4"
 # cli
