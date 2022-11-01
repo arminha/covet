@@ -33,7 +33,7 @@ codegen-units = 1
 structopt = "0.3.26"
 
 [dependencies]
-anyhow = "1.0.65"
+anyhow = "1.0.66"
 bytes = "1.2.1"
 futures-util = { version = "0.3.25", default-features = false }
 hyper = "0.14.20"
