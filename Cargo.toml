@@ -52,4 +52,4 @@ sha2 = "0.10.6"
 warp = { version = "0.3.3", default-features = false }
 headers = "0.3.8"
 log = "0.4.17"
-env_logger = "0.9.1"
+env_logger = "0.9.3"
