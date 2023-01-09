@@ -47,7 +47,7 @@ xml-rs = "0.8.4"
 # cli
 structopt = "0.3.26"
 # web
-base64 = "0.13.1"
+base64 = "0.21.0"
 sha2 = "0.10.6"
 warp = { version = "0.3.3", default-features = false }
 headers = "0.3.8"
