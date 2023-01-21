@@ -73,9 +73,9 @@ impl Scanner {
             .build()
             .unwrap();
         let base_url_string = if use_tls {
-            format!("https://{}", host)
+            format!("https://{host}")
         } else {
-            format!("http://{}", host)
+            format!("http://{host}")
         };
         let base_url = base_url_string.parse().unwrap();
         Scanner { client, base_url }
@@ -104,7 +104,7 @@ impl Scanner {
         let location = response.headers().get(LOCATION).unwrap();
         let loc_url: Url = location.to_str().unwrap().parse()?;
         let loc_url_rebase = self.base_url.join(loc_url.path())?;
-        println!("{}", loc_url_rebase);
+        println!("{loc_url_rebase}");
         Ok(Job::new(self, loc_url_rebase))
     }
 
@@ -180,7 +180,7 @@ pub fn output_file_name(format: Format, time: &OffsetDateTime) -> String {
             "[year][month][day]_[hour][minute][second]"
         ))
         .expect("time format failed");
-    format!("scan_{}.{}", ts, extension)
+    format!("scan_{ts}.{extension}")
 }
 
 #[cfg(test)]

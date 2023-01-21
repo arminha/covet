@@ -33,7 +33,7 @@ pub fn run_server(
     use_tls: bool,
 ) -> Result<()> {
     let addr = SocketAddr::new(listen_addr.parse()?, listen_port);
-    println!("Running on http://{}:{}/", listen_addr, listen_port);
+    println!("Running on http://{listen_addr}:{listen_port}/");
     let scanner = Scanner::new(scanner_host, use_tls);
     let rt = Runtime::new()?;
     rt.block_on(run_server_async(addr, scanner))
@@ -174,7 +174,7 @@ fn render_error(error: &ScannerError) -> Response<Body> {
         ScannerError::AdfEmpty => error_page("ADF is empty"),
         ScannerError::Busy => error_page("Scanner is busy"),
         ScannerError::NotAvailable { ref source } => {
-            error_page(format!("{}<p>Cause: {}</p>", error, source).as_str())
+            error_page(format!("{error}<p>Cause: {source}</p>").as_str())
         }
         _ => {
             error!("InternalServerError: Failed to scan. {:?}", error);
