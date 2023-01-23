@@ -1,5 +1,5 @@
 use anyhow::Result;
-use base64::{self, URL_SAFE_NO_PAD};
+use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
 use headers::{ETag, HeaderMapExt, IfNoneMatch};
 use hyper::header::{HeaderMap, HeaderValue, CONTENT_DISPOSITION, CONTENT_TYPE};
 use hyper::{Body, Response, StatusCode};
@@ -61,7 +61,7 @@ async fn run_server_async(addr: SocketAddr, scanner: Scanner) -> Result<()> {
 
 fn compute_etag(content: &[u8]) -> String {
     let hash = Sha512_256::digest(content);
-    format!("\"{}\"", base64::encode_config(&hash[..], URL_SAFE_NO_PAD))
+    format!("\"{}\"", URL_SAFE_NO_PAD.encode(&hash[..]))
 }
 
 fn static_content(
