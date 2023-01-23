@@ -40,7 +40,7 @@ hyper = "0.14.23"
 reqwest = { version = "0.11.13", features = ["stream"] }
 thiserror = "1.0.37"
 time = { version = "0.3.17", features = ["formatting", "macros"] }
-tokio = { version = "1.22.0", features = ["fs", "rt-multi-thread", "time"] }
+tokio = { version = "1.24.2", features = ["fs", "rt-multi-thread", "time"] }
 url = "2.3.1"
 xmltree = "0.10.3"
 xml-rs = "0.8.4"
