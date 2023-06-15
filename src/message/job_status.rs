@@ -178,13 +178,13 @@ mod test {
             </j:Job>"#;
 
     const CANCELLED_BY_DEVICE: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
-            <j:Job xmlns:j=\"http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30\">
+            <j:Job xmlns:j="http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30">
             <j:JobUrl>/Jobs/JobList/2</j:JobUrl>
             <j:JobCategory>Scan</j:JobCategory>
             <j:JobState>Completed</j:JobState>
             <j:JobStateUpdate>445-8</j:JobStateUpdate>
             <j:JobSource>userIO</j:JobSource>
-            <ScanJob xmlns=\"http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19\">
+            <ScanJob xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
             <PostScanPage>
             <PageNumber>1</PageNumber>
             <PageState>CanceledByDevice</PageState>
