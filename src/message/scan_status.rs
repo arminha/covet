@@ -10,6 +10,8 @@ use crate::message::util;
 pub enum ScannerState {
     Idle,
     BusyWithScanJob,
+    /// For example a paper jam
+    AdfError,
 }
 
 impl FromStr for ScannerState {
@@ -19,6 +21,7 @@ impl FromStr for ScannerState {
         match s {
             "Idle" => Ok(ScannerState::Idle),
             "BusyWithScanJob" => Ok(ScannerState::BusyWithScanJob),
+            "AdfError" => Ok(ScannerState::AdfError),
             _ => Err(ParseError::unknown_enum_value("ScannerState", s)),
         }
     }
@@ -28,6 +31,7 @@ impl FromStr for ScannerState {
 pub enum AdfState {
     Empty,
     Loaded,
+    PickFailure,
 }
 
 impl FromStr for AdfState {
@@ -37,6 +41,7 @@ impl FromStr for AdfState {
         match s {
             "Empty" => Ok(AdfState::Empty),
             "Loaded" => Ok(AdfState::Loaded),
+            "PickFailure" => Ok(AdfState::PickFailure),
             _ => Err(ParseError::unknown_enum_value("AdfState", s)),
         }
     }
@@ -99,6 +104,12 @@ mod test {
             <AdfState>Loaded</AdfState>
             </ScanStatus>"#;
 
+    const SCAN_STATUS_ADF_ERROR: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
+            <ScanStatus xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
+            <ScannerState>AdfError</ScannerState>
+            <AdfState>PickFailure</AdfState>
+            </ScanStatus>"#;
+
     const SCAN_STATUS_UNKNOWN_ADF_STATE: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
             <ScanStatus xmlns="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
             <ScannerState>Idle</ScannerState>
@@ -134,6 +145,11 @@ mod test {
             Some(AdfState::Loaded),
         );
         check_parse_scan_status(SCAN_STATUS_NO_ADF, ScannerState::Idle, None);
+        check_parse_scan_status(
+            SCAN_STATUS_ADF_ERROR,
+            ScannerState::AdfError,
+            Some(AdfState::PickFailure),
+        );
     }
 
     #[test]

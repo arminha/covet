@@ -31,6 +31,7 @@ pub enum PageState {
     PreparingScan,
     ReadyToUpload { binary_url: String },
     UploadCompleted,
+    CanceledByDevice,
 }
 
 #[derive(Debug)]
@@ -67,6 +68,7 @@ fn read_page(element: &Element) -> Result<ScanPage, ParseError> {
             PageState::ReadyToUpload { binary_url: url }
         }
         "UploadCompleted" => PageState::UploadCompleted,
+        "CanceledByDevice" => PageState::CanceledByDevice,
         s => return Err(ParseError::unknown_enum_value("PageState", s)),
     };
     Ok(ScanPage::new(number, state))
@@ -175,6 +177,22 @@ mod test {
             </ScanJob>
             </j:Job>"#;
 
+    const CANCELLED_BY_DEVICE: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
+            <j:Job xmlns:j=\"http://www.hp.com/schemas/imaging/con/ledm/jobs/2009/04/30\">
+            <j:JobUrl>/Jobs/JobList/2</j:JobUrl>
+            <j:JobCategory>Scan</j:JobCategory>
+            <j:JobState>Completed</j:JobState>
+            <j:JobStateUpdate>445-8</j:JobStateUpdate>
+            <j:JobSource>userIO</j:JobSource>
+            <ScanJob xmlns=\"http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19\">
+            <PostScanPage>
+            <PageNumber>1</PageNumber>
+            <PageState>CanceledByDevice</PageState>
+            <TotalLines>0</TotalLines>
+            </PostScanPage>
+            </ScanJob>
+            </j:Job>"#;
+
     fn parse_job_status(s: &str) -> ScanJobStatus {
         let status = s.as_bytes();
         ScanJobStatus::read_xml(status).expect("parsing failed")
@@ -212,5 +230,12 @@ mod test {
         let status = parse_job_status(COMPLETED);
         assert_eq!(JobState::Completed, status.state);
         check_one_page(&status, 2, PageState::UploadCompleted);
+    }
+
+    #[test]
+    fn read_job_status_xml_cancelled_by_device() {
+        let status = parse_job_status(CANCELLED_BY_DEVICE);
+        assert_eq!(JobState::Completed, status.state);
+        check_one_page(&status, 1, PageState::CanceledByDevice);
     }
 }

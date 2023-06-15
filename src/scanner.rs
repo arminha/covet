@@ -20,10 +20,7 @@ pub enum ScannerError {
         source: io::Error,
     },
     #[error("Parse error")]
-    Parse {
-        #[from]
-        source: ParseError,
-    },
+    Parse { source: ParseError, data: String },
     #[error("Adf is empty")]
     AdfEmpty,
     #[error("Scanner is busy")]
@@ -36,6 +33,15 @@ pub enum ScannerError {
     ReqwestError(reqwest::Error),
     #[error("Job creation failed: received status {0}")]
     JobCreationFailed(StatusCode),
+    #[error("Job canceled")]
+    Canceled,
+}
+
+impl ScannerError {
+    fn form_parse_error(source: ParseError, data: Bytes) -> Self {
+        let data = String::from_utf8_lossy(&data).into_owned();
+        ScannerError::Parse { source, data }
+    }
 }
 
 impl From<reqwest::Error> for ScannerError {
@@ -87,8 +93,9 @@ impl Scanner {
 
     pub async fn get_scan_status(&self) -> Result<ScanStatus, ScannerError> {
         let data = self.get("/Scan/Status").await?;
-        let c = Cursor::new(data);
-        let status = ScanStatus::read_xml(c)?;
+        let c = Cursor::new(&data);
+        let status =
+            ScanStatus::read_xml(c).map_err(|e| ScannerError::form_parse_error(e, data))?;
         Ok(status)
     }
 
@@ -123,8 +130,9 @@ impl Scanner {
     async fn get_job_status(&self, job: &Job<'_>) -> Result<ScanJobStatus, ScannerError> {
         let url = job.location.clone();
         let data = self.client.get(url).send().await?.bytes().await?;
-        let c = Cursor::new(data);
-        let status = ScanJobStatus::read_xml(c)?;
+        let c = Cursor::new(&data);
+        let status =
+            ScanJobStatus::read_xml(c).map_err(|e| ScannerError::form_parse_error(e, data))?;
         Ok(status)
     }
 
@@ -152,11 +160,13 @@ impl<'a> Job<'a> {
         let status = self.scanner.get_job_status(self).await?;
         let page = status.pages().get(0).unwrap();
         let page_state = page.state();
-        if let PageState::ReadyToUpload { binary_url } = page_state {
-            self.binary_url = Some(binary_url.clone());
-            Ok(true)
-        } else {
-            Ok(false)
+        match page_state {
+            PageState::ReadyToUpload { binary_url } => {
+                self.binary_url = Some(binary_url.clone());
+                Ok(true)
+            }
+            PageState::CanceledByDevice => Err(ScannerError::Canceled),
+            _ => Ok(false),
         }
     }
 

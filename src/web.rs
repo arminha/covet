@@ -176,6 +176,11 @@ fn render_error(error: &ScannerError) -> Response<Body> {
         ScannerError::NotAvailable { ref source } => {
             error_page(format!("{error}<p>Cause: {source}</p>").as_str())
         }
+        ScannerError::Parse {
+            ref source,
+            data: _,
+        } => error_page(format!("{error}<p>Cause: {source}</p>").as_str()),
+        ScannerError::Canceled => error_page("Scan cancelled"),
         _ => {
             error!("InternalServerError: Failed to scan. {:?}", error);
             let mut response = Response::new(Body::empty());
