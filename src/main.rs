@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use anyhow::Result;
-use structopt::StructOpt;
+use clap::Parser;
 use tokio::runtime::Runtime;
 
 mod cli;
@@ -15,7 +15,7 @@ use crate::message::scan_job::{ColorSpace, Format};
 use crate::scanner::{Scanner, ScannerError};
 
 fn main() -> Result<()> {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
     match opt {
         Opt::Status(opt) => {
             status(&opt)?;
@@ -53,8 +53,8 @@ async fn print_scan_status(scanner: &Scanner) -> Result<(), ScannerError> {
 impl cli::Format {
     fn to_internal(self) -> Format {
         match self {
-            cli::Format::pdf => Format::Pdf,
-            cli::Format::jpeg => Format::Jpeg,
+            cli::Format::Pdf => Format::Pdf,
+            cli::Format::Jpeg => Format::Jpeg,
         }
     }
 }
@@ -62,8 +62,8 @@ impl cli::Format {
 impl cli::ColorSpace {
     fn to_internal(self) -> ColorSpace {
         match self {
-            cli::ColorSpace::gray => ColorSpace::Gray,
-            cli::ColorSpace::color => ColorSpace::Color,
+            cli::ColorSpace::Gray => ColorSpace::Gray,
+            cli::ColorSpace::Color => ColorSpace::Color,
         }
     }
 }

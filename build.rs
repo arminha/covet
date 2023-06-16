@@ -1,13 +1,18 @@
+use clap::{CommandFactory, Error};
+use clap_complete::{generate_to, shells::Bash};
 use std::env;
-use structopt::clap::Shell;
 
 include!("src/cli.rs");
 
-fn main() {
+fn main() -> Result<(), Error> {
     let outdir = match env::var_os("OUT_DIR") {
-        None => return,
+        None => return Ok(()),
         Some(outdir) => outdir,
     };
-    let mut app = Opt::clap();
-    app.gen_completions(env!("CARGO_PKG_NAME"), Shell::Bash, outdir);
+
+    let mut cmd = Opt::command();
+    let path = generate_to(Bash, &mut cmd, env!("CARGO_PKG_NAME"), outdir)?;
+
+    println!("cargo:info=completion file is generated: {path:?}");
+    Ok(())
 }

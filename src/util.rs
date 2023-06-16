@@ -67,11 +67,11 @@ pub(crate) fn choose_source(
 ) -> Result<InputSource, ScannerError> {
     match adf_state {
         Some(AdfState::Loaded) => match source {
-            Source::adf | Source::auto => Ok(InputSource::Adf),
-            Source::glass => Ok(InputSource::Platen),
+            Source::Adf | Source::Auto => Ok(InputSource::Adf),
+            Source::Glass => Ok(InputSource::Platen),
         },
         _ => match source {
-            Source::adf => Err(ScannerError::AdfEmpty),
+            Source::Adf => Err(ScannerError::AdfEmpty),
             _ => Ok(InputSource::Platen),
         },
     }
@@ -85,33 +85,33 @@ mod test {
     #[test]
     fn test_choose_source() {
         assert_eq!(
-            choose_source(Source::glass, None).unwrap(),
+            choose_source(Source::Glass, None).unwrap(),
             InputSource::Platen
         );
         assert_eq!(
-            choose_source(Source::glass, Some(AdfState::Empty)).unwrap(),
+            choose_source(Source::Glass, Some(AdfState::Empty)).unwrap(),
             InputSource::Platen
         );
         assert_eq!(
-            choose_source(Source::glass, Some(AdfState::Loaded)).unwrap(),
+            choose_source(Source::Glass, Some(AdfState::Loaded)).unwrap(),
             InputSource::Platen
         );
         assert_eq!(
-            choose_source(Source::auto, None).unwrap(),
+            choose_source(Source::Auto, None).unwrap(),
             InputSource::Platen
         );
         assert_eq!(
-            choose_source(Source::auto, Some(AdfState::Empty)).unwrap(),
+            choose_source(Source::Auto, Some(AdfState::Empty)).unwrap(),
             InputSource::Platen
         );
         assert_eq!(
-            choose_source(Source::auto, Some(AdfState::Loaded)).unwrap(),
+            choose_source(Source::Auto, Some(AdfState::Loaded)).unwrap(),
             InputSource::Adf
         );
-        assert!(choose_source(Source::adf, None).is_err());
-        assert!(choose_source(Source::adf, Some(AdfState::Empty)).is_err());
+        assert!(choose_source(Source::Adf, None).is_err());
+        assert!(choose_source(Source::Adf, Some(AdfState::Empty)).is_err());
         assert_eq!(
-            choose_source(Source::adf, Some(AdfState::Loaded)).unwrap(),
+            choose_source(Source::Adf, Some(AdfState::Loaded)).unwrap(),
             InputSource::Adf
         );
     }

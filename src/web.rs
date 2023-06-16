@@ -135,10 +135,10 @@ fn get_colorspace_param(params: &HashMap<String, String>) -> ColorSpace {
 
 fn get_source_param(params: &HashMap<String, String>) -> Source {
     match params.get("source") {
-        Some(auto) if auto == "auto" => Source::auto,
-        Some(adf) if adf == "adf" => Source::adf,
-        Some(glass) if glass == "glass" => Source::glass,
-        _ => Source::auto,
+        Some(auto) if auto == "auto" => Source::Auto,
+        Some(adf) if adf == "adf" => Source::Adf,
+        Some(glass) if glass == "glass" => Source::Glass,
+        _ => Source::Auto,
     }
 }
 

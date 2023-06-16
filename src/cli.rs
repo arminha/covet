@@ -1,96 +1,79 @@
-use structopt::clap::{arg_enum, AppSettings};
-use structopt::{self, StructOpt};
+use clap::builder::TypedValueParser as _;
+use clap::{self, Parser, ValueEnum};
 
-arg_enum! {
-    #[allow(non_camel_case_types)]
-    #[derive(Debug, Clone, Copy)]
-    pub enum Source {
-        auto,
-        adf,
-        glass
-    }
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum Source {
+    Auto,
+    Adf,
+    Glass,
 }
 
-arg_enum! {
-    #[allow(non_camel_case_types)]
-    #[derive(Debug, Clone, Copy)]
-    pub enum Format {
-        pdf,
-        jpeg
-    }
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum Format {
+    Pdf,
+    Jpeg,
 }
 
-arg_enum! {
-    #[allow(non_camel_case_types)]
-    #[derive(Debug, Clone, Copy)]
-    pub enum ColorSpace {
-        gray,
-        color
-    }
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum ColorSpace {
+    Gray,
+    Color,
 }
 
-#[derive(StructOpt, Debug)]
+#[derive(Parser, Debug)]
 pub struct ScannerOpt {
     /// The hostname of the scanner
-    #[structopt(name = "SCANNER")]
+    #[arg(name = "SCANNER")]
     pub scanner: String,
 
     /// Do not use TLS to secure the connection to the scanner
-    #[structopt(long = "no-tls")]
+    #[arg(long)]
     pub no_tls: bool,
 }
 
-#[derive(StructOpt, Debug)]
+#[derive(Parser, Debug)]
 pub struct ScanOpt {
-    #[structopt(flatten)]
+    #[clap(flatten)]
     pub scanner_opts: ScannerOpt,
 
     /// The document source
-    #[structopt(
+    #[arg(
         short,
         long,
         name = "SOURCE",
         default_value = "auto",
-        possible_values(&Source::variants()),
-        case_insensitive(true)
+        ignore_case(true)
     )]
     pub source: Source,
 
     /// The format of the output
-    #[structopt(
-        short,
-        long,
-        name = "FORMAT",
-        default_value = "pdf",
-        possible_values(&Format::variants()),
-        case_insensitive(true)
-    )]
+    #[arg(short, long, name = "FORMAT", default_value = "pdf", ignore_case(true))]
     pub format: Format,
 
     /// The color space of the output
-    #[structopt(
+    #[arg(
         short,
         long,
         name = "COLORSPACE",
         default_value = "color",
-        possible_values(&ColorSpace::variants()),
-        case_insensitive(true)
+        ignore_case(true)
     )]
     pub color: ColorSpace,
 
     /// The scan resolution in dpi
-    #[structopt(
+    #[arg(
         short,
         long,
         name = "RESOLUTION",
-        default_value = "300",
-        possible_values(&["300", "600"])
+        default_value_t = 300,
+        value_parser = clap::builder::PossibleValuesParser::new(["300", "600"])
+            .map(|s| s.parse::<u32>().unwrap()),
     )]
     pub resolution: u32,
 
     /// Compression quality level (lower is better)
-    #[structopt(
-        short = "q",
+    #[arg(
+        short = 'q',
         long = "compression-quality",
         name = "QUALITY",
         default_value = "25"
@@ -98,35 +81,35 @@ pub struct ScanOpt {
     pub compression_quality: u32,
 }
 
-#[derive(StructOpt, Debug)]
+#[derive(Parser, Debug)]
 pub struct WebOpt {
-    #[structopt(flatten)]
+    #[clap(flatten)]
     pub scanner_opts: ScannerOpt,
 
     /// Port to use for the web server
-    #[structopt(short, long, name = "PORT", default_value = "3000")]
+    #[arg(short, long, name = "PORT", default_value = "3000")]
     pub port: u16,
 
     /// Listen address to use for the web server
-    #[structopt(short, long, name = "ADDR", default_value = "127.0.0.1")]
+    #[arg(short, long, name = "ADDR", default_value = "127.0.0.1")]
     pub listen: String,
 }
 
-#[derive(StructOpt, Debug)]
-#[structopt(
-    setting(AppSettings::VersionlessSubcommands),
-    setting(AppSettings::InferSubcommands)
-)]
+#[derive(Parser, Debug)]
+#[clap(version)]
 pub enum Opt {
     /// Display the status of the scanner
-    #[structopt(name = "status")]
     Status(ScannerOpt),
 
     /// Scan a document
-    #[structopt(name = "scan")]
     Scan(ScanOpt),
 
     /// Start a web server to handle scan jobs
-    #[structopt(name = "web")]
     Web(WebOpt),
+}
+
+#[test]
+fn verify_app() {
+    use clap::CommandFactory;
+    Opt::command().debug_assert()
 }
