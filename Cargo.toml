@@ -30,23 +30,23 @@ opt-level = "z"
 codegen-units = 1
 
 [build-dependencies]
-clap = { version = "4.3.4", features = ["derive"] }
+clap = { version = "4.3.10", features = ["derive"] }
 clap_complete = "4.3.1"
 
 [dependencies]
 anyhow = "1.0.71"
 bytes = "1.4.0"
 futures-util = { version = "0.3.28", default-features = false }
-hyper = "0.14.26"
+hyper = "0.14.27"
 reqwest = { version = "0.11.18", features = ["stream"] }
 thiserror = "1.0.40"
 time = { version = "0.3.22", features = ["formatting", "macros"] }
-tokio = { version = "1.28.2", features = ["fs", "rt-multi-thread", "time"] }
+tokio = { version = "1.29.1", features = ["fs", "rt-multi-thread", "time"] }
 url = "2.4.0"
 xmltree = "0.10.3"
-xml-rs = "0.8.14"
+xml-rs = "0.8.15"
 # cli
-clap = { version = "4.3.4", features = ["derive"] }
+clap = { version = "4.3.10", features = ["derive"] }
 # web
 base64 = "0.21.2"
 sha2 = "0.10.7"
