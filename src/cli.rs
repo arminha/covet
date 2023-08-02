@@ -1,6 +1,7 @@
 use clap::builder::TypedValueParser as _;
 use clap::{Parser, ValueEnum};
 use serde::Deserialize;
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, Copy, ValueEnum, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -108,6 +109,17 @@ pub enum Opt {
 
     /// Start a web server to handle scan jobs
     Web(WebOpt),
+
+    /// Sets the height of the given JPEG to the number provided in a `Define Number of Lines` segment
+    FixJpegHeight(FixJpegHeightOpt),
+}
+
+#[derive(Parser, Debug)]
+pub struct FixJpegHeightOpt {
+    /// Input file
+    pub input: PathBuf,
+    /// Output file
+    pub output: PathBuf,
 }
 
 #[test]

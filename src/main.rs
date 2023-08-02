@@ -1,16 +1,20 @@
 #![forbid(unsafe_code)]
 
 use anyhow::Result;
+use bytes::Bytes;
 use clap::Parser;
+use std::path::Path;
 use tokio::runtime::Runtime;
 
 mod cli;
+mod jpeg;
 mod message;
 mod scanner;
 mod util;
 mod web;
 
 use crate::cli::{Opt, ScanOpt, ScannerOpt};
+use crate::jpeg::Jpeg;
 use crate::message::scan_job::{ColorSpace, Format};
 use crate::scanner::{Scanner, ScannerError};
 
@@ -28,6 +32,23 @@ fn main() -> Result<()> {
             let use_tls = !opt.scanner_opts.no_tls;
             web::run_server(&opt.scanner_opts.scanner, &opt.listen, opt.port, use_tls)?;
         }
+        Opt::FixJpegHeight(opt) => {
+            fix_jpeg_height(&opt.input, &opt.output)?;
+        }
+    }
+    Ok(())
+}
+
+fn fix_jpeg_height(input: &Path, ouput: &Path) -> Result<()> {
+    let input_buf = std::fs::read(input)?;
+    let jpeg = Jpeg::from_bytes(input_buf.into())?;
+
+    println!("{}", jpeg);
+
+    if let Some(height) = jpeg.get_height_from_dnl() {
+        let jpeg = jpeg.with_height(height);
+        let buffer: Bytes = jpeg.into();
+        std::fs::write(ouput, buffer)?;
     }
     Ok(())
 }
