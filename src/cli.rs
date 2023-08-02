@@ -1,5 +1,6 @@
 use clap::builder::TypedValueParser as _;
 use clap::{self, Parser, ValueEnum};
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
 pub enum Source {
@@ -106,6 +107,14 @@ pub enum Opt {
 
     /// Start a web server to handle scan jobs
     Web(WebOpt),
+
+    Transform(TransformOpt),
+}
+
+#[derive(Parser, Debug)]
+pub struct TransformOpt {
+    pub input: PathBuf,
+    pub output: PathBuf,
 }
 
 #[test]
