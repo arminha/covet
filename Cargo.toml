@@ -40,7 +40,7 @@ futures-util = { version = "0.3.28", default-features = false }
 hyper = "0.14.27"
 reqwest = { version = "0.11.18", features = ["stream"] }
 thiserror = "1.0.44"
-time = { version = "0.3.22", features = ["formatting", "macros"] }
+time = { version = "0.3.26", features = ["formatting", "macros"] }
 tokio = { version = "1.29.1", features = ["fs", "rt-multi-thread", "time"] }
 url = "2.4.0"
 xmltree = "0.10.3"
