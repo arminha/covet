@@ -158,7 +158,7 @@ impl<'a> Job<'a> {
     pub async fn retrieve_status(&mut self) -> Result<bool, ScannerError> {
         // TODO error handling
         let status = self.scanner.get_job_status(self).await?;
-        let page = status.pages().get(0).unwrap();
+        let page = status.pages().first().unwrap();
         let page_state = page.state();
         match page_state {
             PageState::ReadyToUpload { binary_url } => {

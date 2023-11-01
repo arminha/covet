@@ -200,7 +200,7 @@ mod test {
 
     fn check_one_page(job_status: &ScanJobStatus, num: u32, ps: PageState) {
         assert_eq!(1, job_status.pages().len());
-        let page = job_status.pages().get(0).unwrap();
+        let page = job_status.pages().first().unwrap();
         assert_eq!(num, page.number);
         assert_eq!(&ps, page.state());
     }
