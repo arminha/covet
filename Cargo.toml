@@ -30,27 +30,27 @@ opt-level = "z"
 codegen-units = 1
 
 [build-dependencies]
-clap = { version = "4.3.21", features = ["derive"] }
-clap_complete = "4.3.2"
+clap = { version = "4.4.16", features = ["derive"] }
+clap_complete = "4.4.6"
 
 [dependencies]
-anyhow = "1.0.72"
-bytes = "1.4.0"
-futures-util = { version = "0.3.28", default-features = false }
-hyper = "0.14.27"
-reqwest = { version = "0.11.18", features = ["stream"] }
+anyhow = "1.0.79"
+bytes = "1.5.0"
+futures-util = { version = "0.3.30", default-features = false }
+hyper = "0.14.28"
+reqwest = { version = "0.11.23", features = ["stream"] }
 thiserror = "1.0.56"
 time = { version = "0.3.31", features = ["formatting", "macros"] }
-tokio = { version = "1.29.1", features = ["fs", "rt-multi-thread", "time"] }
-url = "2.4.0"
+tokio = { version = "1.35.1", features = ["fs", "rt-multi-thread", "time"] }
+url = "2.5.0"
 xmltree = "0.10.3"
 xml-rs = "0.8.19"
 # cli
-clap = { version = "4.3.21", features = ["derive"] }
+clap = { version = "4.4.16", features = ["derive"] }
 # web
-base64 = "0.21.2"
-sha2 = "0.10.7"
-warp = { version = "0.3.5", default-features = false }
-headers = "0.3.8"
+base64 = "0.21.7"
+sha2 = "0.10.8"
+warp = { version = "0.3.6", default-features = false }
+headers = "0.3.9"
 log = "0.4.20"
-env_logger = "0.10.0"
+env_logger = "0.10.1"
