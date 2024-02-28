@@ -2,13 +2,13 @@ Source: covet
 Section: misc
 Priority: optional
 Maintainer: Armin Häberling <armin.aha@gmail.com>
-Build-Depends: debhelper (>= 9), pkg-config, libssl-dev
+Build-Depends: debhelper-compat (= 13), bash-completion, pkg-config, libssl-dev
 Standards-Version: 3.9.5
 Homepage: https://github.com/arminha/covet
 
 Package: covet
 Architecture: any
-Depends: adduser, lsb-base, ${shlibs:Depends}, ${misc:Depends}
+Depends: adduser, sysvinit-utils (>= 3), daemon, ${shlibs:Depends}, ${misc:Depends}
 Description: Tools for operating HP scanners in a network
   Features
    * Supports HP Envy scanners
