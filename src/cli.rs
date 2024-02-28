@@ -1,5 +1,5 @@
 use clap::builder::TypedValueParser as _;
-use clap::{self, Parser, ValueEnum};
+use clap::{Parser, ValueEnum};
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
 pub enum Source {

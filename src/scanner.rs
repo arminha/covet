@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use futures_util::stream::Stream;
 use reqwest::header::LOCATION;
-use reqwest::{self, Client, Response, StatusCode, Url};
+use reqwest::{Client, Response, StatusCode, Url};
 use thiserror::Error;
 use time::{macros::format_description, OffsetDateTime};
 
