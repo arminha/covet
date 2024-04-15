@@ -31,7 +31,7 @@ codegen-units = 1
 
 [build-dependencies]
 clap = { version = "4.4.16", features = ["derive"] }
-clap_complete = "4.4.6"
+clap_complete = "4.5.2"
 
 [dependencies]
 anyhow = "1.0.79"
