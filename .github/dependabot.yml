@@ -7,3 +7,13 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      clap:
+        patterns:
+          - "clap*"
+      hyper:
+        patterns:
+          - "hyper"
+          - "warp"
+          - "reqwest"
+          - "headers"
