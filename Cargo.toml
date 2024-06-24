@@ -39,7 +39,7 @@ bytes = "1.6.0"
 futures-util = { version = "0.3.30", default-features = false }
 hyper = "0.14.28"
 reqwest = { version = "0.11.27", features = ["stream"] }
-thiserror = "1.0.60"
+thiserror = "1.0.61"
 time = { version = "0.3.36", features = ["formatting", "macros"] }
 tokio = { version = "1.38.0", features = ["fs", "rt-multi-thread", "time"] }
 url = "2.5.0"
