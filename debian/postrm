@@ -6,7 +6,6 @@ case "$1" in
     purge)
         userdel covet || true
         groupdel covet || true
-        rm -rf /var/log/covet
     ;;
 
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)

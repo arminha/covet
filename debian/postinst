@@ -20,7 +20,6 @@ set -e
 case "$1" in
     configure)
 
-      [ -r /etc/default/covet ] && . /etc/default/covet
       : ${COVET_USER:=covet}
       : ${COVET_GROUP:=covet}
 
@@ -36,9 +35,9 @@ case "$1" in
 
       # directories needed for covet
       # we don't do -R because it can take a long time on big installation
-      chown $COVET_USER:$COVET_GROUP /var/lib/covet /var/log/covet
+      chown $COVET_USER:$COVET_GROUP /var/lib/covet
       # we don't do "chmod 750" so that the user can choose the pemission for g and o on their own
-      chmod u+rwx /var/lib/covet /var/log/covet
+      chmod u+rwx /var/lib/covet
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

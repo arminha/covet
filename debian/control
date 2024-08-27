@@ -8,9 +8,9 @@ Homepage: https://github.com/arminha/covet
 
 Package: covet
 Architecture: any
-Depends: adduser, sysvinit-utils (>= 3), daemon, ${shlibs:Depends}, ${misc:Depends}
+Depends: adduser, ${shlibs:Depends}, ${misc:Depends}
 Description: Tools for operating HP scanners in a network
-  Features
-   * Supports HP Envy scanners
-   * Scan documents from the command line or in a web application
-   * Controls the scanner over its ReST interface
+ Features
+  * Supports HP Envy scanners
+  * Scan documents from the command line or in a web application
+  * Controls the scanner over its ReST interface
