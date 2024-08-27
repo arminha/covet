@@ -35,7 +35,7 @@ clap_complete = "4.5.2"
 
 [dependencies]
 anyhow = "1.0.86"
-bytes = "1.6.0"
+bytes = "1.7.1"
 futures-util = { version = "0.3.30", default-features = false }
 hyper = "0.14.29"
 reqwest = { version = "0.11.27", features = ["stream"] }
