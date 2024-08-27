@@ -9,11 +9,14 @@ Vagrant.configure(2) do |config|
   config.vm.provider "virtualbox" do |v|
     v.memory = 2048
   end
+  config.vm.provider "libvirt" do |domain|
+    domain.memory = 2048
+  end
 
   # install rust and gcc
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
-    apt-get install -y build-essential devscripts daemon pkg-config libssl-dev
+    apt-get install -y build-essential devscripts pkg-config libssl-dev rsync
 
     wget --no-verbose -O rustup-init \
       https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init
