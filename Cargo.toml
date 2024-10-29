@@ -35,11 +35,11 @@ clap_complete = "4.5.36"
 
 [dependencies]
 anyhow = "1.0.91"
-bytes = "1.7.2"
+bytes = "1.8.0"
 futures-util = { version = "0.3.31", default-features = false }
-hyper = "0.14.30"
+hyper = "0.14.31"
 reqwest = { version = "0.11.27", features = ["stream"] }
-thiserror = "1.0.64"
+thiserror = "1.0.65"
 time = { version = "0.3.36", features = ["formatting", "macros"] }
 tokio = { version = "1.41.0", features = ["fs", "rt-multi-thread", "time"] }
 url = "2.5.2"
