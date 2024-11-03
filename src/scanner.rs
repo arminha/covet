@@ -146,7 +146,7 @@ impl Scanner {
     }
 }
 
-impl<'a> Job<'a> {
+impl Job<'_> {
     fn new(scanner: &Scanner, location: Url) -> Job<'_> {
         Job {
             scanner,
