@@ -154,7 +154,7 @@ mod test {
 
     use super::*;
 
-    const JPEG_GLASS_LOW: &str = r#"<?xml version="1.0" encoding="utf-8"?>
+    const JPEG_GLASS_LOW: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 <scan:ScanJob xmlns:scan="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
   <scan:XResolution>300</scan:XResolution>
   <scan:YResolution>300</scan:YResolution>
@@ -178,7 +178,7 @@ mod test {
   <scan:ContentType>Photo</scan:ContentType>
 </scan:ScanJob>"#;
 
-    const PDF_ADF_HIGH: &str = r#"<?xml version="1.0" encoding="utf-8"?>
+    const PDF_ADF_HIGH: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 <scan:ScanJob xmlns:scan="http://www.hp.com/schemas/imaging/con/cnx/scan/2008/08/19">
   <scan:XResolution>600</scan:XResolution>
   <scan:YResolution>600</scan:YResolution>
