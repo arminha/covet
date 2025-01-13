@@ -44,7 +44,7 @@ time = { version = "0.3.37", features = ["formatting", "macros"] }
 tokio = { version = "1.42.0", features = ["fs", "rt-multi-thread", "time"] }
 url = "2.5.4"
 xmltree = "0.11.0"
-xml-rs = "0.8.23"
+xml-rs = "0.8.25"
 # cli
 clap = { version = "4.5.23", features = ["derive"] }
 # web
