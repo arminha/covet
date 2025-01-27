@@ -191,6 +191,7 @@ fn render_error(error: &ScannerError) -> Response<Body> {
 }
 
 fn error_page(error_message: &str) -> Response<Body> {
+    #[allow(clippy::all)]
     let page = ERROR_TEMPLATE.replace("{error_message}", error_message);
     let mut response = Response::new(Body::from(page));
     response
