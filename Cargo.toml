@@ -38,11 +38,11 @@ clap_complete = "4.5.38"
 anyhow = "1.0.95"
 bytes = "1.9.0"
 futures-util = { version = "0.3.31", default-features = false }
-hyper = "0.14.31"
+hyper = "0.14.32"
 reqwest = { version = "0.11.27", features = ["stream"] }
 thiserror = "2.0.11"
 time = { version = "0.3.37", features = ["formatting", "macros"] }
-tokio = { version = "1.42.0", features = ["fs", "rt-multi-thread", "time"] }
+tokio = { version = "1.43.0", features = ["fs", "rt-multi-thread", "time"] }
 url = "2.5.4"
 xmltree = "0.11.0"
 xml-rs = "0.8.25"
