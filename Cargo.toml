@@ -35,7 +35,7 @@ clap = { version = "4.5.29", features = ["derive"] }
 clap_complete = "4.5.44"
 
 [dependencies]
-anyhow = "1.0.95"
+anyhow = "1.0.97"
 bytes = "1.10.0"
 futures-util = { version = "0.3.31", default-features = false }
 hyper = "0.14.32"
