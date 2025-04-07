@@ -38,8 +38,8 @@ clap_complete = "4.5.47"
 anyhow = "1.0.97"
 bytes = "1.10.1"
 futures-util = { version = "0.3.31", default-features = false }
-hyper = "0.14.32"
-reqwest = { version = "0.11.27", features = ["stream"] }
+hyper = "1.6.0"
+reqwest = { version = "0.12.15", features = ["stream"] }
 thiserror = "2.0.12"
 time = { version = "0.3.41", features = ["formatting", "macros"] }
 tokio = { version = "1.44.1", features = ["fs", "rt-multi-thread", "time"] }
@@ -52,6 +52,6 @@ clap = { version = "4.5.35", features = ["derive"] }
 base64 = "0.22.1"
 sha2 = "0.10.8"
 warp = { version = "0.3.7", default-features = false }
-headers = "0.3.9"
+headers = "0.4.0"
 log = "0.4.27"
 env_logger = "0.11.8"
