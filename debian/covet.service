@@ -23,7 +23,7 @@ User=covet
 Group=covet
 
 # logging config
-Environment="RUST_LOG=covet=debug"
+Environment="RUST_LOG=covet=debug,tower_http=info"
 
 # port for HTTP connector (default 8070)
 Environment="HTTP_PORT=8070"

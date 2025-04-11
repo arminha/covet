@@ -1,7 +1,9 @@
 use clap::builder::TypedValueParser as _;
 use clap::{Parser, ValueEnum};
+use serde::Deserialize;
 
-#[derive(Debug, Clone, Copy, ValueEnum)]
+#[derive(Debug, Clone, Copy, ValueEnum, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum Source {
     Auto,
     Adf,

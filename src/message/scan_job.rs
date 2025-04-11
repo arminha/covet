@@ -1,3 +1,4 @@
+use serde::Deserialize;
 use xml::name::Name;
 use xml::namespace::Namespace;
 use xml::writer::events::XmlEvent;
@@ -16,13 +17,15 @@ pub enum InputSource {
     Adf,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum Format {
     Jpeg,
     Pdf,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum ColorSpace {
     Color,
     Gray,

@@ -46,11 +46,7 @@ impl ScannerError {
 
 impl From<reqwest::Error> for ScannerError {
     fn from(err: reqwest::Error) -> Self {
-        use std::error::Error;
-        let not_available = match err.source().and_then(|e| e.downcast_ref::<hyper::Error>()) {
-            Some(hyper_err) => hyper_err.is_connect(),
-            _ => false,
-        };
+        let not_available = err.is_connect();
         if not_available {
             ScannerError::NotAvailable { source: err }
         } else {
