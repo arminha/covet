@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use futures_util::stream::{Stream, StreamExt};
-use time::OffsetDateTime;
+use jiff::Timestamp;
 use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
 
@@ -20,7 +20,7 @@ pub(crate) async fn scan_to_file(
     quality: u32,
 ) -> Result<(), ScannerError> {
     let mut stream = scan_to_stream(&scanner, format, color, source, resolution, quality).await?;
-    let file_name = scanner::output_file_name(format, &OffsetDateTime::now_utc());
+    let file_name = scanner::output_file_name(format, &Timestamp::now());
     let mut file = File::create(file_name).await?;
     while let Some(item) = stream.next().await {
         file.write_all(item?.as_ref()).await?;

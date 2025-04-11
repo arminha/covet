@@ -1,9 +1,9 @@
 use bytes::Bytes;
 use futures_util::stream::Stream;
+use jiff::Timestamp;
 use reqwest::header::LOCATION;
 use reqwest::{Client, Response, StatusCode, Url};
 use thiserror::Error;
-use time::{macros::format_description, OffsetDateTime};
 
 use std::io::{self, Cursor};
 
@@ -176,16 +176,12 @@ impl Job<'_> {
     }
 }
 
-pub fn output_file_name(format: Format, time: &OffsetDateTime) -> String {
+pub fn output_file_name(format: Format, time: &Timestamp) -> String {
     let extension = match format {
         Format::Pdf => "pdf",
         Format::Jpeg => "jpeg",
     };
-    let ts = time
-        .format(&format_description!(
-            "[year][month][day]_[hour][minute][second]"
-        ))
-        .expect("time format failed");
+    let ts = time.strftime("%Y%m%d_%H%M%S");
     format!("scan_{ts}.{extension}")
 }
 
@@ -196,7 +192,7 @@ mod test {
 
     #[test]
     fn check_output_file_name() {
-        let time = OffsetDateTime::from_unix_timestamp(1486905545).unwrap();
+        let time = Timestamp::from_second(1486905545).unwrap();
         assert_eq!(
             "scan_20170212_131905.pdf",
             output_file_name(Format::Pdf, &time)

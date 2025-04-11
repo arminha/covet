@@ -11,9 +11,9 @@ use hyper::{
     header::{HeaderMap, HeaderValue, CONTENT_DISPOSITION, CONTENT_TYPE},
     StatusCode,
 };
+use jiff::Timestamp;
 use log::{error, info};
 use serde::Deserialize;
-use time::OffsetDateTime;
 use tokio::runtime::Runtime;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
 use tracing::Level;
@@ -136,7 +136,7 @@ async fn handle_scan_form(
     response
         .headers_mut()
         .insert(CONTENT_TYPE, content_type(format));
-    let filename = scanner::output_file_name(format, &OffsetDateTime::now_utc());
+    let filename = scanner::output_file_name(format, &Timestamp::now());
     response
         .headers_mut()
         .insert(CONTENT_DISPOSITION, content_disposition(&filename));
