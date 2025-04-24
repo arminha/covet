@@ -4,6 +4,7 @@ use jiff::Timestamp;
 use reqwest::header::LOCATION;
 use reqwest::{Client, Response, StatusCode, Url};
 use thiserror::Error;
+use tracing::debug;
 
 use std::io::{self, Cursor};
 
@@ -107,7 +108,7 @@ impl Scanner {
         let location = response.headers().get(LOCATION).unwrap();
         let loc_url: Url = location.to_str().unwrap().parse()?;
         let loc_url_rebase = self.base_url.join(loc_url.path())?;
-        println!("{loc_url_rebase}");
+        debug!("job URL: {loc_url_rebase}");
         Ok(Job::new(self, loc_url_rebase))
     }
 

@@ -5,6 +5,7 @@ use bytes::Bytes;
 use clap::Parser;
 use std::path::Path;
 use tokio::runtime::Runtime;
+use tracing::{debug, info};
 
 mod cli;
 mod jpeg;
@@ -19,6 +20,7 @@ use crate::message::scan_job::{ColorSpace, Format};
 use crate::scanner::{Scanner, ScannerError};
 
 fn main() -> Result<()> {
+    tracing_subscriber::fmt::init();
     let opt = Opt::parse();
     match opt {
         Opt::Status(opt) => {
@@ -28,7 +30,6 @@ fn main() -> Result<()> {
             scan(&opt)?;
         }
         Opt::Web(opt) => {
-            env_logger::init();
             let use_tls = !opt.scanner_opts.no_tls;
             web::run_server(&opt.scanner_opts.scanner, &opt.listen, opt.port, use_tls)?;
         }
@@ -43,7 +44,7 @@ fn fix_jpeg_height(input: &Path, ouput: &Path) -> Result<()> {
     let input_buf = std::fs::read(input)?;
     let jpeg = Jpeg::from_bytes(input_buf.into())?;
 
-    println!("{jpeg}");
+    debug!("{jpeg}");
 
     if let Some(height) = jpeg.get_height_from_dnl() {
         let jpeg = jpeg.with_height(height);
@@ -61,9 +62,9 @@ fn status(opt: &ScannerOpt) -> Result<(), ScannerError> {
 }
 
 async fn print_scan_status(scanner: &Scanner) -> Result<(), ScannerError> {
-    println!("Status of scanner {}", scanner.host());
+    info!("Status of scanner {}", scanner.host());
     let status = scanner.get_scan_status().await?;
-    println!(
+    info!(
         "Scanner: {:?}, Adf: {:?}",
         status.scanner_state(),
         status.adf_state()

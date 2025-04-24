@@ -1,7 +1,7 @@
 use bytes::{Buf, BufMut, Bytes, BytesMut};
-use log::debug;
 use std::fmt::Display;
 use thiserror::Error;
+use tracing::debug;
 
 pub struct Jpeg {
     segments: Vec<Segment>,

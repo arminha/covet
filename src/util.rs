@@ -3,6 +3,7 @@ use futures_util::stream::{Stream, StreamExt};
 use jiff::Timestamp;
 use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
+use tracing::info;
 
 use std::time::Duration;
 
@@ -50,11 +51,11 @@ pub(crate) async fn scan_to_stream(
             color,
         ))
         .await?;
-    println!("Job: {job:?}");
+    info!("Job: {job:?}");
     loop {
         let ready = job.retrieve_status().await?;
         if ready {
-            println!("Job: {job:?}");
+            info!("Job: {job:?}");
             return job.download_stream().await;
         }
         tokio::time::sleep(Duration::from_millis(500)).await;

@@ -12,11 +12,11 @@ use hyper::{
     StatusCode,
 };
 use jiff::Timestamp;
-use log::{error, info};
 use serde::Deserialize;
 use tokio::runtime::Runtime;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
 use tracing::Level;
+use tracing::{error, info};
 
 use std::net::SocketAddr;
 use std::sync::{Arc, LazyLock};
@@ -46,7 +46,7 @@ pub fn run_server(
     use_tls: bool,
 ) -> Result<()> {
     let addr = SocketAddr::new(listen_addr.parse()?, listen_port);
-    println!("Running on http://{listen_addr}:{listen_port}/");
+    info!("Running on http://{listen_addr}:{listen_port}/");
     let scanner = Scanner::new(scanner_host, use_tls);
     let rt = Runtime::new()?;
     rt.block_on(run_server_async(addr, scanner))

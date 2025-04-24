@@ -42,8 +42,10 @@ futures-util = { version = "0.3.31", default-features = false }
 hyper = "1.6.0"
 reqwest = { version = "0.12.15", features = ["stream"] }
 thiserror = "2.0.12"
-jiff = { version = "0.2.10", default-features = false }
+jiff = { version = "0.2.10", default-features = false, features = ["std"] }
 tokio = { version = "1.44.2", features = ["fs", "rt-multi-thread", "time"] }
+tracing = "0.1.41"
+tracing-subscriber = "0.3.19"
 url = "2.5.4"
 xmltree = "0.11.0"
 xml-rs = "0.8.26"
@@ -54,8 +56,5 @@ axum = "0.8.3"
 base64 = "0.22.1"
 sha2 = "0.10.8"
 headers = "0.4.0"
-log = "0.4.27"
-env_logger = "0.11.8"
 serde = { version = "1.0.219", features = ["derive"] }
 tower-http = { version = "0.6.2", features = ["trace"] }
-tracing = "0.1.41"

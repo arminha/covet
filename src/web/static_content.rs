@@ -5,6 +5,7 @@ use axum::{
 use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine};
 use headers::{ETag, HeaderMapExt, IfNoneMatch};
 use sha2::{Digest, Sha512_256};
+use tracing::trace;
 
 /// Struct to hold the static text and ETag
 pub struct StaticContent {
@@ -31,7 +32,7 @@ impl StaticContent {
     // Handle a GET request with ETag logic
     pub fn get_request(&self, if_none_match: Option<IfNoneMatch>) -> Response<Body> {
         if let Some(if_none_match) = if_none_match {
-            log::trace!("IfNoneMatch found: {:?}", &if_none_match);
+            trace!("IfNoneMatch found: {:?}", &if_none_match);
             if !if_none_match.precondition_passes(&self.etag) {
                 let mut res = Response::new(Body::empty());
                 *res.status_mut() = StatusCode::NOT_MODIFIED;
