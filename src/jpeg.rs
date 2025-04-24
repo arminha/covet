@@ -111,7 +111,7 @@ impl Display for Jpeg {
             // marker printed in HEX
             let marker = format!("{:X}", segment.marker());
             let len = segment.len();
-            writeln!(f, "| {: <3} | {: <6} | {: <12} |", i, marker, len)?;
+            writeln!(f, "| {i: <3} | {marker: <6} | {len: <12} |")?;
         }
         Ok(())
     }
@@ -167,7 +167,7 @@ fn split_segment(buffer: &mut Bytes) -> Result<Segment, String> {
             2usize + size
         }
     };
-    debug!("Segment {:x}: len = {}", marker, len);
+    debug!("Segment {marker:x}: len = {len}");
     if buffer.remaining() < len {
         return Err(format!(
             "buffer smaller than size: {} < {}",

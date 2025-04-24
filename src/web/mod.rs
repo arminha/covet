@@ -125,8 +125,7 @@ async fn handle_scan_form(
     let resolution = quality.resolution();
     let quality = quality.quality();
     info!(
-        "Scan parameters: format={:?}, color={:?}, source={:?}, resolution={}, quality={}",
-        format, color, source, resolution, quality
+        "Scan parameters: format={format:?}, color={color:?}, source={source:?}, resolution={resolution}, quality={quality}"
     );
     let stream = match scan_to_stream(&scanner, format, color, source, resolution, quality).await {
         Ok(s) => s,
@@ -174,7 +173,7 @@ fn render_error(error: &ScannerError) -> Response<Body> {
         } => error_page(format!("{error}<p>Cause: {source}</p>").as_str()),
         ScannerError::Canceled => error_page("Scan cancelled"),
         _ => {
-            error!("InternalServerError: Failed to scan. {:?}", error);
+            error!("InternalServerError: Failed to scan. {error:?}");
             let mut response = Response::new(Body::empty());
             *response.status_mut() = StatusCode::INTERNAL_SERVER_ERROR;
             response

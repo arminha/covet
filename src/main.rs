@@ -43,7 +43,7 @@ fn fix_jpeg_height(input: &Path, ouput: &Path) -> Result<()> {
     let input_buf = std::fs::read(input)?;
     let jpeg = Jpeg::from_bytes(input_buf.into())?;
 
-    println!("{}", jpeg);
+    println!("{jpeg}");
 
     if let Some(height) = jpeg.get_height_from_dnl() {
         let jpeg = jpeg.with_height(height);
