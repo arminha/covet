@@ -31,7 +31,7 @@ opt-level = "z"
 codegen-units = 1
 
 [build-dependencies]
-clap = { version = "4.5.35", features = ["derive"] }
+clap = { version = "4.5.37", features = ["derive"] }
 clap_complete = "4.5.47"
 serde = { version = "1.0.219", features = ["derive"] }
 
@@ -48,7 +48,7 @@ url = "2.5.4"
 xmltree = "0.11.0"
 xml-rs = "0.8.26"
 # cli
-clap = { version = "4.5.35", features = ["derive"] }
+clap = { version = "4.5.37", features = ["derive"] }
 # web
 axum = "0.8.3"
 base64 = "0.22.1"
