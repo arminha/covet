@@ -29,7 +29,13 @@ fn main() -> Result<()> {
         }
         Opt::Web(opt) => {
             let use_tls = !opt.scanner_opts.no_tls;
-            web::run_server(&opt.scanner_opts.scanner, &opt.listen, opt.port, use_tls)?;
+            web::run_server(
+                &opt.scanner_opts.scanner,
+                &opt.listen,
+                opt.port,
+                use_tls,
+                opt.disable_jpeg_fix,
+            )?;
         }
         Opt::FixJpegHeight(opt) => {
             fix_jpeg_height(&opt.input, &opt.output)?;
@@ -47,7 +53,7 @@ fn fix_jpeg_height(input: &Path, ouput: &Path) -> Result<()> {
 }
 
 fn status(opt: &ScannerOpt) -> Result<(), ScannerError> {
-    let scanner = Scanner::new(&opt.scanner, !opt.no_tls);
+    let scanner = Scanner::new(&opt.scanner, !opt.no_tls, false);
     let rt = Runtime::new()?;
     rt.block_on(print_scan_status(&scanner))?;
     Ok(())
@@ -83,7 +89,11 @@ impl cli::ColorSpace {
 }
 
 fn scan(opt: &ScanOpt) -> Result<(), ScannerError> {
-    let scanner = Scanner::new(&opt.scanner_opts.scanner, !opt.scanner_opts.no_tls);
+    let scanner = Scanner::new(
+        &opt.scanner_opts.scanner,
+        !opt.scanner_opts.no_tls,
+        opt.disable_jpeg_fix,
+    );
     let rt = Runtime::new()?;
     rt.block_on(util::scan_to_file(
         scanner,

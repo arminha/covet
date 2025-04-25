@@ -82,6 +82,10 @@ pub struct ScanOpt {
         default_value = "25"
     )]
     pub compression_quality: u32,
+
+    /// Do not fix the heigt of JPEG files scanned from the automatic document feeder
+    #[arg(long)]
+    pub disable_jpeg_fix: bool,
 }
 
 #[derive(Parser, Debug)]
@@ -96,6 +100,10 @@ pub struct WebOpt {
     /// Listen address to use for the web server
     #[arg(short, long, name = "ADDR", default_value = "127.0.0.1")]
     pub listen: String,
+
+    /// Do not fix the heigt of JPEG files scanned from the automatic document feeder
+    #[arg(long)]
+    pub disable_jpeg_fix: bool,
 }
 
 #[derive(Parser, Debug)]

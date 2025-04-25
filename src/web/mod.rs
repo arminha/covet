@@ -44,10 +44,11 @@ pub fn run_server(
     listen_addr: &str,
     listen_port: u16,
     use_tls: bool,
+    disable_jpeg_fix: bool,
 ) -> Result<()> {
     let addr = SocketAddr::new(listen_addr.parse()?, listen_port);
     info!("Running on http://{listen_addr}:{listen_port}/");
-    let scanner = Scanner::new(scanner_host, use_tls);
+    let scanner = Scanner::new(scanner_host, use_tls, disable_jpeg_fix);
     let rt = Runtime::new()?;
     rt.block_on(run_server_async(addr, scanner))
 }

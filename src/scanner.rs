@@ -62,6 +62,7 @@ impl From<reqwest::Error> for ScannerError {
 pub struct Scanner {
     client: Client,
     base_url: Url,
+    disable_jpeg_fix: bool,
 }
 
 #[derive(Debug)]
@@ -73,7 +74,7 @@ pub struct Job<'a> {
 }
 
 impl Scanner {
-    pub fn new(host: &str, use_tls: bool) -> Scanner {
+    pub fn new(host: &str, use_tls: bool, disable_jpeg_fix: bool) -> Scanner {
         let client = Client::builder()
             .http1_title_case_headers()
             .build()
@@ -84,7 +85,11 @@ impl Scanner {
             format!("http://{host}")
         };
         let base_url = base_url_string.parse().unwrap();
-        Scanner { client, base_url }
+        Scanner {
+            client,
+            base_url,
+            disable_jpeg_fix,
+        }
     }
 
     pub fn host(&self) -> &str {
@@ -179,7 +184,8 @@ impl Job<'_> {
             .scanner
             .download_stream(&self.binary_url.unwrap())
             .await?;
-        if self.parameters.input_source == InputSource::Adf
+        if !self.scanner.disable_jpeg_fix
+            && self.parameters.input_source == InputSource::Adf
             && self.parameters.format == Format::Jpeg
         {
             let mut data = read_all_bytes_from_stream(&mut stream).await?;
