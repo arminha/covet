@@ -1,16 +1,18 @@
-use bytes::Bytes;
-use futures_util::stream::Stream;
+use bytes::{Bytes, BytesMut};
+use futures_util::stream::{once, Stream};
+use futures_util::StreamExt;
 use jiff::Timestamp;
 use reqwest::header::LOCATION;
 use reqwest::{Client, Response, StatusCode, Url};
 use thiserror::Error;
-use tracing::debug;
+use tracing::{debug, error};
 
 use std::io::{self, Cursor};
 
+use crate::jpeg;
 use crate::message::error::ParseError;
 use crate::message::job_status::{PageState, ScanJobStatus};
-use crate::message::scan_job::{Format, ScanJob};
+use crate::message::scan_job::{Format, InputSource, ScanJob};
 use crate::message::scan_status::ScanStatus;
 
 #[derive(Debug, Error)]
@@ -67,6 +69,7 @@ pub struct Job<'a> {
     scanner: &'a Scanner,
     location: Url,
     binary_url: Option<String>,
+    parameters: ScanJob,
 }
 
 impl Scanner {
@@ -109,7 +112,7 @@ impl Scanner {
         let loc_url: Url = location.to_str().unwrap().parse()?;
         let loc_url_rebase = self.base_url.join(loc_url.path())?;
         debug!("job URL: {loc_url_rebase}");
-        Ok(Job::new(self, loc_url_rebase))
+        Ok(Job::new(self, loc_url_rebase, job))
     }
 
     async fn get(&self, path: &str) -> Result<Bytes, ScannerError> {
@@ -144,11 +147,12 @@ impl Scanner {
 }
 
 impl Job<'_> {
-    fn new(scanner: &Scanner, location: Url) -> Job<'_> {
+    fn new(scanner: &Scanner, location: Url, parameters: ScanJob) -> Job<'_> {
         Job {
             scanner,
             location,
             binary_url: None,
+            parameters,
         }
     }
 
@@ -171,10 +175,38 @@ impl Job<'_> {
         self,
     ) -> Result<impl Stream<Item = Result<Bytes, reqwest::Error>>, ScannerError> {
         // TODO error handling
-        self.scanner
+        let mut stream = self
+            .scanner
             .download_stream(&self.binary_url.unwrap())
-            .await
+            .await?;
+        if self.parameters.input_source == InputSource::Adf
+            && self.parameters.format == Format::Jpeg
+        {
+            let mut data = read_all_bytes_from_stream(&mut stream).await?;
+            match jpeg::fix_jpeg_height(data.clone()) {
+                Ok(Some(buffer)) => data = buffer,
+                Ok(None) => (),
+                Err(e) => error!("Cannot fix jpeg headers. {e}"),
+            };
+            return Ok(bytes_into_stream(data).boxed());
+        }
+        Ok(stream.boxed())
     }
+}
+
+async fn read_all_bytes_from_stream(
+    mut stream: impl Stream<Item = Result<Bytes, reqwest::Error>> + Unpin,
+) -> Result<Bytes, ScannerError> {
+    let mut data = BytesMut::new();
+    while let Some(item) = stream.next().await {
+        data.extend_from_slice(item?.as_ref());
+    }
+    let data = data.freeze();
+    Ok(data)
+}
+
+fn bytes_into_stream(data: Bytes) -> impl Stream<Item = Result<Bytes, reqwest::Error>> {
+    once(async { Ok(data) })
 }
 
 pub fn output_file_name(format: Format, time: &Timestamp) -> String {

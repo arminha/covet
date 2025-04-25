@@ -1,7 +1,7 @@
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 use std::fmt::Display;
 use thiserror::Error;
-use tracing::debug;
+use tracing::{debug, error, info, trace};
 
 pub struct Jpeg {
     segments: Vec<Segment>,
@@ -9,6 +9,19 @@ pub struct Jpeg {
 
 pub struct Segment {
     buffer: Bytes,
+}
+
+pub fn fix_jpeg_height(buffer: Bytes) -> Result<Option<Bytes>, ParseError> {
+    let jpeg = Jpeg::from_bytes(buffer)?;
+    trace!("{}", jpeg);
+    if let Some(height) = jpeg.get_height_from_dnl() {
+        info!("Use jpeg height from DNL segment: {height}");
+        let jpeg = jpeg.with_height(height);
+        Ok(Some(jpeg.into()))
+    } else {
+        info!("No DNL segment found.");
+        Ok(None)
+    }
 }
 
 #[derive(Debug, Error)]

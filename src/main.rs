@@ -1,11 +1,10 @@
 #![forbid(unsafe_code)]
 
 use anyhow::Result;
-use bytes::Bytes;
 use clap::Parser;
 use std::path::Path;
 use tokio::runtime::Runtime;
-use tracing::{debug, info};
+use tracing::info;
 
 mod cli;
 mod jpeg;
@@ -15,7 +14,6 @@ mod util;
 mod web;
 
 use crate::cli::{Opt, ScanOpt, ScannerOpt};
-use crate::jpeg::Jpeg;
 use crate::message::scan_job::{ColorSpace, Format};
 use crate::scanner::{Scanner, ScannerError};
 
@@ -42,13 +40,7 @@ fn main() -> Result<()> {
 
 fn fix_jpeg_height(input: &Path, ouput: &Path) -> Result<()> {
     let input_buf = std::fs::read(input)?;
-    let jpeg = Jpeg::from_bytes(input_buf.into())?;
-
-    debug!("{jpeg}");
-
-    if let Some(height) = jpeg.get_height_from_dnl() {
-        let jpeg = jpeg.with_height(height);
-        let buffer: Bytes = jpeg.into();
+    if let Some(buffer) = jpeg::fix_jpeg_height(input_buf.into())? {
         std::fs::write(ouput, buffer)?;
     }
     Ok(())

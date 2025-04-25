@@ -33,10 +33,10 @@ pub enum ColorSpace {
 
 #[derive(Debug)]
 pub struct ScanJob {
-    input_source: InputSource,
+    pub input_source: InputSource,
     resolution: u32,
     quality: u32,
-    format: Format,
+    pub format: Format,
     color_space: ColorSpace,
 }
 
