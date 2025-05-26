@@ -42,7 +42,7 @@ futures-util = { version = "0.3.31", default-features = false }
 hyper = "1.6.0"
 reqwest = { version = "0.12.15", features = ["stream"] }
 thiserror = "2.0.12"
-jiff = { version = "0.2.10", default-features = false, features = ["std"] }
+jiff = { version = "0.2.14", default-features = false, features = ["std"] }
 tokio = { version = "1.44.2", features = ["fs", "rt-multi-thread", "time"] }
 tracing = "0.1.41"
 tracing-subscriber = "0.3.19"
