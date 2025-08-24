@@ -48,7 +48,8 @@ Options:
       --no-tls            Do not use TLS to secure the connection to the scanner
   -p, --port <PORT>       Port to use for the web server [default: 3000]
   -l, --listen <ADDR>     Listen address to use for the web server [default: 127.0.0.1]
-      --disable-jpeg-fix  Do not fix the heigt of JPEG files scanned from the automatic document feeder
+      --disable-jpeg-fix  Do not fix the heigt of JPEG files scanned from the automatic
+                          document feeder
   -h, --help              Print help
 ```
 
@@ -73,14 +74,22 @@ Arguments:
   <SCANNER>  The hostname of the scanner
 
 Options:
-      --no-tls                         Do not use TLS to secure the connection to the scanner
-  -s, --source <SOURCE>                The document source [default: auto] [possible values: auto, adf, glass]
-  -f, --format <FORMAT>                The format of the output [default: pdf] [possible values: pdf, jpeg]
-  -c, --color <COLORSPACE>             The color space of the output [default: color] [possible values: gray, color]
-  -r, --resolution <RESOLUTION>        The scan resolution in dpi [default: 300] [possible values: 300, 600]
-  -q, --compression-quality <QUALITY>  Compression quality level (lower is better) [default: 25]
-      --disable-jpeg-fix               Do not fix the heigt of JPEG files scanned from the automatic document feeder
-  -h, --help                           Print help
+      --no-tls
+          Do not use TLS to secure the connection to the scanner
+  -s, --source <SOURCE>
+          The document source [default: auto] [possible values: auto, adf, glass]
+  -f, --format <FORMAT>
+          The format of the output [default: pdf] [possible values: pdf, jpeg]
+  -c, --color <COLORSPACE>
+          The color space of the output [default: color] [possible values: gray, color]
+  -r, --resolution <RESOLUTION>
+          The scan resolution in dpi [default: 300] [possible values: 300, 600]
+  -q, --compression-quality <QUALITY>
+          Compression quality level (lower is better) [default: 25]
+      --disable-jpeg-fix
+          Do not fix the heigt of JPEG files scanned from the automatic document feeder
+  -h, --help
+          Print help
 ```
 
 ## License
