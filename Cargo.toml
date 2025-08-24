@@ -3,7 +3,7 @@ name = "covet"
 version = "1.4.0"
 authors = ["Armin Häberling <armin.aha@gmail.com>"]
 build = "build.rs"
-edition = "2018"
+edition = "2024"
 rust-version = "1.85"
 
 description = "CLI and web frontend for scanning with HP Envy printer / scanners"

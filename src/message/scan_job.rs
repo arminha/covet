@@ -1,8 +1,8 @@
 use serde::Deserialize;
 use xml::name::Name;
 use xml::namespace::Namespace;
-use xml::writer::events::XmlEvent;
 use xml::writer::Result;
+use xml::writer::events::XmlEvent;
 use xml::{EmitterConfig, EventWriter};
 
 use std::borrow::Cow;

@@ -1,8 +1,8 @@
 use axum::{
     body::Body,
-    http::{header, HeaderValue, Response, StatusCode},
+    http::{HeaderValue, Response, StatusCode, header},
 };
-use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine};
+use base64::{Engine, prelude::BASE64_URL_SAFE_NO_PAD};
 use headers::{ETag, HeaderMapExt, IfNoneMatch};
 use sha2::{Digest, Sha512_256};
 use tracing::trace;

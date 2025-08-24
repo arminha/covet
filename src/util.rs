@@ -36,7 +36,7 @@ pub(crate) async fn scan_to_stream(
     source: Source,
     resolution: u32,
     quality: u32,
-) -> Result<impl Stream<Item = Result<Bytes, reqwest::Error>>, ScannerError> {
+) -> Result<impl Stream<Item = Result<Bytes, reqwest::Error>> + use<>, ScannerError> {
     let status = scanner.get_scan_status().await?;
     if !status.is_idle() {
         return Err(ScannerError::Busy);

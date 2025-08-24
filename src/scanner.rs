@@ -1,6 +1,6 @@
 use bytes::{Bytes, BytesMut};
-use futures_util::stream::{once, Stream};
 use futures_util::StreamExt;
+use futures_util::stream::{Stream, once};
 use jiff::Timestamp;
 use reqwest::header::LOCATION;
 use reqwest::{Client, Response, StatusCode, Url};
@@ -144,7 +144,7 @@ impl Scanner {
     async fn download_stream(
         &self,
         binary_url: &str,
-    ) -> Result<impl Stream<Item = Result<Bytes, reqwest::Error>>, ScannerError> {
+    ) -> Result<impl Stream<Item = Result<Bytes, reqwest::Error>> + use<>, ScannerError> {
         let url = self.base_url.join(binary_url)?;
         let response = self.client.get(url).send().await?;
         Ok(response.bytes_stream())
@@ -178,7 +178,7 @@ impl Job<'_> {
 
     pub async fn download_stream(
         self,
-    ) -> Result<impl Stream<Item = Result<Bytes, reqwest::Error>>, ScannerError> {
+    ) -> Result<impl Stream<Item = Result<Bytes, reqwest::Error>> + use<>, ScannerError> {
         // TODO error handling
         let mut stream = self
             .scanner
