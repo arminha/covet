@@ -31,26 +31,26 @@ opt-level = "z"
 codegen-units = 1
 
 [build-dependencies]
-clap = { version = "4.5.44", features = ["derive"] }
-clap_complete = "4.5.56"
+clap = { version = "4.5.45", features = ["derive"] }
+clap_complete = "4.5.57"
 serde = { version = "1.0.219", features = ["derive"] }
 
 [dependencies]
-anyhow = "1.0.98"
+anyhow = "1.0.99"
 bytes = "1.10.1"
 futures-util = { version = "0.3.31", default-features = false }
-hyper = "1.6.0"
-reqwest = { version = "0.12.22", features = ["stream"] }
-thiserror = "2.0.12"
+hyper = "1.7.0"
+reqwest = { version = "0.12.23", features = ["stream"] }
+thiserror = "2.0.16"
 jiff = { version = "0.2.15", default-features = false, features = ["std"] }
 tokio = { version = "1.47.1", features = ["fs", "rt-multi-thread", "time"] }
 tracing = "0.1.41"
 tracing-subscriber = "0.3.19"
-url = "2.5.4"
+url = "2.5.7"
 xmltree = "0.11.0"
 xml-rs = "0.8.27"
 # cli
-clap = { version = "4.5.44", features = ["derive", "wrap_help"] }
+clap = { version = "4.5.45", features = ["derive", "wrap_help"] }
 # web
 axum = "0.8.4"
 base64 = "0.22.1"
