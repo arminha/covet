@@ -1,5 +1,4 @@
-covet
-=====
+# covet
 
 [![build](https://github.com/arminha/covet/workflows/build/badge.svg)](https://github.com/arminha/covet/actions?query=workflow%3Abuild)
 [![dependency status](https://deps.rs/repo/github/arminha/covet/status.svg)](https://deps.rs/repo/github/arminha/covet)
@@ -7,15 +6,13 @@ covet
 
 A CLI and web frontend for scanning with HP Envy printer / scanners.
 
-Features
---------
+## Features
 
 *   Supports HP Envy scanners
 *   Scan documents from the command line or in a web UI
 *   covet communicates with the scanner through a REST interface implemented in HP Envy scanners
 
-Installation
-------------
+## Installation
 
 covet can be installed with cargo.
 
@@ -23,8 +20,7 @@ covet can be installed with cargo.
 $ cargo install covet
 ```
 
-Usage
------
+## Usage
 
 ### Web UI
 
@@ -41,22 +37,19 @@ where `<SCANNER>` is the hostname or IP address of your scanner. Then open [`htt
 ```
 $ covet web -h
 
-covet-web
 Start a web server to handle scan jobs
 
-USAGE:
-    covet web [FLAGS] [OPTIONS] <SCANNER>
+Usage: covet web [OPTIONS] <SCANNER>
 
-FLAGS:
-    -h, --help      Prints help information
-        --no-tls    Do not use TLS to secure the connection to the scanner
+Arguments:
+  <SCANNER>  The hostname of the scanner
 
-OPTIONS:
-    -l, --listen <ADDR>    Listen address to use for the web server [default: 127.0.0.1]
-    -p, --port <PORT>      Port to use for the web server [default: 3000]
-
-ARGS:
-    <SCANNER>    The hostname of the scanner
+Options:
+      --no-tls            Do not use TLS to secure the connection to the scanner
+  -p, --port <PORT>       Port to use for the web server [default: 3000]
+  -l, --listen <ADDR>     Listen address to use for the web server [default: 127.0.0.1]
+      --disable-jpeg-fix  Do not fix the heigt of JPEG files scanned from the automatic document feeder
+  -h, --help              Print help
 ```
 
 ### Command line scanning
@@ -70,31 +63,26 @@ where `<SCANNER>` is the hostname or IP address of your scanner. This will scan 
 #### Options
 
 ```
-$ covet scan -h`
+$ covet scan -h
 
-covet-scan
 Scan a document
 
-USAGE:
-    covet scan [FLAGS] [OPTIONS] <SCANNER>
+Usage: covet scan [OPTIONS] <SCANNER>
 
-FLAGS:
-    -h, --help      Prints help information
-        --no-tls    Do not use TLS to secure the connection to the scanner
+Arguments:
+  <SCANNER>  The hostname of the scanner
 
-OPTIONS:
-    -c, --color <COLORSPACE>               The color space of the output [default: color]  [possible values: gray,
-                                           color]
-    -f, --format <FORMAT>                  The format of the output [default: pdf]  [possible values: pdf, jpeg]
-    -q, --compression-quality <QUALITY>    Compression quality level (lower is better) [default: 25]
-    -r, --resolution <RESOLUTION>          The scan resolution in dpi [default: 300]  [possible values: 300, 600]
-    -s, --source <SOURCE>                  The document source [default: auto]  [possible values: auto, adf, glass]
-
-ARGS:
-    <SCANNER>    The hostname of the scanner
+Options:
+      --no-tls                         Do not use TLS to secure the connection to the scanner
+  -s, --source <SOURCE>                The document source [default: auto] [possible values: auto, adf, glass]
+  -f, --format <FORMAT>                The format of the output [default: pdf] [possible values: pdf, jpeg]
+  -c, --color <COLORSPACE>             The color space of the output [default: color] [possible values: gray, color]
+  -r, --resolution <RESOLUTION>        The scan resolution in dpi [default: 300] [possible values: 300, 600]
+  -q, --compression-quality <QUALITY>  Compression quality level (lower is better) [default: 25]
+      --disable-jpeg-fix               Do not fix the heigt of JPEG files scanned from the automatic document feeder
+  -h, --help                           Print help
 ```
 
-License
--------
+## License
 
 This project is licensed under the terms of the GNU GENERAL PUBLIC LICENSE version 3 or later.
