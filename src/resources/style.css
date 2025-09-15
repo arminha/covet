@@ -1,9 +1,10 @@
 .content {
-  padding-right: 0.2em;
-  padding-left: 0.2em;
-  margin-right: auto;
   margin-left: auto;
+  margin-right: auto;
+  padding-left: 0.2em;
+  padding-right: 0.2em;
 }
+
 @media (min-width: 37.65em) {
   .content {
     width: 36em;
@@ -15,51 +16,48 @@ div .flex {
 }
 
 label {
-  margin:4px;
-  background-color:#EFEFEF;
-  border-radius:4px;
-  border:1px solid #D0D0D0;
-  flex:1;
+  background-color: #efefef;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  flex: 1;
+  margin: 4px;
 }
 
 label span {
-  text-align:center;
-  font-size: 2em;
-  padding:0.4em 0em;
-  display:block;
+  text-align: center;
+  display: block;
   -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  padding: 0.4em 0;
+  font-size: 2em;
 }
 
 .btn-submit {
-  font-size: 2em;
   display: inline-block;
-  padding: 6px 12px;
-  margin-bottom: 0;
-  font-weight: normal;
-  line-height: 1.42857143;
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;
   touch-action: manipulation;
   cursor: pointer;
   -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
-  background-image: none;
-  border: 1px solid transparent;
-  border-radius: 4px;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   color: #fff;
   background-color: #337ab7;
-  border-color: #2e6da4;
-  margin-left: 4px;
-  margin-right: 4px;
-  margin-top: 15px;
+  background-image: none;
+  border: 1px solid #2e6da4;
+  border-radius: 4px;
   flex: 1;
+  margin: 15px 4px 0;
+  padding: 6px 12px;
+  font-size: 2em;
+  font-weight: normal;
+  line-height: 1.42857;
 }
+
 .btn-submit:focus,
 .btn-submit:active:focus {
   outline: 5px auto -webkit-focus-ring-color;
@@ -67,46 +65,50 @@ label span {
   background-color: #286090;
   border-color: #122b40;
 }
+
 .btn-submit:hover {
   text-decoration: none;
   background-color: #286090;
   border-color: #204d74;
 }
+
 .btn-submit:active {
-  background-image: none;
   outline: 0;
-  -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
-          box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
   background-color: #286090;
+  background-image: none;
   border-color: #204d74;
+  box-shadow: inset 0 3px 5px #00000020;
 }
 
-@media all and (max-width: 30em) {
+@media (max-width: 30em) {
   label span {
+    padding: 0.3em 0;
     font-size: 1.9em;
-    padding:0.3em 0em;
   }
+
   .btn-submit {
     font-size: 1.9em;
   }
 }
 
-@media all and (max-width: 27em) {
+@media (max-width: 27em) {
   label span {
+    padding: 0.2em 0;
     font-size: 1.8em;
-    padding:0.2em 0em;
   }
+
   .btn-submit {
     font-size: 1.8em;
   }
 }
 
-@media all and (max-width: 20em) {
+@media (max-width: 20em) {
   div .flex {
     flex-flow: column;
   }
+
   label span {
-    padding:0.2em 0em;
+    padding: 0.2em 0;
   }
 }
 
@@ -115,12 +117,13 @@ label input {
 }
 
 input:checked + span {
-  background-color:#404040;
-  color:#F7F7F7;
+  color: #f7f7f7;
+  background-color: #404040;
+  border-radius: 4px;
 }
 
 .rowtitle {
-  text-align:center;
-  display:block;
+  text-align: center;
+  display: block;
   padding-top: 10px;
 }

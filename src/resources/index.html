@@ -1,60 +1,70 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="UTF-8" />
-  <title>Covet Web Scanner</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" href="style.css">
-</head>
-<body>
-  <div class="content">
-    <form method="post" action="scan">
-      <span class="rowtitle">Color</span>
-      <div class="flex">
-        <label>
-          <input type="radio" name="colorspace" value="color" checked><span>Color</span>
-        </label>
-        <label>
-          <input type="radio" name="colorspace" value="gray"><span>Grayscale</span>
-        </label>
-      </div>
-      <span class="rowtitle">Format</span>
-      <div class="flex">
-        <label>
-          <input type="radio" name="format" value="pdf" checked><span>Pdf</span>
-        </label>
-        <label>
-          <input type="radio" name="format" value="jpeg"><span>Jpeg</span>
-        </label>
-      </div>
-      <span class="rowtitle">Source</span>
-      <div class="flex">
-        <label>
-          <input type="radio" name="source" value="auto" checked><span>Auto</span>
-        </label>
-        <label>
-          <input type="radio" name="source" value="adf"><span>Adf</span>
-        </label>
-        <label>
-          <input type="radio" name="source" value="glass"><span>Glass</span>
-        </label>
-      </div>
-      <span class="rowtitle">Quality</span>
-      <div class="flex">
-        <label>
-          <input type="radio" name="quality" value="base" checked><span>Base</span>
-        </label>
-        <label>
-          <input type="radio" name="quality" value="high"><span>High</span>
-        </label>
-        <label>
-          <input type="radio" name="quality" value="best"><span>Best</span>
-        </label>
-      </div>
-      <div class="flex">
-        <input class="btn-submit" type="submit" value="Start Scan">
-      </div>
-    </form>
-  </div>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Covet Web Scanner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" crossorigin href="style.css" />
+  </head>
+  <body>
+    <div class="content">
+      <form method="post" action="scan">
+        <span class="rowtitle">Color</span>
+        <div class="flex">
+          <label>
+            <input type="radio" name="colorspace" value="color" checked />
+            <span>Color</span>
+          </label>
+          <label>
+            <input type="radio" name="colorspace" value="gray" />
+            <span>Grayscale</span>
+          </label>
+        </div>
+        <span class="rowtitle">Format</span>
+        <div class="flex">
+          <label>
+            <input type="radio" name="format" value="pdf" checked />
+            <span>Pdf</span>
+          </label>
+          <label>
+            <input type="radio" name="format" value="jpeg" />
+            <span>Jpeg</span>
+          </label>
+        </div>
+        <span class="rowtitle">Source</span>
+        <div class="flex">
+          <label>
+            <input type="radio" name="source" value="auto" checked />
+            <span>Auto</span>
+          </label>
+          <label>
+            <input type="radio" name="source" value="adf" />
+            <span>Adf</span>
+          </label>
+          <label>
+            <input type="radio" name="source" value="glass" />
+            <span>Glass</span>
+          </label>
+        </div>
+        <span class="rowtitle">Quality</span>
+        <div class="flex">
+          <label>
+            <input type="radio" name="quality" value="base" checked />
+            <span>Base</span>
+          </label>
+          <label>
+            <input type="radio" name="quality" value="high" />
+            <span>High</span>
+          </label>
+          <label>
+            <input type="radio" name="quality" value="best" />
+            <span>Best</span>
+          </label>
+        </div>
+        <div class="flex">
+          <input class="btn-submit" type="submit" value="Start Scan" />
+        </div>
+      </form>
+    </div>
+  </body>
 </html>
