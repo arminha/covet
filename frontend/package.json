@@ -1,0 +1,19 @@
+{
+  "name": "covet-ui",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "build": "bun run build.ts",
+    "lint": "bun run biome lint",
+    "format": "bun run biome format --fix",
+    "check": "bun run biome check"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.4",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
