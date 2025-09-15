@@ -1,6 +1,6 @@
 use anyhow::Result;
 use axum::{
-    Form, Router,
+    Form, Json, Router,
     body::Body,
     extract::{DefaultBodyLimit, State},
     response::{IntoResponse, Response},
@@ -12,7 +12,7 @@ use hyper::{
     header::{CONTENT_DISPOSITION, CONTENT_TYPE, HeaderMap, HeaderValue},
 };
 use jiff::Timestamp;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tokio::runtime::Runtime;
 use tower_http::trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer};
 use tracing::Level;
@@ -23,6 +23,7 @@ use std::sync::{Arc, LazyLock};
 
 use crate::cli::Source;
 use crate::message::scan_job::{ColorSpace, Format};
+use crate::message::scan_status::ScannerState;
 use crate::scanner::{self, Scanner, ScannerError};
 use crate::util::scan_to_stream;
 use crate::web::static_content::StaticContent;
@@ -32,10 +33,13 @@ mod static_content;
 const ERROR_TEMPLATE: &str = include_str!("../resources/error.html");
 
 const TEXT_HTML: &str = "text/html";
+const TEXT_JS: &str = "text/javascript";
 const TEXT_CSS: &str = "text/css";
 
 static INDEX_HTML: LazyLock<StaticContent> =
     LazyLock::new(|| StaticContent::new(include_str!("../resources/index.html"), TEXT_HTML));
+static INDEX_JS: LazyLock<StaticContent> =
+    LazyLock::new(|| StaticContent::new(include_str!("../resources/index.js"), TEXT_JS));
 static STYLE_CSS: LazyLock<StaticContent> =
     LazyLock::new(|| StaticContent::new(include_str!("../resources/style.css"), TEXT_CSS));
 
@@ -59,7 +63,9 @@ async fn run_server_async(addr: SocketAddr, scanner: Scanner) -> Result<()> {
     let app = Router::new()
         .route("/", get(index))
         .route("/style.css", get(style_css))
+        .route("/index.js", get(index_js))
         .route("/scan", post(handle_scan_form))
+        .route("/status", get(status))
         .layer(DefaultBodyLimit::max(1024 * 32))
         .layer(
             TraceLayer::new_for_http()
@@ -79,6 +85,10 @@ async fn index(headers: HeaderMap) -> impl IntoResponse {
 
 async fn style_css(headers: HeaderMap) -> impl IntoResponse {
     STYLE_CSS.get_request(headers.typed_get())
+}
+
+async fn index_js(headers: HeaderMap) -> impl IntoResponse {
+    INDEX_JS.get_request(headers.typed_get())
 }
 
 #[derive(Deserialize, Debug)]
@@ -141,6 +151,35 @@ async fn handle_scan_form(
         .headers_mut()
         .insert(CONTENT_DISPOSITION, content_disposition(&filename));
     response
+}
+
+#[derive(Serialize)]
+struct StatusResponse {
+    status: Status,
+    message: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "lowercase")]
+enum Status {
+    Idle,
+    Busy,
+    Error,
+}
+
+async fn status(State(scanner): State<Arc<Scanner>>) -> Json<StatusResponse> {
+    let (status, message) = match scanner.get_scan_status().await {
+        Ok(status) => match status.scanner_state() {
+            ScannerState::Idle => (Status::Idle, "idle".to_owned()),
+            ScannerState::BusyWithScanJob => (Status::Busy, "busy".to_owned()),
+            ScannerState::AdfError => (Status::Error, "ADF error".to_owned()),
+        },
+        Err(ScannerError::NotAvailable { source: _ }) => {
+            (Status::Error, "not available".to_owned())
+        }
+        Err(e) => (Status::Error, e.to_string()),
+    };
+    Json(StatusResponse { status, message })
 }
 
 fn content_type(format: Format) -> HeaderValue {
