@@ -96,3 +96,34 @@ jobs:
 
       - name: Run cargo clippy
         run: cargo clippy -- -D warnings
+
+  frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+        working-directory: frontend
+
+      - name: Checks
+        run: bun run check
+        working-directory: frontend
+
+      - name: Build
+        run: bun run build
+        working-directory: frontend
+
+      - name: Check for uncommitted changes in the frontend build output
+        run: |
+          if ! git diff --quiet HEAD -- ./src/resources; then
+            echo "Found uncomitted frontend changes"
+            exit 1
+          fi
