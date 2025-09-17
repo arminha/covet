@@ -139,24 +139,29 @@ form {
 
 .statusbar {
   text-align: center;
-  padding: 4px 2px;
+  padding: 6px 2px;
   margin-top: 30px;
   border-radius: 4px;
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.05),
     0 4px 8px rgba(0, 0, 0, 0.08),
     0 8px 16px rgba(0, 0, 0, 0.12);
+  font-size: 1.1em;
 }
 
 .status-unknown {
   background-color: lightgray;
+  color: #202020;
 }
 .status-idle {
-  background-color: palegreen;
+  background-color: #edf7ed;
+  color: #428946;
 }
 .status-busy {
-  background-color: palegoldenrod;
+  background-color: #fff4e5;
+  color: #ee7918;
 }
 .status-error {
-  background-color: palevioletred;
+  background-color: #fdeded;
+  color: #d74444;
 }
