@@ -29,6 +29,8 @@ maintenance = { status = "passively-maintained" }
 lto = true
 opt-level = "z"
 codegen-units = 1
+debug = true
+split-debuginfo = "packed"
 
 [build-dependencies]
 clap = { version = "4.5.47", features = ["derive"] }
