@@ -36,7 +36,7 @@ clap_complete = "4.5.57"
 serde = { version = "1.0.224", features = ["derive"] }
 
 [dependencies]
-anyhow = "1.0.99"
+anyhow = "1.0.100"
 bytes = "1.10.1"
 futures-util = { version = "0.3.31", default-features = false }
 hyper = "1.7.0"
