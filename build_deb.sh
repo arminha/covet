@@ -27,4 +27,5 @@ EOF
 dpkg-buildpackage -b -rfakeroot -us -uc
 popd
 lintian covet_*.changes
+cp covet*.* "${SCRIPT_DIR}/target/deb"
 popd

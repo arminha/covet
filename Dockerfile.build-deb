@@ -1,0 +1,7 @@
+FROM docker.io/library/rust:1.90-trixie
+RUN apt-get update && apt-get install -y build-essential devscripts bash-completion pkg-config rsync libssl-dev
+RUN groupadd --gid 1000 build && \
+    useradd --uid 1000 --gid 1000 --create-home build
+USER build
+COPY --chown=build . /source
+WORKDIR /source

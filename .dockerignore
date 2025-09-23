@@ -3,3 +3,6 @@ target/
 # IntelliJ
 /.idea/
 /*.iml
+
+/.git/
+/.github/
