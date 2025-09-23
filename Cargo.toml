@@ -33,12 +33,12 @@ debug = true
 split-debuginfo = "packed"
 
 [build-dependencies]
-clap = { version = "4.5.47", features = ["derive"] }
-clap_complete = "4.5.57"
-serde = { version = "1.0.224", features = ["derive"] }
+clap = { version = "4.5.48", features = ["derive"] }
+clap_complete = "4.5.58"
+serde = { version = "1.0.226", features = ["derive"] }
 
 [dependencies]
-anyhow = "1.0.99"
+anyhow = "1.0.100"
 bytes = "1.10.1"
 futures-util = { version = "0.3.31", default-features = false }
 hyper = "1.7.0"
@@ -52,11 +52,11 @@ url = "2.5.7"
 xmltree = "0.11.0"
 xml-rs = "0.8.27"
 # cli
-clap = { version = "4.5.47", features = ["derive", "wrap_help"] }
+clap = { version = "4.5.48", features = ["derive", "wrap_help"] }
 # web
 axum = "0.8.4"
 base64 = "0.22.1"
 sha2 = "0.10.9"
 headers = "0.4.1"
-serde = { version = "1.0.224", features = ["derive"] }
+serde = { version = "1.0.226", features = ["derive"] }
 tower-http = { version = "0.6.6", features = ["trace"] }
