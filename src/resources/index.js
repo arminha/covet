@@ -2,7 +2,7 @@
 var fetchStatus = async () => {
   let status = null;
   try {
-    const response = await fetch("/status");
+    const response = await fetch("status");
     if (response.ok) {
       status = await response.json();
     }
@@ -79,4 +79,4 @@ var pollingService = new PollingService(updateStatus);
 pollingService.setupVisibilityChangeListener();
 pollingService.startPolling();
 
-//# debugId=15A3E61D82D9935164756E2164756E21
+//# debugId=6310D0FEB2A1101D64756E2164756E21

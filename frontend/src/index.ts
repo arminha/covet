@@ -13,7 +13,7 @@ interface StatusResponse {
 const fetchStatus = async (): Promise<StatusResponse | null> => {
   let status: StatusResponse | null = null;
   try {
-    const response = await fetch("/status");
+    const response = await fetch("status");
     if (response.ok) {
       status = await response.json();
     }
