@@ -98,6 +98,10 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to update tests as appropriate.
 
+## Attributions
+
+The favicon is based on the [scanner icon](https://github.com/webalys-hq/streamline-vectors/blob/main/freehand/duotone/computers-devices-electronics/scanner.svg) from the [Freehand color icons](https://github.com/webalys-hq/streamline-vectors) by [Streamline](https://www.streamlinehq.com/).
+
 ## License
 
 This project is licensed under the terms of the GNU GENERAL PUBLIC LICENSE version 3 or later.

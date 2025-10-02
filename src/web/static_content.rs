@@ -9,24 +9,28 @@ use tracing::trace;
 
 /// Struct to hold the static text and ETag
 pub struct StaticContent {
-    content: &'static str,
+    content: &'static [u8],
     content_type: &'static str,
     etag: ETag,
 }
 
-fn compute_etag(content: &str) -> ETag {
-    let hash = Sha512_256::digest(content.as_bytes());
+fn compute_etag(content: &[u8]) -> ETag {
+    let hash = Sha512_256::digest(content);
     let etag = format!("\"{}\"", BASE64_URL_SAFE_NO_PAD.encode(&hash[..]));
     etag.parse().expect("valid etag value")
 }
 
 impl StaticContent {
-    pub fn new(content: &'static str, content_type: &'static str) -> Self {
+    pub fn new(content: &'static [u8], content_type: &'static str) -> Self {
         Self {
             content,
             content_type,
             etag: compute_etag(content),
         }
+    }
+
+    pub fn from_str(content: &'static str, content_type: &'static str) -> Self {
+        Self::new(content.as_bytes(), content_type)
     }
 
     // Handle a GET request with ETag logic
@@ -56,7 +60,7 @@ mod tests {
     use super::*;
     use axum::body::Bytes;
 
-    const CONTENT: &str = "Hello, world!";
+    const CONTENT: &[u8] = b"Hello, world!";
     const CONTENT_TYPE: &str = "text/plain";
 
     #[test]

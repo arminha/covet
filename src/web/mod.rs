@@ -35,13 +35,16 @@ const ERROR_TEMPLATE: &str = include_str!("../resources/error.html");
 const TEXT_HTML: &str = "text/html";
 const TEXT_JS: &str = "text/javascript";
 const TEXT_CSS: &str = "text/css";
+const IMAGE_ICON: &str = "image/x-icon";
 
 static INDEX_HTML: LazyLock<StaticContent> =
-    LazyLock::new(|| StaticContent::new(include_str!("../resources/index.html"), TEXT_HTML));
+    LazyLock::new(|| StaticContent::from_str(include_str!("../resources/index.html"), TEXT_HTML));
 static INDEX_JS: LazyLock<StaticContent> =
-    LazyLock::new(|| StaticContent::new(include_str!("../resources/index.js"), TEXT_JS));
+    LazyLock::new(|| StaticContent::from_str(include_str!("../resources/index.js"), TEXT_JS));
 static STYLE_CSS: LazyLock<StaticContent> =
-    LazyLock::new(|| StaticContent::new(include_str!("../resources/style.css"), TEXT_CSS));
+    LazyLock::new(|| StaticContent::from_str(include_str!("../resources/style.css"), TEXT_CSS));
+static FAVICON: LazyLock<StaticContent> =
+    LazyLock::new(|| StaticContent::new(include_bytes!("../resources/favicon.ico"), IMAGE_ICON));
 
 pub fn run_server(
     scanner_host: &str,
@@ -64,6 +67,7 @@ async fn run_server_async(addr: SocketAddr, scanner: Scanner) -> Result<()> {
         .route("/", get(index))
         .route("/style.css", get(style_css))
         .route("/index.js", get(index_js))
+        .route("/favicon.ico", get(favicon))
         .route("/scan", post(handle_scan_form))
         .route("/status", get(status))
         .layer(DefaultBodyLimit::max(1024 * 32))
@@ -89,6 +93,10 @@ async fn style_css(headers: HeaderMap) -> impl IntoResponse {
 
 async fn index_js(headers: HeaderMap) -> impl IntoResponse {
     INDEX_JS.get_request(headers.typed_get())
+}
+
+async fn favicon(headers: HeaderMap) -> impl IntoResponse {
+    FAVICON.get_request(headers.typed_get())
 }
 
 #[derive(Deserialize, Debug)]
