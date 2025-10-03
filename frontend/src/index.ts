@@ -11,13 +11,25 @@ interface StatusResponse {
 }
 
 const fetchStatus = async (): Promise<StatusResponse | null> => {
-  let status: StatusResponse | null = null;
+  let status: StatusResponse = {
+    status: Status.UNKNOWN,
+    message: Status.UNKNOWN,
+  };
   try {
     const response = await fetch("status");
     if (response.ok) {
       status = await response.json();
     }
   } catch (error: unknown) {
+    if (error instanceof Error) {
+      if (
+        error.name === "TypeError" &&
+        error.message.includes("NetworkError")
+      ) {
+        console.debug("Ignore NetworkError", error);
+        return null;
+      }
+    }
     console.warn(error);
   }
   return status;
@@ -27,10 +39,10 @@ const updateStatus = async () => {
   const statusvalue = document.getElementById("statusvalue");
   const statusbar = document.getElementsByClassName("statusbar")[0];
   if (statusvalue && statusbar) {
-    const status: StatusResponse = (await fetchStatus()) ?? {
-      status: Status.UNKNOWN,
-      message: Status.UNKNOWN,
-    };
+    const status = await fetchStatus();
+    if (status === null) {
+      return;
+    }
     if (statusvalue.textContent !== status.message) {
       statusvalue.textContent = status.message;
     }

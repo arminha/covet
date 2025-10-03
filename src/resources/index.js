@@ -1,12 +1,21 @@
 // src/index.ts
 var fetchStatus = async () => {
-  let status = null;
+  let status = {
+    status: "unknown" /* UNKNOWN */,
+    message: "unknown" /* UNKNOWN */
+  };
   try {
     const response = await fetch("status");
     if (response.ok) {
       status = await response.json();
     }
   } catch (error) {
+    if (error instanceof Error) {
+      if (error.name === "TypeError" && error.message.includes("NetworkError")) {
+        console.debug("Ignore NetworkError", error);
+        return null;
+      }
+    }
     console.warn(error);
   }
   return status;
@@ -15,10 +24,10 @@ var updateStatus = async () => {
   const statusvalue = document.getElementById("statusvalue");
   const statusbar = document.getElementsByClassName("statusbar")[0];
   if (statusvalue && statusbar) {
-    const status = await fetchStatus() ?? {
-      status: "unknown" /* UNKNOWN */,
-      message: "unknown" /* UNKNOWN */
-    };
+    const status = await fetchStatus();
+    if (status === null) {
+      return;
+    }
     if (statusvalue.textContent !== status.message) {
       statusvalue.textContent = status.message;
     }
@@ -79,4 +88,4 @@ var pollingService = new PollingService(updateStatus);
 pollingService.setupVisibilityChangeListener();
 pollingService.startPolling();
 
-//# debugId=6310D0FEB2A1101D64756E2164756E21
+//# debugId=449D4A1B30B7E06964756E2164756E21
