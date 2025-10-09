@@ -6,7 +6,9 @@ SCRIPT_DIR=$(dirname $0)
 rm -rf build
 mkdir build
 
-rsync -av --exclude-from=$SCRIPT_DIR/.gitignore --exclude=.git $SCRIPT_DIR/ build/covet
+rsync -av --exclude-from=$SCRIPT_DIR/.gitignore \
+      --exclude=.git --exclude=build --exclude=apt --exclude=cargo \
+      $SCRIPT_DIR/ build/covet
 
 pushd build
 pushd covet
