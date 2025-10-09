@@ -5,7 +5,7 @@ SCRIPT_DIR=$(dirname $0)
 OUT_DIR=${SCRIPT_DIR}/target/deb
 
 rm -rf $OUT_DIR
-mkdir $OUT_DIR
+mkdir -p $OUT_DIR
 
 podman build --tag covet-build-deb -f Dockerfile.build-deb
 podman run --rm \

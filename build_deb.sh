@@ -26,6 +26,11 @@ EOF
 
 dpkg-buildpackage -b -rfakeroot -us -uc
 popd
+
+OUTDIR="${SCRIPT_DIR}/target/deb"
+if [ -d "$OUTDIR" ]; then
+    cp covet*.* "$OUTDIR"
+fi
 lintian covet_*.changes
-cp covet*.* "${SCRIPT_DIR}/target/deb"
+
 popd
