@@ -54,9 +54,9 @@ xml = "1.2.0"
 # cli
 clap = { version = "4.5.53", features = ["derive", "wrap_help"] }
 # web
-axum = "0.8.7"
+axum = "0.8.8"
 base64 = "0.22.1"
 sha2 = "0.10.9"
 headers = "0.4.1"
 serde = { version = "1.0.228", features = ["derive"] }
-tower-http = { version = "0.6.7", features = ["trace"] }
+tower-http = { version = "0.6.8", features = ["trace"] }
