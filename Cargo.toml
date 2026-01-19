@@ -43,7 +43,7 @@ bytes = "1.11.0"
 futures-util = { version = "0.3.31", default-features = false }
 hyper = "1.8.1"
 reqwest = { version = "0.12.28", features = ["stream"] }
-thiserror = "2.0.17"
+thiserror = "2.0.18"
 jiff = { version = "0.2.18", default-features = false, features = ["std"] }
 tokio = { version = "1.49.0", features = ["fs", "rt-multi-thread", "time"] }
 tracing = "0.1.44"
