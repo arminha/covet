@@ -39,7 +39,7 @@ serde = { version = "1.0.228", features = ["derive"] }
 
 [dependencies]
 anyhow = "1.0.100"
-bytes = "1.11.0"
+bytes = "1.11.1"
 futures-util = { version = "0.3.31", default-features = false }
 hyper = "1.8.1"
 reqwest = { version = "0.12.28", features = ["stream"] }
