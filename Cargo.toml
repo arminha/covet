@@ -4,7 +4,7 @@ version = "2.0.2"
 authors = ["Armin Häberling <armin.aha@gmail.com>"]
 build = "build.rs"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.88"
 
 description = "CLI and web frontend for scanning with HP Envy printer / scanners"
 repository = "https://github.com/arminha/covet"
