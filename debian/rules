@@ -35,8 +35,8 @@ override_dh_auto_test:
 override_dh_auto_install:
 	dh_auto_install
 	mkdir -p target/release/completions
-	cp target/release/build/covet-*/out/covet.bash target/release/completions/covet.bash
-	cp target/release/build/covet-*/out/covet.fish target/release/completions/covet.fish
+	cp target/release/build/covet/*/out/covet.bash target/release/completions/covet.bash
+	cp target/release/build/covet/*/out/covet.fish target/release/completions/covet.fish
 
 override_dh_dwz:
 
