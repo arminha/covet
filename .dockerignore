@@ -1,5 +1,7 @@
 target/
 
+/frontend/
+
 # IntelliJ
 /.idea/
 /*.iml

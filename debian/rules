@@ -18,7 +18,7 @@ include /usr/share/dpkg/default.mk
 
 # main packaging script based on dh7 syntax
 %:
-	dh $@ --with bash-completion
+	dh $@ --with shell_completions
 
 # debmake generated override targets
 # This is example for Cmake (See http://bugs.debian.org/641051 )
@@ -31,6 +31,12 @@ override_dh_auto_build:
 
 override_dh_auto_test:
 	cargo test --release
+
+override_dh_auto_install:
+	dh_auto_install
+	mkdir -p target/release/completions
+	cp target/release/build/covet-*/out/covet.bash target/release/completions/covet.bash
+	cp target/release/build/covet-*/out/covet.fish target/release/completions/covet.fish
 
 override_dh_dwz:
 
